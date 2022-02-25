@@ -32,8 +32,8 @@ public class ConfigConstants {
 	public static final String MAIL_SUBJECT_RESET_PASSWORD = "Reset password for eHR system";
 	public static final String MAIL_SUBJECT_EMPLOYEE_REQUEST = "Employee request leave in eHR system";
 	public static final String MAIL_SUBJECT_ADD_EMPLOYEE = "Welcome To TechBerry";
-	public static final String PATH_MAIL_TEMPLATE = "E:/Mail/";
-//	public static final String PATH_MAIL_TEMPLATE = "D:/Mail";
+//	public static final String PATH_MAIL_TEMPLATE = "E:/Mail/";
+	public static final String PATH_MAIL_TEMPLATE = "D:/Mail";
 	public static final String MAIL_TEMPLATE_FORGOT_PASSWORD = "Mail.ftl";
 	public static final String MAIL_TEMPLATE_ADD_EMPLOYEE = "Adduser.ftl";
 	public static final String MAIL_TEMPLATE_ADD_MEETING = "Meeting.ftl";

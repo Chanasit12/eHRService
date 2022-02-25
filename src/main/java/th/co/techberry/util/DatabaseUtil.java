@@ -404,6 +404,14 @@ public class DatabaseUtil {
 		return ps.executeUpdate();
 	}
 	
+	public void AddCheckOut(Connection dbconnet,CheckInCheckOutModel model) throws SQLException {
+		String q = "UPDATE `check_in/check_out` SET `Checkout_at`='"+model.getCheckout()+"',"
+				+ "`Status_CheckOut`='"+model.getStatusCheckOut()+"' WHERE `Check_id` = '"+model.getCheckId()+"';";
+		System.out.println("sql " + q);
+		PreparedStatement ps = dbconnet.prepareStatement(q);
+		ps.executeUpdate();
+	}
+	
 	public Map<String, Object> AddMeeting(Connection dbconnet,String Subject,String Create,String Creator,String Room_Id,String Date,
 			String Start,String End,String des) throws SQLException {
 		String q = "INSERT INTO `meeting_room_booking`"
