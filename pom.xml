@@ -12,7 +12,6 @@
 
 	<name>eHRService Maven Webapp</name>
 	<!-- FIXME change it to the project's website -->
-	<url>http://www.example.com</url>
 
 	<properties>
 		<httpclient.version>3.1</httpclient.version>
@@ -20,7 +19,8 @@
 		<spring.security.version>4.0.3.RELEASE</spring.security.version>
 		<cglib.version>2.2.2</cglib.version>
 		<sqlserver.version>4.2.6225.100</sqlserver.version>
-
+		<maven.compiler.source>16</maven.compiler.source>
+		<maven.compiler.target>16</maven.compiler.target>
 	</properties>
 
 	<dependencies>
@@ -101,6 +101,12 @@
             <artifactId>javax.mail</artifactId>
             <version>1.6.2</version>
         </dependency>
+		<dependency>
+			<groupId>jboss</groupId>
+			<artifactId>jboss-j2ee</artifactId>
+			<version>4.0.2</version>
+			<scope>provided</scope>
+		</dependency>
         <dependency>
     <groupId>commons-codec</groupId>
     <artifactId>commons-codec</artifactId>
@@ -123,8 +129,14 @@
 					<version>3.0.2</version>
 				</plugin>
 				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.8.0</version>
+					<version>3.7.0</version>
+					<configuration>
+						<source>1.8</source>
+						<target>1.8</target>
+						<encoding>UTF-8</encoding>
+					</configuration>
 				</plugin>
 				<plugin>
 					<artifactId>maven-surefire-plugin</artifactId>
@@ -140,7 +152,7 @@
 				</plugin>
 				<plugin>
 					<artifactId>maven-deploy-plugin</artifactId>
-					<version>2.8.2</version>
+					<version>2.8.0</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>

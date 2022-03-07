@@ -92,7 +92,7 @@ public class CheckInCheckOut extends HttpServlet {
 					response.setContentType("application/json");
 					response.getOutputStream().print(gson.toJson(result));
 				}
-				else if(ch == 404) {
+				else if(ch == 400) {
 					response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 					response.setContentType("application/json");
 					response.getOutputStream().print(gson.toJson(result));
@@ -111,6 +111,31 @@ public class CheckInCheckOut extends HttpServlet {
 		else if(responseBodyStr.get("Option").equals("Check_Out")) {
 			try {
 				result.putAll(data.CheckOut(id_in_token));
+				int ch = (Integer)result.get("status");
+				if(ch == 200) {
+					response.setStatus(HttpServletResponse.SC_OK);
+					response.setContentType("application/json");
+					response.getOutputStream().print(gson.toJson(result));
+				}
+				else if(ch == 400) {
+					response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+					response.setContentType("application/json");
+					response.getOutputStream().print(gson.toJson(result));
+				}
+				else {
+					response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
+				}
+			}  catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else if(responseBodyStr.get("Option").equals("Get_Check_List_Show_By_Date")) {
+			try {
+				result.putAll(data.Get_CheckInCheckOut_By_Emp_Id_Date_Version(responseBodyStr));
 				int ch = (Integer)result.get("status");
 				if(ch == 200) {
 					response.setStatus(HttpServletResponse.SC_OK);

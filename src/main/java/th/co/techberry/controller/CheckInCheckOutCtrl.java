@@ -22,14 +22,14 @@ public class CheckInCheckOutCtrl {
 		DatabaseUtil dbutil = new DatabaseUtil();
 		Connection connection = dbutil.connectDB();
 		List<Map<String, Object>> res = new ArrayList<Map<String, Object>>();
-		List<Map<String, Object>> Check_data = new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
 		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
 		CheckInCheckOutModel model = new CheckInCheckOutModel();
 		String Emp_id = Integer.toString(id);
 		try {
-			Check_data = dbutil.selectArray(connection,"check_in/check_out","Emp_id",Emp_id);
-			if(Check_data != null) {
-				for(Map<String,Object> temp : Check_data) {
+			data = dbutil.selectArray(connection,"checkin_checkout","Emp_id",Emp_id);
+			if(data != null) {
+				for(Map<String,Object> temp : data) {
 					Map<String, Object> ans = new HashMap<String, Object>();
 					model.setModel(temp);
 					ans.put("Check_id", model.getCheckId());
@@ -57,6 +57,7 @@ public class CheckInCheckOutCtrl {
 		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
 		Map<String, Object> working_time_data = new HashMap<String, Object>();
 		Map<String, Object> Last_Checkin = new HashMap<String, Object>();
+		Map<String, Object> Leave_req = new HashMap<String, Object>();
 		CheckInCheckOutModel model = new CheckInCheckOutModel();
 		WorkingTimeModel working_time_model = new WorkingTimeModel();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
@@ -99,7 +100,7 @@ public class CheckInCheckOutCtrl {
 					}
 				}
 				else if(Last_Checkin != null) {
-					responseBodyStr.put("status",200);
+					responseBodyStr.put("status",400);
 					responseBodyStr.put("Message","You are already Check in");
 				}
 				else {
@@ -234,6 +235,55 @@ public class CheckInCheckOutCtrl {
         } catch(SQLException e) {
         	e.printStackTrace();
         }
+		return responseBodyStr;
+	}
+
+	public Map<String, Object> Get_CheckInCheckOut_By_Emp_Id_Date_Version(Map<String, Object> data) throws SQLException, ClassNotFoundException {
+		DatabaseUtil dbutil = new DatabaseUtil();
+		Connection connection = dbutil.connectDB();
+		List<Map<String, Object>> res = new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> Check_data = new ArrayList<Map<String, Object>>();
+		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
+		CheckInCheckOutModel model = new CheckInCheckOutModel();
+		String Emp_id = (String) data.get("Emp_id");
+		List Target = new ArrayList();
+		Target = ((ArrayList)data.get("Value"));
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
+		DateFormat timeFormat = new SimpleDateFormat("hh:mm:ss");
+		LocalDateTime now = LocalDateTime.now();
+		String[] current_date_time = dtf.format(now).split(" ");
+		String[] current_date_raw = current_date_time[0].split("/");
+		String current_time = current_date_time[1]+":00";
+		String current_day = current_date_raw[0]+"-"+current_date_raw[1]+"-"+current_date_raw[2];
+		System.out.println("current_day " + current_day);
+		if(!Target.isEmpty()){
+			for (int counter = 0; counter < Target.size(); counter++) {
+					System.out.println("Target type" + Target.get(counter).getClass());
+
+				}
+			}
+//		try {
+//			Check_data = dbutil.selectArray(connection,"checkin_checkout","Emp_id",Emp_id);
+//			if(Check_data != null) {
+//				for(Map<String,Object> temp : Check_data) {
+//					Map<String, Object> ans = new HashMap<String, Object>();
+//					model.setModel(temp);
+//					ans.put("Check_id", model.getCheckId());
+//					ans.put("Checkin_at", model.getCheckin());
+//					ans.put("Checkout_at", model.getCheckout());
+//					ans.put("Emp_id", model.getEmpId());
+//					ans.put("Status_CheckIn", model.getStatusCheckIn());
+//					ans.put("Status_CheckOut", model.getStatusCheckOut());
+//					res.add(ans);
+//				}
+//				responseBodyStr.put("data",res);
+//				responseBodyStr.put("status",200);
+//				responseBodyStr.put("Message","success");
+//			}
+//		}catch(SQLException e) {
+//			e.printStackTrace();
+//			responseBodyStr.put("status",400);
+//		}
 		return responseBodyStr;
 	}
 }

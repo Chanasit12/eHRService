@@ -194,7 +194,7 @@ public class DatabaseUtil {
 	
 	public  Map<String, Object> selectLastCheckIn(Connection dbconnet,String date,String id)
 			throws SQLException {
-			String db_query = "SELECT * FROM `check_in/check_out` WHERE `Emp_id` = '"+id+"' AND `Checkin_at` LIKE '"+date+"%';";
+			String db_query = "SELECT * FROM `checkin_checkout` WHERE `Emp_id` = '"+id+"' AND `Checkin_at` LIKE '"+date+"%';";
 			System.out.println("sql " + db_query);
 			PreparedStatement ps = dbconnet.prepareStatement(db_query);
 			ResultSet rs = ps.executeQuery();
@@ -396,7 +396,7 @@ public class DatabaseUtil {
 	}
 	
 	public int AddCheckIn(Connection dbconnet,CheckInCheckOutModel model) throws SQLException {
-		String q = "INSERT INTO `check_in/check_out` "
+		String q = "INSERT INTO `checkin_checkout` "
 				+ "(`Check_id`, `Checkin_at`,  `Emp_id`, `Status_CheckIn`) "
 				+ "VALUES (NULL, '"+model.getCheckin()+"', '"+model.getEmpId()+"', '"+model.getStatusCheckIn()+"');";
 		System.out.println("sql " + q);
@@ -405,7 +405,7 @@ public class DatabaseUtil {
 	}
 	
 	public void AddCheckOut(Connection dbconnet,CheckInCheckOutModel model) throws SQLException {
-		String q = "UPDATE `check_in/check_out` SET `Checkout_at`='"+model.getCheckout()+"',"
+		String q = "UPDATE `checkin_checkout` SET `Checkout_at`='"+model.getCheckout()+"',"
 				+ "`Status_CheckOut`='"+model.getStatusCheckOut()+"' WHERE `Check_id` = '"+model.getCheckId()+"';";
 		System.out.println("sql " + q);
 		PreparedStatement ps = dbconnet.prepareStatement(q);
