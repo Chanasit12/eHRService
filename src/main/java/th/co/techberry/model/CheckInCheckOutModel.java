@@ -10,7 +10,6 @@ public class CheckInCheckOutModel {
 	private Timestamp Checkin_at;
 	private Timestamp Checkout_at;
 	private int Emp_id;
-	private Date Date;
 	private String Status_CheckIn;
 	private String Status_CheckOut;
 	
@@ -29,10 +28,7 @@ public class CheckInCheckOutModel {
 	public void setCheckout(Timestamp time) {
 		Checkout_at = time;
 	}
-	
-	public void setDate(Date date) {
-		Date = date;
-	}
+
 	
 	public void setStatusCheckIn(String status) {
 		Status_CheckIn = status;
@@ -58,10 +54,6 @@ public class CheckInCheckOutModel {
 	public Timestamp getCheckout() {
 		return Checkout_at;
 	}
-
-	public Date getDate() {
-		return Date;
-	}
 		
 	public String getStatusCheckIn() {
 		return Status_CheckIn;
@@ -77,7 +69,6 @@ public class CheckInCheckOutModel {
 			setEmpId((Integer) data.get("Emp_id"));
 			setCheckin((Timestamp) data.get("Checkin_at"));
 			setCheckout((Timestamp) data.get("Checkout_at"));
-			setDate((Date) data.get("Date"));
 			setStatusCheckIn((String) data.get("Status_CheckIn"));
 			setStatusCheckOut((String) data.get("Status_CheckOut"));
 		}

@@ -52,21 +52,10 @@ public class Leave extends HttpServlet {
 		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
 		responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
 		LeaveCtrl ctrl = new LeaveCtrl();
+		int id_in_token = apiUtil.getIdInToken(request);
 		if(responseBodyStr.isEmpty()) {
 				try {
-					int id_in_token = apiUtil.getIdInToken(request);
 					result.putAll(ctrl.Profile_leave(id_in_token));
-					int ch = (Integer)result.get("status");
-					if(ch == 200) {
-						response.setStatus(HttpServletResponse.SC_OK);
-						response.setContentType("application/json");
-						response.getOutputStream().print(gson.toJson(result));
-					}
-					else if(ch == 404) {
-						response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-						response.setContentType("application/json");
-						response.getOutputStream().print(gson.toJson(result));
-					}
 				}catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -77,19 +66,7 @@ public class Leave extends HttpServlet {
 	}
 		else if(responseBodyStr.get("Option").equals("Show_Leave_Count")) {
 			try {
-				int id_in_token = Integer.valueOf((String) responseBodyStr.get("Id"));
 				result.putAll(ctrl.Profile_leave(id_in_token));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 404) {
-					response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
 			}catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -102,17 +79,6 @@ public class Leave extends HttpServlet {
 			System.out.println("responseBodyStr"+responseBodyStr);
 			try {
 				result.putAll(ctrl.Leave_type_mgmt());
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else {
-					response.setStatus(HttpServletResponse.SC_GATEWAY_TIMEOUT);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
 			} catch(SQLException e) {
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
@@ -124,17 +90,6 @@ public class Leave extends HttpServlet {
 			System.out.println("responseBodyStr"+responseBodyStr);
 			try {
 				result.putAll(ctrl.Add_Leave_type(responseBodyStr));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else {
-					response.setStatus(HttpServletResponse.SC_GATEWAY_TIMEOUT);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
 			} catch(SQLException e) {
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
@@ -146,17 +101,6 @@ public class Leave extends HttpServlet {
 			System.out.println("responseBodyStr"+responseBodyStr);
 			try {
 				result.putAll(ctrl.Delete_Leave_Type(responseBodyStr));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else {
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
 			} catch(SQLException e) {
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
@@ -168,23 +112,72 @@ public class Leave extends HttpServlet {
 			System.out.println("responseBodyStr"+responseBodyStr);
 			try {
 				result.putAll(ctrl.Update_Leave_Type(responseBodyStr));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else {
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
 			} catch(SQLException e) {
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+		else if(responseBodyStr.get("Option").equals("Send_Leave_Req")) {
+			System.out.println("responseBodyStr"+responseBodyStr);
+			try {
+				result.putAll(ctrl.Send_Request(responseBodyStr));
+			} catch(SQLException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else if(responseBodyStr.get("Option").equals("Get_Leave_Req")) {
+			System.out.println("responseBodyStr"+responseBodyStr);
+			try {
+				result.putAll(ctrl.Get_Request(id_in_token));
+			} catch(SQLException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else if(responseBodyStr.get("Option").equals("Response_Leave_Req")) {
+			System.out.println("responseBodyStr"+responseBodyStr);
+			try {
+				result.putAll(ctrl.Response_Leave_Request(responseBodyStr,id_in_token));
+			} catch(SQLException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else if(responseBodyStr.get("Option").equals("Delete_Leave_Req")) {
+			System.out.println("responseBodyStr"+responseBodyStr);
+			try {
+				result.putAll(ctrl.Delete_Leave_Request(responseBodyStr));
+			} catch(SQLException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		int ch = (Integer)result.get("status");
+		if(ch == 200) {
+			response.setStatus(HttpServletResponse.SC_OK);
+			response.setContentType("application/json");
+			response.getOutputStream().print(gson.toJson(result));
+		}
+		else if(ch == 400) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.setContentType("application/json");
+			response.getOutputStream().print(gson.toJson(result));
+		}
+		else if(ch == 404) {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			response.setContentType("application/json");
+			response.getOutputStream().print(gson.toJson(result));
 		}
 	}
 }

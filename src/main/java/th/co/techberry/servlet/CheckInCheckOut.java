@@ -133,9 +133,9 @@ public class CheckInCheckOut extends HttpServlet {
 				e.printStackTrace();
 			}
 		}
-		else if(responseBodyStr.get("Option").equals("Get_Check_List_Show_By_Date")) {
+		else if(responseBodyStr.get("Option").equals("Get_Check_List_Show_Emp_id")) {
 			try {
-				result.putAll(data.Get_CheckInCheckOut_By_Emp_Id_Date_Version(responseBodyStr));
+				result.putAll(data.Get_CheckInCheckOut_By_Emp_Id(responseBodyStr));
 				int ch = (Integer)result.get("status");
 				if(ch == 200) {
 					response.setStatus(HttpServletResponse.SC_OK);

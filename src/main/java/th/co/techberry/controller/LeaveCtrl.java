@@ -4,6 +4,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.SQLException;
 import java.sql.Time;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,30 +24,33 @@ public class LeaveCtrl {
 		List<Map<String, Object>> res = new ArrayList<Map<String, Object>>();
 		Map<String, Object> Employee_info = new HashMap<String, Object>();
 		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
+		LeaveTypeModel type_model = new LeaveTypeModel();
 		String Id = String.valueOf(id);
-		Employee_info = dbutil.select(connection,"Employee","id",Id);
-		if(Employee_info != null) {
-			String emp_id = String.valueOf(Employee_info.get("Emp_id"));
-			Leave_info = dbutil.selectArray(connection,"leave_day_count","Emp_id",emp_id);
-			int size = 0;
-			while(size<Leave_info.size()) {
-				Map<String, Object> leave_type = new HashMap<String, Object>();
-				Map<String, Object> ans = new HashMap<String, Object>();
-				String leave_id = String.valueOf((Integer) Leave_info.get(size).get("Type_ID"));
-				leave_type = dbutil.select(connection,"leave_type","Type_ID",leave_id);
-				String leave_name = (String) leave_type.get("Type_name");
-				String Amount_leave = String.valueOf((Integer) Leave_info.get(size).get("Leaved"));
-				String Amount_add = String.valueOf((Integer) Leave_info.get(size).get("Added"));
-				ans.put("Type_name",leave_name);
-				ans.put("Leaved",Amount_leave);
-				ans.put("Added",Amount_add);
-				res.add(ans);
-				size++;
+		try{
+			Employee_info = dbutil.select(connection,"Employee","id",Id);
+			if(Employee_info != null) {
+				String emp_id = String.valueOf(Employee_info.get("Emp_id"));
+				Leave_info = dbutil.selectArray(connection,"leave_day_count","Emp_id",emp_id);
+				for(Map<String, Object> temp : Leave_info){
+					Map<String, Object> leave_type = new HashMap<String, Object>();
+					Map<String, Object> ans = new HashMap<String, Object>();
+					String leave_id = String.valueOf((Integer) temp.get("Type_ID"));
+					leave_type = dbutil.select(connection,"leave_type","Type_ID",leave_id);
+					type_model.setModel(leave_type);
+					String Amount_leave = String.valueOf((Integer) temp.get("Leaved"));
+					String Amount_add = String.valueOf((Integer) temp.get("Added"));
+					ans.put("Type_name",type_model.getName());
+					ans.put("Leaved",Amount_leave);
+					ans.put("Added",Amount_add);
+					res.add(ans);
+				}
+				responseBodyStr.put("data",res);
 			}
-			responseBodyStr.put("data",res);
-		}
-		else {
-			responseBodyStr.put("data",res);
+			else {
+				responseBodyStr.put("data",res);
+			}
+		} catch(SQLException e){
+			e.printStackTrace();
 		}
 		return responseBodyStr;
 	}
@@ -57,38 +62,41 @@ public class LeaveCtrl {
 		List<Map<String, Object>> res = new ArrayList<Map<String, Object>>();
 		Map<String, Object> Employee_info = new HashMap<String, Object>();
 		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
+		LeaveModel Leave_model = new LeaveModel();
+		LeaveTypeModel type_model = new LeaveTypeModel();
 		String Id = String.valueOf(id);
-		Employee_info = dbutil.select(connection,"Employee","id",Id);
-		if(Employee_info != null) {
-			String emp_id = String.valueOf(Employee_info.get("Emp_id"));
-			Leave_request = dbutil.selectArray(connection,"leave_request","Emp_id",emp_id);
-			int size = 0;
-			while(size<Leave_request.size()) {
-				Map<String, Object> leave_type = new HashMap<String, Object>();
-				Map<String, Object> ans = new HashMap<String, Object>();
-				String leave_id = String.valueOf((Integer) Leave_request.get(size).get("Type_ID"));
-				leave_type = dbutil.select(connection,"leave_type","Type_ID",leave_id);
-				String leave_name = (String) leave_type.get("Type_name");
-				Date Begin_date = (Date) Leave_request.get(size).get("Begin_date");
-				Time Begin_time = (Time) Leave_request.get(size).get("Begin_time");
-				Date End_date = (Date) Leave_request.get(size).get("End_date");
-				Time End_time = (Time) Leave_request.get(size).get("End_time");
-				String Leave_status = (String) Leave_request.get(size).get("Status");
-				ans.put("id", size+1);
-				ans.put("Type_name",leave_name);
-				ans.put("Begin_date",Begin_date);
-				ans.put("Begin_time",Begin_time);
-				ans.put("End_date",End_date);
-				ans.put("End_time",End_time);
-				ans.put("Leave_status",Leave_status);
-				res.add(ans);
-				size++;
+		int number = 1;
+		try{
+			Employee_info = dbutil.select(connection,"Employee","id",Id);
+			if(Employee_info != null) {
+				String emp_id = String.valueOf(Employee_info.get("Emp_id"));
+				Leave_request = dbutil.selectArray(connection,"leave_request","Emp_id",emp_id);
+				for(Map<String, Object> temp : Leave_request){
+					Map<String, Object> leave_type = new HashMap<String, Object>();
+					Map<String, Object> ans = new HashMap<String, Object>();
+					Leave_model.setModel(temp);
+					leave_type = dbutil.select(connection,"leave_type","Type_ID",String.valueOf(Leave_model.getTypeId()));
+					type_model.setModel(leave_type);
+					System.out.println("test "+ Leave_model.getBegin());
+ 					ans.put("id", number);
+					ans.put("Type_name",type_model.getName());
+					ans.put("Begin",Leave_model.getBegin());
+					ans.put("End",Leave_model.getEnd());
+					ans.put("Leave_status",Leave_model.getStatus());
+					ans.put("Emergency",Leave_model.getEmergency());
+					number++;
+					res.add(ans);
+				}
+				System.out.println("res "+res);
+				responseBodyStr.put("data",res);
+				responseBodyStr.put("status",200);
 			}
-			System.out.println("res "+res);
-			responseBodyStr.put("data",res);
-		}
-		else {
-			responseBodyStr.put("data",res);
+			else {
+				responseBodyStr.put("data",res);
+				responseBodyStr.put("status",200);
+			}
+		} catch (SQLException e){
+			e.printStackTrace();
 		}
 		return responseBodyStr;
 	}
@@ -121,22 +129,18 @@ public class LeaveCtrl {
 		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
 		List<Map<String, Object>> res = new ArrayList<Map<String, Object>>();
 		List<Map<String, Object>> Leave_type = new ArrayList<Map<String, Object>>();
+		LeaveTypeModel model = new LeaveTypeModel();
 		try {
 			Leave_type = dbutil.selectAll(connection,"leave_type");
 			if(Leave_type != null) {
-				int size = 0;
-				while(size<Leave_type.size()) {
+				for(Map<String, Object> temp : Leave_type){
 					Map<String, Object> ans = new HashMap<String, Object>();
-					String leave_id = String.valueOf((Integer) Leave_type.get(size).get("Type_ID"));
-					String leave_name = (String) Leave_type.get(size).get("Type_name");
-					String Num_per_year = String.valueOf((Integer) Leave_type.get(size).get("Num_per_year"));
-					String Num_can_add = String.valueOf((Integer) Leave_type.get(size).get("Num_can_add"));
-					ans.put("id", leave_id);
-					ans.put("Type_name",leave_name);
-					ans.put("Num_per_year",Num_per_year);
-					ans.put("Num_can_add",Num_can_add);
+					model.setModel(temp);
+					ans.put("id",model.getId());
+					ans.put("Type_name",model.getName());
+					ans.put("Num_per_year",model.getNum_per_year());
+					ans.put("Num_can_add",model.getNum_can_add());
 					res.add(ans);
-					size++;
 				}
 				System.out.println("res "+res);
 				responseBodyStr.put("status",200);
@@ -167,18 +171,16 @@ public class LeaveCtrl {
 				Leave_type = dbutil.select(connection,"leave_type","Type_name",Type_name); 
 				String Type_id = String.valueOf((Integer) Leave_type.get("Type_ID"));
 				Employee = dbutil.selectAll(connection,"employee");
-				int size = 0;
 				if(Employee != null) {
-					while(Employee.size() > size) {
+					for(Map<String, Object> temp : Employee){
 							try {
-								String Emp_id = String.valueOf((Integer) Employee.get(size).get("Emp_id"));
+								String Emp_id = String.valueOf((Integer) temp.get("Emp_id"));
 								dbutil.AddLeave_Day(connection,Emp_id,Type_id,Num_per_year,"0");
 							}catch (SQLException e) {
 								e.printStackTrace();
 								result.put("status",400);
 								result.put("message","Add Fail");
 							}
-							size++;
 					}
 					result.put("status",200);
 					result.put("message","Add success");
@@ -187,11 +189,11 @@ public class LeaveCtrl {
 					result.put("status",400);
 					result.put("message","Add Fail");
 				}
-		}catch (SQLException e) {
-			e.printStackTrace();
-			result.put("status",400);
-			result.put("message","Add Fail");
-		}
+		}	catch (SQLException e) {
+				e.printStackTrace();
+				result.put("status",400);
+				result.put("message","Add Fail");
+			}
 		}
 		return result;
 	}
@@ -233,7 +235,7 @@ public class LeaveCtrl {
 		Map<String, Object> result = new HashMap<String, Object>();
 		Map<String, Object> Leave_info = new HashMap<String, Object>();
 		LeaveTypeModel model = new LeaveTypeModel();
-		Leave_info = (dbutil.select(connection,"leave_type","Type_ID",(String)data.get("Type_ID"))); 
+		Leave_info = (dbutil.select(connection,"leave_type","Type_ID",(String)data.get("Type_ID")));
 		model.setModel(Leave_info);
         if(!data.get("Type_name").equals("")) {
         	model.setName((String)data.get("Type_name"));
@@ -260,22 +262,17 @@ public class LeaveCtrl {
         }
         try {
         		dbutil.UpdateLeaveType(connection,model);
-        		try {
-            		Employee_Leave = dbutil.selectArray(connection,"leave_day_count","Type_ID",(String)data.get("Type_ID"));
-        			if(!Employee_Leave.isEmpty()) {
-        				int size = 0;
-        				while(size<Employee_Leave.size()) {
-        					int leave = (Integer) Employee_Leave.get(size).get("Leaved");
-        					int Emp_id = (Integer) Employee_Leave.get(size).get("Emp_id");
-        					if(leave > model.getNum_per_year()) {
+            	Employee_Leave = dbutil.selectArray(connection,"leave_day_count","Type_ID",(String)data.get("Type_ID"));
+        		if(!Employee_Leave.isEmpty()) {
+					for(Map<String, Object> temp : Employee_Leave ){
+						int leave = (Integer) temp.get("Leaved");
+						int Emp_id = (Integer) temp.get("Emp_id");
+						if(leave > model.getNum_per_year()) {
         						dbutil.UpdateLeaveCount(connection,model,Emp_id);
         					}
-        					size++;
         				}
         			}
-        		} catch(SQLException e) {
-        			e.printStackTrace();
-        		}
+
         }catch (SQLException e) {
     		e.printStackTrace();
     		result.put("status",400);
@@ -284,5 +281,173 @@ public class LeaveCtrl {
 		result.put("status",200);
 		result.put("message","Update success");
 		return result;
+	}
+
+	public Map<String, Object> Send_Request(Map<String, Object> data) throws SQLException, ClassNotFoundException{
+		DatabaseUtil dbutil = new DatabaseUtil();
+		Connection connection = dbutil.connectDB();
+		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
+		Map<String, Object> Role_detail = new HashMap<String, Object>();
+		Map<String, Object> Emp_detail = new HashMap<String, Object>();
+		LeaveModel leave_model = new LeaveModel();
+		EmployeeModel emp_model = new EmployeeModel();
+		leave_model.setModelByReq(data);
+		int Emergency;
+		if(leave_model.getEmergency()){
+			Emergency = 1;
+		} else{
+			Emergency = 0;
+		}
+		try{
+			Emp_detail = dbutil.select(connection,"employee","Emp_id",Integer.toString(leave_model.getDepend()));
+			emp_model.setModel(Emp_detail);
+			Role_detail = dbutil.select(connection,"user_role","Role_ID",(String) data.get("Depend"));
+			leave_model.setStatus("Waiting for " + Role_detail.get("Role_Name"));
+			dbutil.AddLeave_Req(connection,leave_model,Emergency);
+			responseBodyStr.put("status",200);
+			responseBodyStr.put("message","Send Leave Request Complete");
+		} catch(SQLException e){
+			e.printStackTrace();
+		}
+		return responseBodyStr;
+	}
+
+	public Map<String, Object> Get_Request(int id) throws SQLException, ClassNotFoundException{
+		DatabaseUtil dbutil = new DatabaseUtil();
+		Connection connection = dbutil.connectDB();
+		List<Map<String, Object>> Leave_request = new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> res = new ArrayList<Map<String, Object>>();
+		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
+		Map<String, Object> Emp_detail = new HashMap<String, Object>();
+		LeaveModel leave_model = new LeaveModel();
+		LeaveTypeModel type_model = new LeaveTypeModel();
+		EmployeeModel emp_model = new EmployeeModel();
+//		int number = 1;
+		try{
+			Leave_request = dbutil.selectArray(connection,"leave_request","Depend",Integer.toString(id));
+			if(Leave_request != null){
+				for(Map<String, Object> temp : Leave_request){
+					leave_model.setModel(temp);
+					Map<String, Object> leave_type = new HashMap<String, Object>();
+					Map<String, Object> ans = new HashMap<String, Object>();
+					leave_model.setModel(temp);
+					leave_type = dbutil.select(connection,"leave_type","Type_ID",String.valueOf(leave_model.getTypeId()));
+					Emp_detail = dbutil.select(connection,"employee","Emp_id",Integer.toString(leave_model.getEmpId()));
+					emp_model.setModel(Emp_detail);
+					type_model.setModel(leave_type);
+//					ans.put("No.", number);
+					ans.put("Request_id",leave_model.getReqId());
+					ans.put("Sender_Name",emp_model.getFirstname()+" "+emp_model.getLastname());
+					ans.put("Type_name",type_model.getName());
+					ans.put("Begin",leave_model.getBegin());
+					ans.put("End",leave_model.getEnd());
+					ans.put("Detail",leave_model.getDetail());
+					ans.put("Leave_status",leave_model.getStatus());
+					ans.put("Emergency",leave_model.getEmergency());
+//					number++;
+					res.add(ans);
+				}
+				responseBodyStr.put("data",res);
+				responseBodyStr.put("status",200);
+			}
+			else{
+				responseBodyStr.put("data",res);
+				responseBodyStr.put("status",200);
+			}
+		} catch(SQLException e){
+			e.printStackTrace();
+		}
+		return responseBodyStr;
+	}
+
+	public Map<String, Object> Response_Leave_Request(Map<String, Object> data,int id) throws SQLException, ClassNotFoundException{
+		DatabaseUtil dbutil = new DatabaseUtil();
+		Connection connection = dbutil.connectDB();
+		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
+		Map<String, Object> Approver_detail = new HashMap<String, Object>();
+		Map<String, Object> Role_detail = new HashMap<String, Object>();
+		Map<String, Object> Leave_request = new HashMap<String, Object>();
+		LeaveModel leave_model = new LeaveModel();
+		EmployeeModel Approver_model = new EmployeeModel();
+//		int Req_id = Integer.parseInt((String) data.get("Req_id"));
+//		String Status = (String) data.get("Status");
+		String Req_id = (String) data.get("Req_id");
+		String Comment = (String) data.get("Comment");
+		String Leave_id = (String) data.get("Leave_type");
+		String Depend = (String) data.get("Depend");
+		Boolean Status = Boolean.parseBoolean((String) data.get("Status"));
+ 		try{
+			Approver_detail = dbutil.select(connection,"employee","Emp_id",Integer.toString(id));
+			Approver_model.setModel(Approver_detail);
+			Role_detail = dbutil.select(connection,"user_role","Role_ID",Integer.toString(Approver_model.getRold_id()));
+			Leave_request = dbutil.select(connection,"leave_request","Req_id",Req_id);
+			leave_model.setModel(Leave_request);
+			if(!Comment.equals("")){
+				leave_model.setComment(Comment);
+			}
+			if(!Leave_id.equals("")){
+				leave_model.setTypeId(Integer.parseInt(Leave_id));
+			}
+			if( Role_detail.get("Role_Name").equals("Approver")){
+				leave_model.setDepend(leave_model.getEmpId());
+				if(Status){
+					String Status_Message = "Approve by "+Role_detail.get("Role_Name");
+					leave_model.setStatus(Status_Message);
+					responseBodyStr.put("message","Approve Complete");
+				}
+				else{
+					String Status_Message = "DisApprove by "+Role_detail.get("Role_Name");
+					leave_model.setStatus(Status_Message);
+					responseBodyStr.put("message","DisApprove Complete");
+				}
+			}
+			else{
+				int Depend_id = Integer.parseInt(Depend);
+				leave_model.setDepend(Depend_id);
+
+				if(Status){
+					String Status_Message = "Waiting For Approver";
+					leave_model.setStatus(Status_Message);
+					responseBodyStr.put("message","Approve Complete");
+					System.out.println("res "+1);
+				}
+				else{
+					String Status_Message = "DisApprove by "+Role_detail.get("Role_Name");
+					leave_model.setStatus(Status_Message);
+					responseBodyStr.put("message","DisApprove Complete");
+					System.out.println("res "+2);
+				}
+			}
+			dbutil.UpdateLeaveReq(connection,leave_model);
+			responseBodyStr.put("status",200);
+		} catch(SQLException e){
+			e.printStackTrace();
+		}
+		return responseBodyStr;
+	}
+
+	public Map<String, Object> Delete_Leave_Request(Map<String, Object> data) throws SQLException, ClassNotFoundException{
+		DatabaseUtil dbutil = new DatabaseUtil();
+		Connection connection = dbutil.connectDB();
+		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
+		Map<String, Object> Approver_detail = new HashMap<String, Object>();
+		Map<String, Object> Role_detail = new HashMap<String, Object>();
+		Map<String, Object> Leave_request = new HashMap<String, Object>();
+		LeaveModel leave_model = new LeaveModel();
+		EmployeeModel Approver_model = new EmployeeModel();
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		LocalDateTime now = LocalDateTime.now();
+		String current_date_time = dtf.format(now);
+		String Req_id = (String) data.get("Req_id");
+		try{
+			Leave_request = dbutil.select(connection,"leave_request","Req_id",Req_id);
+			leave_model.setModel(Leave_request);
+			dbutil.Delete(connection,"leave_request","Req_id",Req_id);
+			responseBodyStr.put("message","Delete Request Complete");
+			responseBodyStr.put("status",200);
+		} catch(SQLException e){
+			e.printStackTrace();
+		}
+		return responseBodyStr;
 	}
 }

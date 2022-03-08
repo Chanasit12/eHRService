@@ -87,7 +87,7 @@ public class ChargeCodeCtrl {
 			model.setDescription(Description);
 		}
 		try {
-			dbutil.UpdateChageCode(connection,model);
+			dbutil.UpdateChargeCode(connection,model);
 			result.put("status",200);
 			result.put("message","Update success");
 		}catch (SQLException e) {

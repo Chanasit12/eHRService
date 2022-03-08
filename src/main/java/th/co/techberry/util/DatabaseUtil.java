@@ -206,7 +206,22 @@ public class DatabaseUtil {
 				return list.get(0);
 			}
 	}
-	
+
+	public  List<Map<String, Object>> selectCheckin(Connection dbconnet,String date,String id)
+			throws SQLException {
+		String db_query = "SELECT * FROM `checkin_checkout` WHERE `Emp_id` = '"+id+"' AND `Checkin_at` LIKE '"+date+"';";
+		System.out.println("sql " + db_query);
+		PreparedStatement ps = dbconnet.prepareStatement(db_query);
+		ResultSet rs = ps.executeQuery();
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		list.addAll(convertResultSetFromDB(rs));
+		if (list.size() == 0) {
+			return null;
+		} else {
+			return list;
+		}
+	}
+
 	public List<Map<String, Object>> selectEmpMeetingFromCreate(Connection dbconnet,String target,String id)
 			throws SQLException {
 			String db_query = "SELECT * FROM `meeting` JOIN meeting_room_booking "
@@ -323,6 +338,15 @@ public class DatabaseUtil {
 		PreparedStatement ps = dbconnet.prepareStatement(q);
 		return ps.executeUpdate();
 	}
+
+	public int AddLeave_Req(Connection dbconnet,LeaveModel model,int Emergency) throws SQLException {
+		String q = "INSERT INTO `leave_request`(`Type_ID`, `Emp_id`, `Begin`, `End`, `Detail`,`Depend`,`Status`,`Emergency`) " +
+				"VALUES ('"+model.getTypeId()+"','"+model.getEmpId()+"','"+model.getBegin()+"'," +
+				"'"+model.getEnd()+"','"+model.getDetail()+"','"+model.getDepend()+"','"+model.getStatus()+"','"+Emergency+"')";
+		System.out.println("sql " + q);
+		PreparedStatement ps = dbconnet.prepareStatement(q);
+		return ps.executeUpdate();
+	}
 	
 	public int AddTeam(Connection dbconnet,String name,String creator,String host) throws SQLException {
 		String q = "INSERT INTO `team`(`Team_name`, `Creator`, `Team_Host`) VALUES ('"+name+"','"+creator+"','"+host+"');";
@@ -422,7 +446,15 @@ public class DatabaseUtil {
 		ps.executeUpdate();
 		return select2con(dbconnet,"meeting_room_booking","Create_at","Creator",Create,Creator);
 	}
-	
+
+	public void UpdateLeaveReq(Connection dbconnet,LeaveModel model) throws SQLException {
+		String q = "UPDATE `leave_request` SET `Type_ID`='"+model.getTypeId()+"'," +
+				"`Status`='"+model.getStatus()+"',`Depend`='"+model.getDepend()+"',`Comment`='"+model.getComment()+"' WHERE `Req_id` = '"+model.getReqId()+"';";
+		System.out.println("sql " + q);
+		PreparedStatement ps = dbconnet.prepareStatement(q);
+		ps.executeUpdate();
+	}
+
 	public void UpdateProfile(Connection dbconnet,EmployeeModel model) throws SQLException {
 		String q = "UPDATE `employee` SET Title ='"+model.getTitle()+"' , Firstname='"+model.getFirstname()+"' , Lastname='"+model.getLastname()+"' ,Birth_date='"
 	+model.getBirthdate()+"',Gender='"+model.getGender()+"',Phone='"+model.getPhone()+"',Email='"+model.getEmail()+"',Address='"+model.getAddress()+
@@ -456,7 +488,7 @@ public class DatabaseUtil {
 		ps.executeUpdate();
 	}
 	
-	public void UpdateChageCode(Connection dbconnet,ChargeCodeModel model) throws SQLException {
+	public void UpdateChargeCode(Connection dbconnet,ChargeCodeModel model) throws SQLException {
 		String q = "UPDATE `charge_code` SET `Charge_code_name`='"+model.getChargeCodeName()+"',`description`='"+model.getDescription()+"' "
 				+ "WHERE `Charge_code_id`='"+model.getChargeCodeId()+"';";
 		System.out.println("sql " + q);
