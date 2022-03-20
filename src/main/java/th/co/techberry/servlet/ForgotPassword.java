@@ -49,25 +49,20 @@ public class ForgotPassword extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		ApidataUtil apiUtil = new ApidataUtil();
+		apiUtil.setAccessControlHeaders(response);
+		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
+		responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
+		ForgotCtrl ctrl = new ForgotCtrl();
+		Gson gson = new Gson();
+		Map<String, Object> result = new HashMap<String, Object>();
 		try {
-			apiUtil.setAccessControlHeaders(response);
-			Map<String, Object> responseBodyStr = new HashMap<String, Object>();
-			responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
-			ForgotCtrl ctrl = new ForgotCtrl();
-			Gson gson = new Gson();
-			Map<String, Object> result = new HashMap<String, Object>();
 			result.putAll(ctrl.ForgotPassword(responseBodyStr));
 			int ch = (Integer)result.get("status");
-			System.out.println("ch"+ch);
 			if(ch == 200) {
 				response.setStatus(HttpServletResponse.SC_OK);
-				response.setContentType("application/json");
-				response.getOutputStream().print(gson.toJson(result));
 			}
 			else if(ch == 404) {
 				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-				response.setContentType("application/json");
-				response.getOutputStream().print(gson.toJson(result));
 			}
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
@@ -82,6 +77,10 @@ public class ForgotPassword extends HttpServlet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		response.setContentType("application/json");
+		String jsonString = new Gson().toJson(result);
+		byte[] utf8JsonString = jsonString.getBytes("UTF8");
+		response.getOutputStream().write(utf8JsonString);
 	}
 
 }

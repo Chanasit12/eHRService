@@ -54,34 +54,14 @@ public class Login extends HttpServlet {
 			throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		ApidataUtil apiUtil = new ApidataUtil();
+		apiUtil.setAccessControlHeaders(response);
+		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
+		responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
+		LoginCtrl ctrl = new LoginCtrl();
+		Gson gson = new Gson();
+		Map<String, Object> result = new HashMap<String, Object>();
 		try {
-			apiUtil.setAccessControlHeaders(response);
-			System.out.println("apiUtil"+apiUtil);
-			Map<String, Object> responseBodyStr = new HashMap<String, Object>();
-			responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
-			System.out.println("responseBodyStr"+responseBodyStr);
-			LoginCtrl ctrl = new LoginCtrl();
-			Gson gson = new Gson();
-			Map<String, Object> resultLogin = new HashMap<String, Object>();
-			resultLogin.putAll(ctrl.Login(responseBodyStr));
-			System.out.print("resultLogin"+resultLogin);
-			int ch = (Integer)resultLogin.get("status");
-			System.out.println("ch"+ch);
-			if(ch == 200) {
-				response.setStatus(HttpServletResponse.SC_OK);
-				response.setContentType("application/json");
-				response.getOutputStream().print(gson.toJson(resultLogin));
-			}
-			else if(ch == 401) {
-				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-				response.setContentType("application/json");
-				response.getOutputStream().print(gson.toJson(resultLogin));
-			}
-			else if(ch == 404) {
-				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-				response.setContentType("application/json");
-				response.getOutputStream().print(gson.toJson(resultLogin));
-			}
+			result.putAll(ctrl.Login(responseBodyStr));
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -92,5 +72,19 @@ public class Login extends HttpServlet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		int ch = (Integer)result.get("status");
+		if(ch == 200) {
+			response.setStatus(HttpServletResponse.SC_OK);
+		}
+		else if(ch == 401) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		}
+		else if(ch == 404) {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+		}
+		response.setContentType("application/json");
+		String jsonString = new Gson().toJson(result);
+		byte[] utf8JsonString = jsonString.getBytes("UTF8");
+		response.getOutputStream().write(utf8JsonString);
 	}
 }

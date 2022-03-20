@@ -22,14 +22,13 @@ public class PositionCtrl {
 			Position = dbutil.selectAll(connection,"position");
 			int size = 0;
 			if(Position != null) {
-				while(size<Position.size()) {
+				for(Map<String, Object> temp : Position){
 					Map<String, Object> ans = new HashMap<String, Object>();
-					String Position_ID = String.valueOf((Integer) Position.get(size).get("Position_ID"));
-					String Position_Name	 = (String) Position.get(size).get("Position_Name");
+					String Position_ID = String.valueOf((Integer) temp.get("Position_ID"));
+					String Position_Name	 = (String) temp.get("Position_Name");
 					ans.put("ID",Position_ID);
 					ans.put("Position_Name",Position_Name);
 					res.add(ans);
-					size++;
 				}
 				responseBodyStr.put("data",res);
 				responseBodyStr.put("status",200);
@@ -65,7 +64,6 @@ public class PositionCtrl {
 				e.printStackTrace();
 				result.put("status",400);
 				result.put("message","Add fail");
-				return result;
 			}
 		}
 		return result;
@@ -83,7 +81,6 @@ public class PositionCtrl {
 				e.printStackTrace();
 				result.put("status",400);
 				result.put("message","Update fail");
-				return result;
 			}
 		return result;
 	}

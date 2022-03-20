@@ -222,6 +222,36 @@ public class DatabaseUtil {
 		}
 	}
 
+	public  List<Map<String, Object>> selectHoliday(Connection dbconnet,String date)
+			throws SQLException {
+		String db_query = "SELECT * FROM `holiday_list` WHERE `begin_date` LIKE '%-"+date+"' OR `end_date` LIKE '%-"+date+"'";
+		System.out.println("sql " + db_query);
+		PreparedStatement ps = dbconnet.prepareStatement(db_query);
+		ResultSet rs = ps.executeQuery();
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		list.addAll(convertResultSetFromDB(rs));
+		if (list.size() == 0) {
+			return null;
+		} else {
+			return list;
+		}
+	}
+
+	public  List<Map<String, Object>> selectCheckinAll(Connection dbconnet,String date)
+			throws SQLException {
+		String db_query = "SELECT * FROM `checkin_checkout` WHERE `Checkin_at` LIKE '"+date+"';";
+		System.out.println("sql " + db_query);
+		PreparedStatement ps = dbconnet.prepareStatement(db_query);
+		ResultSet rs = ps.executeQuery();
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		list.addAll(convertResultSetFromDB(rs));
+		if (list.size() == 0) {
+			return null;
+		} else {
+			return list;
+		}
+	}
+
 	public List<Map<String, Object>> selectEmpMeetingFromCreate(Connection dbconnet,String target,String id)
 			throws SQLException {
 			String db_query = "SELECT * FROM `meeting` JOIN meeting_room_booking "
@@ -260,11 +290,8 @@ public class DatabaseUtil {
 	
 	public Map<String, Object> Login(Connection dbconnet , String condition, String value)
 			throws SQLException {
-//			String db_query1 = "UPDATE Login SET Active_status = " + true + " WHERE " + condition + " = " + "'" + value + "'" + ";" ;
 			String db_query2 = "SELECT * FROM " + "Login" + " WHERE " + condition + " = " + "'" + value + "'" + ";";
-//			PreparedStatement ps1 = dbconnet.prepareStatement(db_query1);
 			PreparedStatement ps2 = dbconnet.prepareStatement(db_query2);
-//			ps1.executeUpdate();
 			ResultSet rs = ps2.executeQuery();
 			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 			list.addAll(convertResultSetFromDB(rs));
@@ -296,9 +323,9 @@ public class DatabaseUtil {
 		ps.executeUpdate();
 	}
 	
-	public void AddDayOff(Connection dbconnet,String id,String Detail,String hour) throws SQLException {
-		String q = "INSERT INTO `day_off_list` (`Day_off_id`, `Emp_id`, `Detail`, `Hours`) "
-				+ "VALUES (NULL, '"+id+"', '"+Detail+"', '"+hour+"');";
+	public void AddDayOff(Connection dbconnet,LeaveCountModel model) throws SQLException {
+		String q = "UPDATE `leave_day_count` SET `Leaved`='"+model.getLeaved()+"' " +
+				"WHERE `Emp_id`='"+model.getEmpId()+"' AND `Type_ID`='"+model.getTypeId()+"'";
 		System.out.println("sql " + q);
 		PreparedStatement ps = dbconnet.prepareStatement(q);
 		ps.executeUpdate();
@@ -340,9 +367,9 @@ public class DatabaseUtil {
 	}
 
 	public int AddLeave_Req(Connection dbconnet,LeaveModel model,int Emergency) throws SQLException {
-		String q = "INSERT INTO `leave_request`(`Type_ID`, `Emp_id`, `Begin`, `End`, `Detail`,`Depend`,`Status`,`Emergency`) " +
+		String q = "INSERT INTO `leave_request`(`Type_ID`, `Emp_id`, `Begin`, `End`, `Detail`,`Depend`,`Status`,`Emergency`,`Amount`) " +
 				"VALUES ('"+model.getTypeId()+"','"+model.getEmpId()+"','"+model.getBegin()+"'," +
-				"'"+model.getEnd()+"','"+model.getDetail()+"','"+model.getDepend()+"','"+model.getStatus()+"','"+Emergency+"')";
+				"'"+model.getEnd()+"','"+model.getDetail()+"','"+model.getDepend()+"','"+model.getStatus()+"','"+Emergency+"','"+model.getAmount()+"')";
 		System.out.println("sql " + q);
 		PreparedStatement ps = dbconnet.prepareStatement(q);
 		return ps.executeUpdate();
@@ -369,9 +396,9 @@ public class DatabaseUtil {
 		return ps.executeUpdate();
 	}
 	
-	public int AddLeave_Day(Connection dbconnet,String Emp_id,String Type_id,String Leave,String Add) throws SQLException {
-		String q = "INSERT INTO `leave_day_count`(`Emp_id`, `Type_ID`, `Leaved`, `Added`) "
-				+ "VALUES ('"+Emp_id+"','"+Type_id+"','"+Leave+"','"+Add+"');";
+	public int AddLeave_Day(Connection dbconnet,String Emp_id,String Type_id,String Leave) throws SQLException {
+		String q = "INSERT INTO `leave_day_count`(`Emp_id`, `Type_ID`, `Leaved`) "
+				+ "VALUES ('"+Emp_id+"','"+Type_id+"','"+Leave+"');";
 		System.out.println("sql " + q);
 		PreparedStatement ps = dbconnet.prepareStatement(q);
 		return ps.executeUpdate();
@@ -397,9 +424,17 @@ public class DatabaseUtil {
 		return ps.executeUpdate();
 	}
 	
-	public int AddTimeSheet(Connection dbconnet,String id,String Date,String Start,String End) throws SQLException {
-		String q = "INSERT INTO `timesheet`(`Emp_id`, `Start_at`, `End_at`, `Date`)"
-				+ " VALUES ('"+id+"','"+Start+"','"+End+"','"+Date+"');";
+//	public int AddTimeSheet(Connection dbconnet,String id,String Date,String Start,String End) throws SQLException {
+//		String q = "INSERT INTO `timesheet`(`Emp_id`, `Start_at`, `End_at`, `Date`)"
+//				+ " VALUES ('"+id+"','"+Start+"','"+End+"','"+Date+"');";
+//		System.out.println("sql " + q);
+//		PreparedStatement ps = dbconnet.prepareStatement(q);
+//		return ps.executeUpdate();
+//	}
+
+	public int AddTimeSheet(Connection dbconnet,String id,String Date,String start,String end) throws SQLException {
+		String q = "INSERT INTO `timesheet`(`Emp_id`,`Date`,`Start_at`,`End_at`)"
+				+ " VALUES ('"+id+"','"+Date+"','"+start+"','"+end+"');";
 		System.out.println("sql " + q);
 		PreparedStatement ps = dbconnet.prepareStatement(q);
 		return ps.executeUpdate();
@@ -421,7 +456,7 @@ public class DatabaseUtil {
 	
 	public int AddCheckIn(Connection dbconnet,CheckInCheckOutModel model) throws SQLException {
 		String q = "INSERT INTO `checkin_checkout` "
-				+ "(`Check_id`, `Checkin_at`,  `Emp_id`, `Status_CheckIn`) "
+				+ "(`Check_id`,`Checkin_at`,`Emp_id`, `Status_CheckIn`)"
 				+ "VALUES (NULL, '"+model.getCheckin()+"', '"+model.getEmpId()+"', '"+model.getStatusCheckIn()+"');";
 		System.out.println("sql " + q);
 		PreparedStatement ps = dbconnet.prepareStatement(q);
@@ -503,8 +538,9 @@ public class DatabaseUtil {
 		ps.executeUpdate();
 	}
 	
-	public void UpdateDayOff(Connection dbconnet,DayOffModel model) throws SQLException {
-		String q = "UPDATE `day_off_list` SET `Detail`='"+model.getDetail()+"',`Hours`='"+model.getHour()+"' WHERE `Day_off_id`='"+model.getDayOffId()+"';";
+	public void UpdateDayOff(Connection dbconnet,LeaveCountModel model) throws SQLException {
+		String q = "UPDATE `leave_day_count` SET `Leaved`='"+model.getLeaved()+"' " +
+				"WHERE `Emp_id`='"+model.getEmpId()+"' AND `Type_ID`='"+model.getTypeId()+"';";
 		System.out.println("sql " + q);
 		PreparedStatement ps = dbconnet.prepareStatement(q);
 		ps.executeUpdate();
@@ -546,8 +582,8 @@ public class DatabaseUtil {
 		ps.executeUpdate();
 	}
 	
-	public void UpdateLeaveCount(Connection dbconnet,LeaveTypeModel model,int emp_id) throws SQLException {
-		String q = "UPDATE `leave_day_count` SET `Leaved`= "+model.getNum_per_year() +" WHERE `Type_ID` = '"+model.getId()+"' AND `Emp_id` = '"+emp_id+"';";
+	public void UpdateLeaveCount(Connection dbconnet,LeaveCountModel model) throws SQLException {
+		String q = "UPDATE `leave_day_count` SET `Leaved`= "+model.getLeaved() +" WHERE `Type_ID` = '"+model.getTypeId()+"' AND `Emp_id` = '"+model.getEmpId()+"';";
 		System.out.println("sql " + q);
 		PreparedStatement ps = dbconnet.prepareStatement(q);
 		ps.executeUpdate();
@@ -627,7 +663,25 @@ public class DatabaseUtil {
 		PreparedStatement ps = dbconnet.prepareStatement(q);
 		ps.executeUpdate();
 	}
-	
+
+	public void Leave_count_log(Connection dbconnet,LeaveCountModel count_model,LeaveModel leave_model,String time,String Action) throws SQLException {
+		String log = "INSERT INTO `leave_day_count_log` (`Emp_id`,`Type_ID`,`Leaved`,`Req_id`, `Time` , `Amount_hour`, `Operator`,`Action`)" +
+				"SELECT `Emp_id` ,`Type_ID`, `Leaved`,'"+leave_model.getReqId()+"'  AS  `Req_id`,'"+time+"' AS `Time` ,"+leave_model.getAmount()+" AS `Amount_hour` ," +
+				" "+leave_model.getDepend()+" AS `Operator` , '"+Action+"' AS `Action`  " +
+				"FROM `leave_day_count` WHERE `Emp_id` = '"+count_model.getEmpId()+"' AND `Type_ID` = '"+count_model.getTypeId()+"'; ";
+		PreparedStatement ps_log = dbconnet.prepareStatement(log);
+		ps_log.executeUpdate();
+	}
+
+	public void Leave_Request_log(Connection dbconnet,LeaveCountModel count_model,LeaveModel leave_model,String time,int hours,String Action,String Operater) throws SQLException {
+		String log = "INSERT INTO `leave_day_count_log` (`Emp_id`,`Type_ID`,`Leaved`,`Req_id`, `Time` , `Amount_hour`, `Operator`,`Action`)" +
+				"SELECT `Emp_id` ,`Type_ID`, `Leaved`,'"+leave_model.getReqId()+"'  AS  `Req_id`,'"+time+"' AS `Time` ,"+hours+" AS `Amount_hour` ," +
+				" "+Operater+" AS `Operator` , '"+Action+"' AS `Action`  " +
+				"FROM `leave_day_count` WHERE `Emp_id` = '"+count_model.getEmpId()+"' AND `Type_ID` = '"+count_model.getTypeId()+"'; ";
+		PreparedStatement ps_log = dbconnet.prepareStatement(log);
+		ps_log.executeUpdate();
+	}
+
 	private List<Map<String, Object>> convertResultSetFromDB(ResultSet rs) throws SQLException {
 		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
 		ResultSetMetaData rsmd = rs.getMetaData();

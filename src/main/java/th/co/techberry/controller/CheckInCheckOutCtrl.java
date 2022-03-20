@@ -13,6 +13,8 @@ import java.util.Map;
 import com.mysql.jdbc.Connection;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+
+import th.co.techberry.constants.ConfigConstants;
 import th.co.techberry.model.*;
 import th.co.techberry.util.DatabaseUtil;
 
@@ -68,7 +70,6 @@ public class CheckInCheckOutCtrl {
 		String[] current_date_raw = current_date_time[0].split("/");
 		String current_time = current_date_time[1]+":00";
 		String current_day = current_date_raw[0]+"-"+current_date_raw[1]+"-"+current_date_raw[2];
-
         LocalDate localDate = LocalDate.of(Integer.parseInt(current_date_raw[0]),
         		Integer.parseInt(current_date_raw[1]),Integer.parseInt(current_date_raw[2]));
         java.time.DayOfWeek dayOfWeek = localDate.getDayOfWeek();
@@ -77,17 +78,14 @@ public class CheckInCheckOutCtrl {
         	working_time_data = dbutil.select(connection,"working_time","Day_Name",DayName);
         	Last_Checkin = dbutil.selectLastCheckIn(connection,current_day,Emp_id);
         	working_time_model.setModel(working_time_data);
-        	try {
+			Leave_req = dbutil.select2con(connection,"leave_request","Emp_id","End",Emp_id,current_date_time[0]);
         		java.sql.Time Start_time = new java.sql.Time(timeFormat.parse(current_time).getTime());
 				boolean start_status = working_time_model.getStart().after(Start_time) 
 						|| working_time_model.getStart().equals(Start_time);
 				String str_time = current_day+" "+Start_time;
-				System.out.println("str_time " + str_time);
 				Timestamp timestamp = Timestamp.valueOf(str_time);
-				System.out.println("start_before " + start_status);
-				System.out.println("timestamp " + timestamp);
 				if(start_status && Last_Checkin == null) {
-					model.setStatusCheckIn("Intime");
+					model.setStatusCheckIn("In_time");
 					model.setEmpId(id);
 					model.setCheckin(timestamp);
 					System.out.println("model.gettime " + model.getCheckin());
@@ -107,22 +105,16 @@ public class CheckInCheckOutCtrl {
 					model.setStatusCheckIn("Late");
 					model.setEmpId(id);
 					model.setCheckin(timestamp);
-					System.out.println("model.gettime " + model.getCheckin());
-					try {
-						dbutil.AddCheckIn(connection,model);
-						responseBodyStr.put("status",200);
-						responseBodyStr.put("Message","Check in complete");
-					} catch(SQLException e) {
-						e.printStackTrace();
-					}
+					dbutil.AddCheckIn(connection,model);
+					responseBodyStr.put("status",200);
+					responseBodyStr.put("Message","Check in complete");
 				}
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-        } catch(SQLException e) {
+        	} catch(SQLException e) {
         	e.printStackTrace();
-        }
+			} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			}
 		return responseBodyStr;
 	}
 	
@@ -132,10 +124,12 @@ public class CheckInCheckOutCtrl {
 		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
 		Map<String, Object> working_time_data = new HashMap<String, Object>();
 		Map<String, Object> Last_Checkin = new HashMap<String, Object>();
-		Map<String, Object> Day_off = new HashMap<String, Object>();
+		Map<String, Object> Leave_type = new HashMap<String, Object>();
+		Map<String, Object> Leave_count = new HashMap<String, Object>();
 		CheckInCheckOutModel model = new CheckInCheckOutModel();
 		WorkingTimeModel working_time_model = new WorkingTimeModel();
-		DayOffModel dayoff_model = new DayOffModel();
+		LeaveCountModel DayOffCount = new LeaveCountModel();
+		LeaveTypeModel type_model = new LeaveTypeModel();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 		DateFormat timeFormat = new SimpleDateFormat("hh:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
@@ -153,7 +147,6 @@ public class CheckInCheckOutCtrl {
         	Last_Checkin = dbutil.selectLastCheckIn(connection,current_day,Emp_id);
         	working_time_model.setModel(working_time_data);
         	model.setModel(Last_Checkin);
-        	try {
         		java.sql.Time End_time = new java.sql.Time(timeFormat.parse(current_time).getTime());
 				boolean End_after = End_time.after(working_time_model.getEnd())
 						|| End_time.equals(working_time_model.getEnd());
@@ -171,65 +164,40 @@ public class CheckInCheckOutCtrl {
 						System.out.println("End_time.getHours() " + End_time.getHours());
 						int ot_hour = End_time.getHours() - working_time_model.getEnd().getHours();
 						System.out.println("result " + ot_hour);
-						try {
-							dbutil.AddCheckOut(connection,model);
-							Day_off = dbutil.select(connection,"day_off_list","Emp_id",Emp_id);
-							if(Day_off != null) {
-								dayoff_model.setModel(Day_off);
-								int day = dayoff_model.getHour() + ot_hour;
-								dayoff_model.setHour(day);
-								dbutil.UpdateDayOff(connection,dayoff_model);
-							}
-							else {
-								dbutil.AddDayOff(connection, Emp_id,"Over Time",Integer.toString(ot_hour));
-							}
-						} catch(SQLException e) {
-							e.printStackTrace();
-						}
+						dbutil.AddCheckOut(connection,model);
+						Leave_type = dbutil.select(connection,"leave_type","Type_name", ConfigConstants.DAY_OFF_NAME);
+						type_model.setModel(Leave_type);
+						Leave_count = dbutil.select2con(connection,"leave_day_count","Emp_id","Type_ID",
+						Emp_id,Integer.toString(type_model.getId()));
+						DayOffCount.setModel(Leave_count);
+						DayOffCount.setLeaved(DayOffCount.getLeaved()+ot_hour);
+						dbutil.AddDayOff(connection,DayOffCount);
 						responseBodyStr.put("status",200);
 						responseBodyStr.put("Message","Check Out Complete");
 					}
 					else {
-						model.setStatusCheckOut("Intime");
+						model.setStatusCheckOut("In time");
 						model.setEmpId(id);
 						model.setCheckout(timestamp);
-						try {
-							dbutil.AddCheckOut(connection,model);
-						} catch(SQLException e) {
-							e.printStackTrace();
-						}
+						dbutil.AddCheckOut(connection,model);
 						responseBodyStr.put("status",200);
 						responseBodyStr.put("Message","Check Out Complete");
 					}
-//					System.out.println("model.gettime " + model.getCheckin());
-//					try {
-//						dbutil.AddCheckIn(connection,model);
-//						responseBodyStr.put("status",200);
-//						responseBodyStr.put("Message","Check in complete");
-//					} catch(SQLException e) {
-//						e.printStackTrace();
-//					}
 				}
 				else if(model.getCheckout() != null) {
 					responseBodyStr.put("status",400);
 					responseBodyStr.put("Message","You have already Check Out");
 				}
 				else {
-//					try {
-//						dbutil.AddCheckIn(connection,model);
-						responseBodyStr.put("status",400);
-						responseBodyStr.put("Message","Cannot Check out");
-//					} catch(SQLException e) {
-//						e.printStackTrace();
-//					}
+					responseBodyStr.put("status",400);
+					responseBodyStr.put("Message","Cannot Check out");
 				}
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
         } catch(SQLException e) {
         	e.printStackTrace();
-        }
+        } catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return responseBodyStr;
 	}
 
@@ -249,70 +217,33 @@ public class CheckInCheckOutCtrl {
 		String current_time = dtf.format(now).split(" ")[1];
 		System.out.println("Time now " + current_time);
 //		String current_time = current_date_time[1]+":00";
-
-		if(Duration.equals("Day")){
-			try{
+		try{
+			if(Duration.equals("Day")){
 				Check_data = dbutil.selectCheckin(connection,"%-"+current_date_raw[2]+"%",Emp_id);
-				for(Map<String, Object> temp : Check_data){
-					Map<String, Object> ans = new HashMap<String, Object>();
-					model.setModel(temp);
-					ans.put("CheckId",model.getCheckId());
-					ans.put("Check_in",model.getCheckin());
-					ans.put("Check_out",model.getCheckout());
-					ans.put("Emp_id",model.getEmpId());
-					ans.put("Check_in_status",model.getStatusCheckIn());
-					ans.put("Check_out_status",model.getStatusCheckOut());
-					res.add(ans);
-				}
-			} catch(SQLException e){
-				e.printStackTrace();
 			}
-			responseBodyStr.put("data",res);
-			responseBodyStr.put("status",200);
-			responseBodyStr.put("message","success");
-		}
-		else if(Duration.equals("Month")){
-			try{
+			else if(Duration.equals("Month")){
 				Check_data = dbutil.selectCheckin(connection,"%-"+current_date_raw[1]+"%",Emp_id);
-				for(Map<String, Object> temp : Check_data){
-					Map<String, Object> ans = new HashMap<String, Object>();
-					model.setModel(temp);
-					ans.put("CheckId",model.getCheckId());
-					ans.put("Check_in",model.getCheckin());
-					ans.put("Check_out",model.getCheckout());
-					ans.put("Emp_id",model.getEmpId());
-					ans.put("Check_in_status",model.getStatusCheckIn());
-					ans.put("Check_out_status",model.getStatusCheckOut());
-					res.add(ans);
-				}
-			} catch(SQLException e){
-				e.printStackTrace();
 			}
-			responseBodyStr.put("data",res);
-			responseBodyStr.put("status",200);
-			responseBodyStr.put("message","success");
-		}
-		else if(Duration.equals("Year")){
-			try{
-				Check_data = dbutil.selectCheckin(connection,current_date_raw[0]+"%",Emp_id);
-				for(Map<String, Object> temp : Check_data){
-					Map<String, Object> ans = new HashMap<String, Object>();
-					model.setModel(temp);
-					ans.put("CheckId",model.getCheckId());
-					ans.put("Check_in",model.getCheckin());
-					ans.put("Check_out",model.getCheckout());
-					ans.put("Emp_id",model.getEmpId());
-					ans.put("Check_in_status",model.getStatusCheckIn());
-					ans.put("Check_out_status",model.getStatusCheckOut());
-					res.add(ans);
-				}
-			} catch(SQLException e){
-				e.printStackTrace();
+			else if(Duration.equals("Year")) {
+				Check_data = dbutil.selectCheckin(connection, current_date_raw[0] + "%", Emp_id);
 			}
-			responseBodyStr.put("data",res);
-			responseBodyStr.put("status",200);
-			responseBodyStr.put("message","success");
+		} catch(SQLException e){
+			e.printStackTrace();
 		}
+			for(Map<String, Object> temp : Check_data){
+				Map<String, Object> ans = new HashMap<String, Object>();
+				model.setModel(temp);
+				ans.put("CheckId",model.getCheckId());
+				ans.put("Check_in",model.getCheckin());
+				ans.put("Check_out",model.getCheckout());
+				ans.put("Emp_id",model.getEmpId());
+				ans.put("Check_in_status",model.getStatusCheckIn());
+				ans.put("Check_out_status",model.getStatusCheckOut());
+				res.add(ans);
+		}
+		responseBodyStr.put("data",res);
+		responseBodyStr.put("status",200);
+		responseBodyStr.put("message","success");
 		return responseBodyStr;
 	}
 
@@ -323,7 +254,6 @@ public class CheckInCheckOutCtrl {
 		List<Map<String, Object>> Check_data = new ArrayList<Map<String, Object>>();
 		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
 		CheckInCheckOutModel model = new CheckInCheckOutModel();
-		String Emp_id = (String) data.get("Emp_id");
 		String Duration = (String) data.get("Type");
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
 		DateFormat timeFormat = new SimpleDateFormat("hh:mm");
@@ -332,72 +262,34 @@ public class CheckInCheckOutCtrl {
 		String current_time = dtf.format(now).split(" ")[1];
 		System.out.println("Time now " + current_time);
 //		String current_time = current_date_time[1]+":00";
-
-		if(Duration.equals("Day")){
-			try{
-				Check_data = dbutil.selectCheckin(connection,"%-"+current_date_raw[2]+"%",Emp_id);
-				for(Map<String, Object> temp : Check_data){
-					Map<String, Object> ans = new HashMap<String, Object>();
-					model.setModel(temp);
-					ans.put("CheckId",model.getCheckId());
-					ans.put("Check_in",model.getCheckin());
-					ans.put("Check_out",model.getCheckout());
-					ans.put("Emp_id",model.getEmpId());
-					ans.put("Check_in_status",model.getStatusCheckIn());
-					ans.put("Check_out_status",model.getStatusCheckOut());
-					res.add(ans);
-				}
-			} catch(SQLException e){
-				e.printStackTrace();
+		try{
+			if(Duration.equals("Day")){
+				Check_data = dbutil.selectCheckinAll(connection,"%-"+current_date_raw[2]+"%");
+			}
+			else if(Duration.equals("Month")){
+				Check_data = dbutil.selectCheckinAll(connection,"%-"+current_date_raw[1]+"%");
+			}
+			else if(Duration.equals("Year")){
+				Check_data = dbutil.selectCheckinAll(connection,current_date_raw[0]+"%");
+			}
+			for(Map<String, Object> temp : Check_data){
+				Map<String, Object> ans = new HashMap<String, Object>();
+				model.setModel(temp);
+				ans.put("CheckId",model.getCheckId());
+				ans.put("Check_in",model.getCheckin());
+				ans.put("Check_out",model.getCheckout());
+				ans.put("Emp_id",model.getEmpId());
+				ans.put("Check_in_status",model.getStatusCheckIn());
+				ans.put("Check_out_status",model.getStatusCheckOut());
+				res.add(ans);
 			}
 			responseBodyStr.put("data",res);
 			responseBodyStr.put("status",200);
 			responseBodyStr.put("message","success");
-		}
-		else if(Duration.equals("Month")){
-			try{
-				Check_data = dbutil.selectCheckin(connection,"%-"+current_date_raw[1]+"%",Emp_id);
-				for(Map<String, Object> temp : Check_data){
-					Map<String, Object> ans = new HashMap<String, Object>();
-					model.setModel(temp);
-					ans.put("CheckId",model.getCheckId());
-					ans.put("Check_in",model.getCheckin());
-					ans.put("Check_out",model.getCheckout());
-					ans.put("Emp_id",model.getEmpId());
-					ans.put("Check_in_status",model.getStatusCheckIn());
-					ans.put("Check_out_status",model.getStatusCheckOut());
-					res.add(ans);
-				}
-			} catch(SQLException e){
-				e.printStackTrace();
-			}
-			responseBodyStr.put("data",res);
-			responseBodyStr.put("status",200);
-			responseBodyStr.put("message","success");
-		}
-		else if(Duration.equals("Year")){
-			try{
-				Check_data = dbutil.selectCheckin(connection,current_date_raw[0]+"%",Emp_id);
-				for(Map<String, Object> temp : Check_data){
-					Map<String, Object> ans = new HashMap<String, Object>();
-					model.setModel(temp);
-					ans.put("CheckId",model.getCheckId());
-					ans.put("Check_in",model.getCheckin());
-					ans.put("Check_out",model.getCheckout());
-					ans.put("Emp_id",model.getEmpId());
-					ans.put("Check_in_status",model.getStatusCheckIn());
-					ans.put("Check_out_status",model.getStatusCheckOut());
-					res.add(ans);
-				}
-			} catch(SQLException e){
-				e.printStackTrace();
-			}
-			responseBodyStr.put("data",res);
-			responseBodyStr.put("status",200);
-			responseBodyStr.put("message","success");
+		} catch(SQLException e){
+			e.printStackTrace();
 		}
 		return responseBodyStr;
 	}
-
 
 }

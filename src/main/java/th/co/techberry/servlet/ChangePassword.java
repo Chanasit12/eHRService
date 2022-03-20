@@ -58,18 +58,12 @@ public class ChangePassword extends HttpServlet {
 			System.out.println("ch"+ch);
 			if(ch == 200) {
 				response.setStatus(HttpServletResponse.SC_OK);
-				response.setContentType("application/json");
-				response.getOutputStream().print(gson.toJson(result));
 			}
 			else if(ch == 401) {
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-				response.setContentType("application/json");
-				response.getOutputStream().print(gson.toJson(result));
 			}
 			else if(ch == 404) {
 				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-				response.setContentType("application/json");
-				response.getOutputStream().print(gson.toJson(result));
 			}
 		} catch (GeneralSecurityException e) {
 			// TODO Auto-generated catch block
@@ -81,6 +75,10 @@ public class ChangePassword extends HttpServlet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		response.setContentType("application/json");
+		String jsonString = new Gson().toJson(result);
+		byte[] utf8JsonString = jsonString.getBytes("UTF8");
+		response.getOutputStream().write(utf8JsonString);
 	}
 
 }

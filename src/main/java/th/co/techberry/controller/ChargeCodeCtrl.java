@@ -60,7 +60,6 @@ public class ChargeCodeCtrl {
 				e.printStackTrace();
 				result.put("status",400);
 				result.put("message","Add fail");
-				return result;
 			}
 		}
 		return result;
@@ -76,17 +75,13 @@ public class ChargeCodeCtrl {
 		String Description = (String) data.get("Description");
 		try {
 			ChargeCode = dbutil.select(connection,"charge_code","Charge_code_id",(String) data.get("ChargeCode_id"));
-		}catch (SQLException e) {
-			e.printStackTrace();
-		}
-		model.setModel(ChargeCode);
-		if(!ChargeCode_Name.equals("")) {
-			model.setChargeCodeName(ChargeCode_Name);
-		}
-		if(!Description.equals("")) {
-			model.setDescription(Description);
-		}
-		try {
+			model.setModel(ChargeCode);
+			if(!ChargeCode_Name.equals("")) {
+				model.setChargeCodeName(ChargeCode_Name);
+			}
+			if(!Description.equals("")) {
+				model.setDescription(Description);
+			}
 			dbutil.UpdateChargeCode(connection,model);
 			result.put("status",200);
 			result.put("message","Update success");
@@ -94,7 +89,6 @@ public class ChargeCodeCtrl {
 			e.printStackTrace();
 			result.put("status",400);
 			result.put("message","Add fail");
-			return result;
 		}
 		return result;
 	}
@@ -117,7 +111,6 @@ public class ChargeCodeCtrl {
 				e.printStackTrace();
 				result.put("status",400);
 				result.put("message","Delete fail");
-				return result;
 			}
 		}
 		return result;

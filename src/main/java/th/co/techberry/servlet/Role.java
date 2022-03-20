@@ -63,13 +63,9 @@ public class Role extends HttpServlet {
 				int ch = (Integer)result.get("status");
 				if(ch == 200) {
 					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
 				}
 				else if(ch == 404) {
 					response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
 				}
 				else {
 					response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
@@ -82,6 +78,10 @@ public class Role extends HttpServlet {
 				e.printStackTrace();
 			}
 		}
+		response.setContentType("application/json");
+		String jsonString = new Gson().toJson(result);
+		byte[] utf8JsonString = jsonString.getBytes("UTF8");
+		response.getOutputStream().write(utf8JsonString);
 	}
 
 }

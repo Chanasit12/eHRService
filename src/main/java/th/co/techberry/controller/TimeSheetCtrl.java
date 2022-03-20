@@ -173,11 +173,7 @@ public class TimeSheetCtrl {
 		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
 		TimeSheetModel Timesheet_model = new TimeSheetModel();
 		String emp_id = Integer.toString(id);
-//		String Detail = (String) data.get("Detail");
-//		String Remark = (String) data.get("Remark");
 		String Date = (String) data.get("Date");
-//		String Location_id = (String) data.get("Location_id");
-//		String Charge_code_id = (String) data.get("Charge_Code_Id");
 		String[] Raw_start = ((String) data.get("Start_at")).split("[:]");
 		String[] Raw_End = ((String) data.get("End_at")).split("[:]");
 		String Start = Raw_start[0]+":"+Raw_start[1]+":00";
@@ -209,7 +205,7 @@ public class TimeSheetCtrl {
 		String Raw_End = (String) data.get("End_at");;
 		String Sheet_id = (String) data.get("Sheet_id");
 		String Time = java.time.LocalDateTime.now().toString();
-		SimpleDateFormat formatter1 = new SimpleDateFormat("hh:mm");
+		SimpleDateFormat formatter1 = new SimpleDateFormat("HH:mm");
 		try {
 			Sheet_detail = dbutil.select(connection,"timesheet","Sheet_id",Sheet_id);
 			Timesheet_model.setModel(Sheet_detail);
@@ -234,14 +230,19 @@ public class TimeSheetCtrl {
 			String[] start = Raw_start.split("[:]");
 			String Start = start[0]+":"+start[1]+":00";
 			Date time = formatter1.parse(Start);
+			System.out.println("Starttime "+time);
 			java.sql.Time timeValue = new java.sql.Time(time.getTime());
+			System.out.println("StartValue "+timeValue);
 			Timesheet_model.setStart(timeValue);
 		}
 		if(!Raw_End.equals("")) {
 			String[] end = Raw_End.split("[:]");
 			String End = end[0]+":"+end[1]+":00";
+			System.out.println("End "+End);
 			Date time = formatter1.parse(End);
+			System.out.println("Endtime "+time);
 			java.sql.Time timeValue = new java.sql.Time(time.getTime());
+			System.out.println("EndValue "+timeValue);
 			Timesheet_model.setEnd(timeValue);
 		}
 		try {

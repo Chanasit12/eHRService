@@ -56,221 +56,57 @@ public class Team extends HttpServlet {
 		Map<String, Object> result = new HashMap<String, Object>();
 		responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
 		TeamCtrl data = new TeamCtrl();
-		if(responseBodyStr.isEmpty()) {
-			try {
+		int id_in_token = apiUtil.getIdInToken(request);
+		try{
+			if(responseBodyStr.isEmpty()) {
 				result.putAll(data.Team());
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 404) {
-					response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else {
-					response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
-				}
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Add")) {
-			try {
+			else if(responseBodyStr.get("Option").equals("Add")) {
 				result.putAll(data.Team_Add(responseBodyStr));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 401) {
-					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 400) {
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else {
-					response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
-				}
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Team_Update")) {
-			try {
+			else if(responseBodyStr.get("Option").equals("Team_Update")) {
 				result.putAll(data.Team_Update(responseBodyStr));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 400) {
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else {
-					response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
-				}
-			}catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Member")) {
-			try {
+			else if(responseBodyStr.get("Option").equals("Member")) {
 				result.putAll(data.Member(responseBodyStr));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 401) {
-					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 400) {
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Add_Member")) {
-			try {
+			else if(responseBodyStr.get("Option").equals("Add_Member")) {
 				result.putAll(data.Add_member(responseBodyStr));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 401) {
-					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 400) {
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Delete_Team")) {
-			try {
+			else if(responseBodyStr.get("Option").equals("Delete_Team")) {
 				result.putAll(data.Delete_Team(responseBodyStr));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 401) {
-					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 400) {
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Delete_Member")) {
-			try {
+			else if(responseBodyStr.get("Option").equals("Delete_Member")) {
 				result.putAll(data.Delete_Member(responseBodyStr));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 401) {
-					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 400) {
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Host_Team")) {
-			try {
-				int id_in_token = apiUtil.getIdInToken(request);
+			else if(responseBodyStr.get("Option").equals("Host_Team")) {
 				result.putAll(data.Get_Team_By_Host(id_in_token));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 401) {
-					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 400) {
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
+			else if(responseBodyStr.get("Option").equals("Get_Team_By_Emp_id")) {
+				result.putAll(data.Get_Team_By_Empid(responseBodyStr));
+			}
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		int ch = (Integer)result.get("status");
+		if(ch == 200) {
+			response.setStatus(HttpServletResponse.SC_OK);
+			response.setContentType("application/json");
+			response.getOutputStream().print(gson.toJson(result));
+		}
+		else if(ch == 401) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.setContentType("application/json");
+			response.getOutputStream().print(gson.toJson(result));
+		}
+		else if(ch == 400) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.setContentType("application/json");
+			response.getOutputStream().print(gson.toJson(result));
 		}
 	}
 }

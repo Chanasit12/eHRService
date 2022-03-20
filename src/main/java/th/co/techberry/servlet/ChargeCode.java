@@ -56,91 +56,40 @@ public class ChargeCode extends HttpServlet {
 		Map<String, Object> result = new HashMap<String, Object>();
 		responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
 		ChargeCodeCtrl data = new ChargeCodeCtrl();
-		if(responseBodyStr.get("Option").equals("Main")) {
-			try {
+		try{
+			if(responseBodyStr.get("Option").equals("Main")) {
 				result.putAll(data.ChargeCode());
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else {
-					response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
-				}
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		if(responseBodyStr.get("Option").equals("Add")) {
-			try {
+			if(responseBodyStr.get("Option").equals("Add")) {
 				result.putAll(data.Add_ChargeCode(responseBodyStr));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 400) {
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else {
-					response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
-				}
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		if(responseBodyStr.get("Option").equals("Delete")) {
-			try {
+			if(responseBodyStr.get("Option").equals("Delete")) {
 				result.putAll(data.Delete_ChargeCode(responseBodyStr));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else {
-					response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
-				}
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		if(responseBodyStr.get("Option").equals("Update")) {
-			try {
+			if(responseBodyStr.get("Option").equals("Update")) {
 				result.putAll(data.Update_ChargeCode(responseBodyStr));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else {
-					response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
-				}
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		int ch = (Integer)result.get("status");
+		if(ch == 200) {
+			response.setStatus(HttpServletResponse.SC_OK);
+		}
+		else if(ch == 400) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		}
+		else {
+			response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
+		}
+		response.setContentType("application/json");
+		String jsonString = new Gson().toJson(result);
+		byte[] utf8JsonString = jsonString.getBytes("UTF8");
+		response.getOutputStream().write(utf8JsonString);
 	}
 
 }

@@ -2,6 +2,7 @@ package th.co.techberry.servlet;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.ServletException;
@@ -53,131 +54,65 @@ public class Leave extends HttpServlet {
 		responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
 		LeaveCtrl ctrl = new LeaveCtrl();
 		int id_in_token = apiUtil.getIdInToken(request);
-		if(responseBodyStr.isEmpty()) {
-				try {
-					result.putAll(ctrl.Profile_leave(id_in_token));
-				}catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-	}
-		else if(responseBodyStr.get("Option").equals("Show_Leave_Count")) {
-			try {
+		try {
+			if(responseBodyStr.isEmpty()) {
 				result.putAll(ctrl.Profile_leave(id_in_token));
-			}catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-}
-		else if(responseBodyStr.get("Option").equals("Show_Leave_Type")) {
-			System.out.println("responseBodyStr"+responseBodyStr);
-			try {
+			else if(responseBodyStr.get("Option").equals("Show_Leave_Type")) {
 				result.putAll(ctrl.Leave_type_mgmt());
-			} catch(SQLException e) {
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Add_Leave_Type")) {
-			System.out.println("responseBodyStr"+responseBodyStr);
-			try {
+			else if(responseBodyStr.get("Option").equals("Add_Leave_Type")) {
 				result.putAll(ctrl.Add_Leave_type(responseBodyStr));
-			} catch(SQLException e) {
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Delete_Leave_Type")) {
-			System.out.println("responseBodyStr"+responseBodyStr);
-			try {
+			else if(responseBodyStr.get("Option").equals("Delete_Leave_Type")) {
 				result.putAll(ctrl.Delete_Leave_Type(responseBodyStr));
-			} catch(SQLException e) {
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Update_Leave_Type")) {
-			System.out.println("responseBodyStr"+responseBodyStr);
-			try {
+			else if(responseBodyStr.get("Option").equals("Update_Leave_Type")) {
 				result.putAll(ctrl.Update_Leave_Type(responseBodyStr));
-			} catch(SQLException e) {
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Send_Leave_Req")) {
-			System.out.println("responseBodyStr"+responseBodyStr);
-			try {
+			else if(responseBodyStr.get("Option").equals("Send_Leave_Req")) {
 				result.putAll(ctrl.Send_Request(responseBodyStr));
-			} catch(SQLException e) {
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Get_Leave_Req")) {
-			System.out.println("responseBodyStr"+responseBodyStr);
-			try {
+			else if(responseBodyStr.get("Option").equals("Get_Leave_Req_Mgmt")) {
 				result.putAll(ctrl.Get_Request(id_in_token));
-			} catch(SQLException e) {
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Response_Leave_Req")) {
-			System.out.println("responseBodyStr"+responseBodyStr);
-			try {
+			else if(responseBodyStr.get("Option").equals("Get_Leave_Req")) {
+				result.putAll(ctrl.Leave_request_By_Emp_id(id_in_token));
+			}
+			else if(responseBodyStr.get("Option").equals("Response_Leave_Req")) {
 				result.putAll(ctrl.Response_Leave_Request(responseBodyStr,id_in_token));
-			} catch(SQLException e) {
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Delete_Leave_Req")) {
-			System.out.println("responseBodyStr"+responseBodyStr);
-			try {
-				result.putAll(ctrl.Delete_Leave_Request(responseBodyStr));
-			} catch(SQLException e) {
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			else if(responseBodyStr.get("Option").equals("Get_Leave_info_By_Empid")) {
+				result.putAll(ctrl.Emp_leave_information_By_id(responseBodyStr));
 			}
+			else if(responseBodyStr.get("Option").equals("Send_Cancellation")) {
+				result.putAll(ctrl.Send_Cancellation(responseBodyStr));
+			}
+			else if(responseBodyStr.get("Option").equals("Response_Cancellation")) {
+				result.putAll(ctrl.Response_Cancelled_Leave_Request(responseBodyStr));
+			}
+		}catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}catch (ParseException e){
+			e.printStackTrace();
 		}
 		int ch = (Integer)result.get("status");
 		if(ch == 200) {
 			response.setStatus(HttpServletResponse.SC_OK);
-			response.setContentType("application/json");
-			response.getOutputStream().print(gson.toJson(result));
 		}
 		else if(ch == 400) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.setContentType("application/json");
-			response.getOutputStream().print(gson.toJson(result));
 		}
 		else if(ch == 404) {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			response.setContentType("application/json");
-			response.getOutputStream().print(gson.toJson(result));
 		}
+		response.setContentType("application/json");
+		String jsonString = new Gson().toJson(result);
+		byte[] utf8JsonString = jsonString.getBytes("UTF8");
+		response.getOutputStream().write(utf8JsonString);
 	}
 }

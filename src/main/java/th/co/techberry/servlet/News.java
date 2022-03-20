@@ -51,104 +51,54 @@ public class News extends HttpServlet {
 		// TODO Auto-generated method stub
 		ApidataUtil apiUtil = new ApidataUtil();
 		Gson gson = new Gson();
+		request.setCharacterEncoding("UTF-8");
 		apiUtil.setAccessControlHeaders(response);
 		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
 		Map<String, Object> result = new HashMap<String, Object>();
 		responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
 		int id_in_token = apiUtil.getIdInToken(request);
 		NewsCtrl news = new NewsCtrl();
-		if(responseBodyStr.isEmpty()) {
-			try {
+		try{
+			if(responseBodyStr.isEmpty()) {
 				result.putAll(news.News());
 				response.setStatus(HttpServletResponse.SC_OK);
-				response.setContentType("application/json");
-				System.out.println("test " + gson.toJson(result));
-//				response.getOutputStream().print(gson.toJson(result));
-				PrintWriter out = response.getWriter();
-				out.println(gson.toJson(result));
-			}catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		else {
-			if(responseBodyStr.get("Option").equals("Add")) {
-				try {
-					result.putAll(news.Add_News(responseBodyStr,id_in_token));
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			else if(responseBodyStr.get("Option").equals("Add")) {
+				result.putAll(news.Add_News(responseBodyStr,id_in_token));
+				response.setStatus(HttpServletResponse.SC_OK);
 			}
-			if(responseBodyStr.get("Option").equals("Getall")) {
-				try {
-					result.putAll(news.NewsAll());
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			else if(responseBodyStr.get("Option").equals("Getall")) {
+				result.putAll(news.NewsAll());
+				response.setStatus(HttpServletResponse.SC_OK);
 			}
 			else if(responseBodyStr.get("Option").equals("Update")){
-				try {
-					result.putAll(news.Update_News(responseBodyStr));
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				result.putAll(news.Update_News(responseBodyStr));
+				response.setStatus(HttpServletResponse.SC_OK);
 			}
 			else if(responseBodyStr.get("Option").equals("Delete")) {
-				try {
-					result.putAll(news.Delete_News(responseBodyStr));
-					int ch = (Integer)result.get("status");
-					if(ch == 200) {
-						response.setStatus(HttpServletResponse.SC_OK);
-						response.setContentType("application/json");
-						response.getOutputStream().print(gson.toJson(result));
-					}
-					else if(ch == 400) {
-						response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-						response.setContentType("application/json");
-						response.getOutputStream().print(gson.toJson(result));
-					}
-				}catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				result.putAll(news.Delete_News(responseBodyStr));
+				int ch = (Integer)result.get("status");
+				if(ch == 200) {
+					response.setStatus(HttpServletResponse.SC_OK);
+				}
+				else if(ch == 400) {
+					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 				}
 			}
 			else if(responseBodyStr.get("Option").equals("")) {
-				result.put("status",400);
-//				result.put("Message","Not found");
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				response.setContentType("application/json");
-				response.getOutputStream().print(gson.toJson(result));
 			}
-
-
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		response.setContentType("application/json;");
+		String jsonString = new Gson().toJson(result);
+		byte[] utf8JsonString = jsonString.getBytes("UTF8");
+		response.getOutputStream().write(utf8JsonString);
 	}
 }
 

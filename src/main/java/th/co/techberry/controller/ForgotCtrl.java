@@ -13,8 +13,10 @@ import th.co.techberry.util.*;
 public class ForgotCtrl {
 	public Map<String, Object> ForgotPassword(Map<String, Object> data)
 			throws NoSuchAlgorithmException, InvalidKeySpecException, ClassNotFoundException, SQLException {
-		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
 		DatabaseUtil dbutil = new DatabaseUtil();
+		Connection connection = dbutil.connectDB();
+		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
+		Map<String, Object> Login_info = new HashMap<String, Object>();
 		LoginModel model = new LoginModel();
 		String username = (String) data.get("username");
 		if(username == "") {
@@ -23,9 +25,11 @@ public class ForgotCtrl {
 			responseBodyStr.put("message", ConfigConstants.PLEASE_INPUT_REQUIRED_FIELD);
 			return responseBodyStr;
 		}
-		Map<String, Object> Login_info = new HashMap<String, Object>();
-		Connection connection = dbutil.connectDB();
-		Login_info = dbutil.select(connection, "login", "Username", username);
+		try{
+			Login_info = dbutil.select(connection, "login", "Username", username);
+		}catch (SQLException e){
+			e.printStackTrace();
+		}
 		System.out.println("Login_info!"+Login_info);
 		if(Login_info == null) {
 			responseBodyStr.put("status", 404);

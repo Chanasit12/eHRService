@@ -19,33 +19,24 @@ public class NewsModel {
 	}
 	
 	public void setDetail(String detail) {
-		if(detail!="") {
+
 			Detail = detail;
-		}
 	}
 	
 	public void setTopic(String topic) {
-		if(topic != "") {
 			Topic = topic;
-		}
 	}
 
 	public void setImg(String img) {
-		if(img != "") {
 			Img = img;
-		}
 	}
 
 	public void setStart(Timestamp time) {
-		if(start_at != time) {
 			start_at = time;
-		}
 	}
 
 	public void setEnd(Timestamp time) {
-		if(end_at != time) {
 			end_at = time;
-		}
 	}
 	
 	public void setCreator(int id) {
@@ -91,7 +82,6 @@ public class NewsModel {
 
 	public void setModel(Map<String, Object> data) {
 		if(data != null) {
-			System.out.println("Creator in model  "+data.get("Creator").getClass().getSimpleName());
 			setDetail((String) data.get("Detail"));
 			setTopic((String) data.get("Topic"));
 			setImg((String) data.get("Img"));

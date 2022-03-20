@@ -158,27 +158,25 @@ public class TeamCtrl {
 		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
 		Map<String, Object> Emp_info = new HashMap<String, Object>();
 		Map<String, Object> Position_info = new HashMap<String, Object>();
+		EmployeeModel emp_model = new EmployeeModel();
 		try {
 			Team_member = dbutil.selectArray(connection,"emp_team","Team_id",(String) data.get("Team_id"));
-			System.out.println("Team_member " + Team_member);
-			int size = 0;
+			int index = 1;
 			if(Team_member != null) {
-				while(size<Team_member.size()) {
+				for(Map<String, Object> temp : Team_member){
 					Map<String, Object> ans = new HashMap<String, Object>();
-					String Emp_id = String.valueOf((Integer) Team_member.get(size).get("Emp_id"));
+					String Emp_id = String.valueOf((Integer) temp.get("Emp_id"));
 					Emp_info = dbutil.select(connection,"Employee","Emp_id",Emp_id);
-					String Firstname = (String)Emp_info.get("Firstname");
-					String Lastname = (String)Emp_info.get("Lastname");
-					String Fullname = Firstname + " " + Lastname;
-					String Position_id  = String.valueOf((Integer) Emp_info.get("Position_ID"));
+					emp_model.setModel(Emp_info);
+					String Position_id  = String.valueOf(emp_model.getPositionid());
 					Position_info = dbutil.select(connection,"position","Position_ID",Position_id);
 					String Position = (String)Position_info.get("Position_Name");
-					ans.put("index",size+1);
-					ans.put("Name",Fullname);
+					ans.put("index",index);
+					ans.put("Name",emp_model.getFirstname() + " " + emp_model.getLastname());
 					ans.put("id",Emp_id);
 					ans.put("Position",Position);
 					res.add(ans);
-					size++;
+					index++;
 				}
 				responseBodyStr.put("data",res);
 				responseBodyStr.put("status",200);
@@ -192,7 +190,6 @@ public class TeamCtrl {
 		}catch(SQLException e) {
 			e.printStackTrace();
 		}
-		System.out.println("responseBodyStr " + responseBodyStr);
 		return responseBodyStr;
 	}
 	
@@ -311,15 +308,53 @@ public class TeamCtrl {
 		String Emp_id = Integer.toString(id);
 		try {
 			Team = dbutil.selectArray(connection,"team","Team_Host",Emp_id);
-			for(Map<String,Object> temp : Team) {
-				Map<String, Object> ans = new HashMap<String, Object>();
-				team.setModel(temp);
-				ans.put("Team_id",team.getTeamId());
-				ans.put("Teamname",team.getTeamName());
-				ans.put("Team_host",team.getHost());
-				res.add(ans);
+			if(Team != null){
+				for(Map<String,Object> temp : Team) {
+					Map<String, Object> ans = new HashMap<String, Object>();
+					team.setModel(temp);
+					ans.put("Team_id",team.getTeamId());
+					ans.put("Teamname",team.getTeamName());
+					ans.put("Team_host",team.getHost());
+					res.add(ans);
+				}
 			}
 			responseBodyStr.put("data",res);
+			responseBodyStr.put("status",200);
+			responseBodyStr.put("Message","success");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return responseBodyStr;
+	}
+
+	public Map<String, Object> Get_Team_By_Empid(Map<String, Object> data) throws SQLException, ClassNotFoundException {
+		DatabaseUtil dbutil = new DatabaseUtil();
+		Connection connection = dbutil.connectDB();
+		List<Map<String, Object>> Team = new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> res = new ArrayList<Map<String, Object>>();
+		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
+		Map<String, Object> Team_detail = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<String, Object>();
+		TeamModel team = new TeamModel();
+		String Emp_id = (String) data.get("Emp_id");
+		try {
+			Team = dbutil.selectArray(connection,"emp_team","Emp_id",Emp_id);
+			if(Team != null){
+				for(Map<String,Object> temp : Team) {
+					String team_id = temp.get("Team_id").toString();
+					Team_detail = dbutil.select(connection,"team","Team_id",team_id);
+					Map<String, Object> ans = new HashMap<String, Object>();
+					team.setModel(Team_detail);
+					ans.put("Team_id",team.getTeamId());
+					ans.put("Teamname",team.getTeamName());
+					ans.put("Team_host",team.getHost());
+					res.add(ans);
+				}
+				responseBodyStr.put("data",res);
+			}
+			else{
+				responseBodyStr.put("data",res);
+			}
 			responseBodyStr.put("status",200);
 			responseBodyStr.put("Message","success");
 		} catch (SQLException e) {

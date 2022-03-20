@@ -20,16 +20,14 @@ public class CompanyCtrl {
 		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
 		try {
 			Company = dbutil.selectAll(connection,"company");
-			int size = 0;
 			if(Company != null) {
-				while(size<Company.size()) {
+				for(Map<String, Object> temp : Company){
 					Map<String, Object> ans = new HashMap<String, Object>();
-					String Comp_ID = String.valueOf((Integer) Company.get(size).get("Comp_ID"));
-					String Company_Name	 = (String) Company.get(size).get("Company_Name");
+					String Comp_ID = String.valueOf((Integer) temp.get("Comp_ID"));
+					String Company_Name	 = (String) temp.get("Company_Name");
 					ans.put("ID",Comp_ID);
 					ans.put("Company_Name",Company_Name);
 					res.add(ans);
-					size++;
 				}
 				responseBodyStr.put("data",res);
 				responseBodyStr.put("status",200);

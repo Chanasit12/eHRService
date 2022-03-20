@@ -56,157 +56,46 @@ public class Employee_mgmt extends HttpServlet {
 		Map<String, Object> result = new HashMap<String, Object>();
 		responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
 		Employee_mgmtCtrl data = new Employee_mgmtCtrl();
-		System.out.println("responseBodyStr.get(\"Option\") " + responseBodyStr.get("Option"));
-		if(responseBodyStr.get("Option").equals("Main")) {
-			try {
+		try{
+			if(responseBodyStr.get("Option").equals("Main")) {
 				result.putAll(data.Employee_mgmt());
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 400) {
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else {
-					response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
-				}
-			}  catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Add")) {
-			try {
+			else if(responseBodyStr.get("Option").equals("Add")) {
 				result.putAll(data.Add_Employee(responseBodyStr));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 400) {
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else {
-					response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
-				}
-			}  catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Get_Detail_By_Id")) {
-			try {
+			else if(responseBodyStr.get("Option").equals("Get_Detail_By_Id")) {
 				result.putAll(data.Employee_mgmt_detail(responseBodyStr));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 400) {
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else {
-					response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
-				}
-			}  catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Update")) {
-			try {
+			else if(responseBodyStr.get("Option").equals("Update")) {
 				result.putAll(data.Update_Employee(responseBodyStr));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 400) {
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else {
-					response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
-				}
-			}  catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Delete")) {
-			try {
+			else if(responseBodyStr.get("Option").equals("Delete")) {
 				result.putAll(data.Delete_Employee(responseBodyStr));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 400) {
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else {
-					response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
-				}
-			}  catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Change_Active")) {
-			try {
+			else if(responseBodyStr.get("Option").equals("Change_Active")) {
 				result.putAll(data.Active_Employee(responseBodyStr));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 400) {
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else {
-					response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
-				}
-			}  catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
+		}  catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		int ch = (Integer)result.get("status");
+		if(ch == 200) {
+			response.setStatus(HttpServletResponse.SC_OK);
+		}
+		else if(ch == 400) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		}
+		else {
+			response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
+		}
+		response.setContentType("application/json");
+		String jsonString = new Gson().toJson(result);
+		byte[] utf8JsonString = jsonString.getBytes("UTF8");
+		response.getOutputStream().write(utf8JsonString);
 	}
 
 }

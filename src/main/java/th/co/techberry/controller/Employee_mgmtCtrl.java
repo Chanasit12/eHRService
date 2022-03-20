@@ -34,10 +34,9 @@ public class Employee_mgmtCtrl {
 		LoginModel login_model = new LoginModel();
 		try {
 			Employee = dbutil.selectAll(connection,"employee");
-			int size = 0;
 			if(Employee != null) {
-				while(size<Employee.size()) {
-					employee_model.setModel(Employee.get(size));
+				for(Map<String, Object> temp : Employee){
+					employee_model.setModel(temp);
 					Login_info = dbutil.select(connection, "login", "Id", Integer.toString(employee_model.getId()));
 					login_model.setModel(Login_info);
 					Map<String, Object> ans = new HashMap<String, Object>();
@@ -66,7 +65,6 @@ public class Employee_mgmtCtrl {
 					ans.put("Company", employee_model.getCompany());
 					ans.put("Active_Status", login_model.getActivestatus());
 					res.add(ans);
-					size++;
 				}
 				responseBodyStr.put("data",res);
 				responseBodyStr.put("status",200);
@@ -104,8 +102,6 @@ public class Employee_mgmtCtrl {
 			String positionid = Integer.toString(employee_model.getPositionid());
 			String companyid = Integer.toString(employee_model.getCompanyid());
 			Role_info = dbutil.select(connection,"user_role","Role_ID",roleid);
-			System.out.println("positionid " + positionid);
-			System.out.println("companyid " + companyid);
 			Company_info = (dbutil.select(connection,"company","Comp_ID",companyid));
 			Position_info = (dbutil.select(connection,"position","Position_ID",positionid));
 			employee_model.setRole((String) Role_info.get("Role_Name"));
@@ -146,6 +142,7 @@ public class Employee_mgmtCtrl {
 		Map<String, Object> Employee_info = new HashMap<String, Object>();
 		EmployeeModel employee_model = new EmployeeModel();
 		LoginModel login_model = new LoginModel();
+		LeaveTypeModel leave_model = new LeaveTypeModel();
 		String Title = (String) data.get("Title");
 		String Firstname = (String) data.get("Firstname");
 		String Lastname = (String) data.get("Lastname");
@@ -171,37 +168,23 @@ public class Employee_mgmtCtrl {
 			Employee_info = dbutil.select(connection,"employee","Id",login_id);
 			if(Employee_info != null) {
 				 employee_model.setModel(Employee_info);
-				 try {
-					 Leave_Day = dbutil.selectAll(connection,"leave_type");
-					 int size = 0;
-					 if(Leave_Day != null) {
-						 while(Leave_Day.size() > size) {
-							 String Emp_id = String.valueOf(employee_model.getEmpid());
-							 String Type_id = String.valueOf((Integer) Leave_Day.get(size).get("Type_ID"));
-							 String Num_per_year = String.valueOf((Integer) Leave_Day.get(size).get("Num_per_year"));
-							 try {
-								 dbutil.AddLeave_Day(connection,Emp_id,Type_id,Num_per_year,"0");
-							 }catch(SQLException e) {
-								 e.printStackTrace();
-							 }
-							 size++;
-						 }
+				 Leave_Day = dbutil.selectAll(connection,"leave_type");
+				 if(Leave_Day != null) {
+					 for(Map<String, Object> temp : Leave_Day){
+						 leave_model.setModel(temp);
+						 String Emp_id = String.valueOf(employee_model.getEmpid());
+						 String Type_id = String.valueOf(leave_model.getId());
+						 String Num_per_year = String.valueOf(leave_model.getNum_per_year());
+						 dbutil.AddLeave_Day(connection,Emp_id,Type_id,Num_per_year);
 					 }
-				 } catch(SQLException e) {
-					 e.printStackTrace();
 				 }
 				 MailUtil2 mail = new MailUtil2();
 	             mailmap.put("to", employee_model.getFirstname()+" "+employee_model.getLastname());
 	             mailmap.put("username", Username);
 	             mailmap.put("password", Password);
-	             try {
-						mail.sendMail(employee_model.getEmail(),ConfigConstants.MAIL_SUBJECT_ADD_EMPLOYEE,mailmap,ConfigConstants.MAIL_TEMPLATE_ADD_EMPLOYEE);
-						responseBodyStr.put("status", 200);
-						responseBodyStr.put("message", "Add Complete");
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+				 mail.sendMail(employee_model.getEmail(),ConfigConstants.MAIL_SUBJECT_ADD_EMPLOYEE,mailmap,ConfigConstants.MAIL_TEMPLATE_ADD_EMPLOYEE);
+				 responseBodyStr.put("status", 200);
+				 responseBodyStr.put("message", "Add Complete");
 			}
 			else {
 				responseBodyStr.put("status", 400);
@@ -211,6 +194,9 @@ public class Employee_mgmtCtrl {
 			e.printStackTrace();
 			responseBodyStr.put("status", 400);
 			responseBodyStr.put("message", "Plese check your information");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return responseBodyStr;
 	}
@@ -268,22 +254,14 @@ public class Employee_mgmtCtrl {
 	        if(!data.get("Username").equals("")) {
 	        	String login_id = Integer.toString(employee_model.getId());
 	        	login_model.setUsername((String)data.get("Username"));
-	        	try {
-		        	dbutil.UpdateUsername(connection,login_model.getUsername(),login_id);
-	        	} catch(SQLException e) {
-	    			e.printStackTrace();
-	    			responseBodyStr.put("status", 400);
-	    			responseBodyStr.put("message", "Plese check your information");
-	    			return responseBodyStr;
-	        	}
+				dbutil.UpdateUsername(connection,login_model.getUsername(),login_id);
 	        }
 			responseBodyStr.put("status", 200);
 			responseBodyStr.put("message", "Update Complete");
 		}catch(SQLException e) {
 			e.printStackTrace();
 			responseBodyStr.put("status", 400);
-			responseBodyStr.put("message", "Plese check your information");
-			return responseBodyStr;
+			responseBodyStr.put("message", "Please check your information");
 		}
 		return responseBodyStr;
 	}

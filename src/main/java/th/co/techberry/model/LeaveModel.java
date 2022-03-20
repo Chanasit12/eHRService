@@ -12,6 +12,7 @@ public class LeaveModel {
     private int Type_ID;
     private int Emp_id;
 	private int Depend;
+	private int Amount;
     private Timestamp Begin;
 	private Timestamp End;
     private String Detail;
@@ -31,8 +32,12 @@ public class LeaveModel {
 		Emp_id = id;
 	}
 
-	public void setDepend(int id) {
-		Depend = id;
+	public void setDepend(int number) {
+		Depend = number;
+	}
+
+	public void setAmount(int number) {
+		Amount = number;
 	}
 
 	public void setBegin(Timestamp time) {
@@ -77,6 +82,10 @@ public class LeaveModel {
 		return Emp_id;
 	}
 
+	public int getAmount() {
+		return Amount;
+	}
+
 	public Timestamp getBegin() {
 		return Begin;
 	}
@@ -106,14 +115,14 @@ public class LeaveModel {
 			setReqId((Integer) data.get("Req_id"));
 			setTypeId((Integer) data.get("Type_ID"));
 			setEmpId((Integer) data.get("Emp_id"));
-			setTypeId((Integer) data.get("Depend"));
+			setDepend((Integer) data.get("Depend"));
+			setAmount((Integer) data.get("Amount"));
 			setBegin((Timestamp) data.get("Begin"));
 			setEnd((Timestamp) data.get("End"));
 			setDetail((String) data.get("Detail"));
 			setStatus((String) data.get("Status"));
 			setComment((String) data.get("Comment"));
 			setEmergency((boolean) data.get("Emergency"));
-
 		}
 		else {
 			return;

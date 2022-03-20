@@ -53,116 +53,46 @@ public class Holiday extends HttpServlet {
 		Map<String, Object> result = new HashMap<String, Object>();
 		responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
 		HolidayCtrl data = new HolidayCtrl();
-		if(responseBodyStr.isEmpty()) {
-			try {
-					result.putAll(data.Holiday());
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 404) {
-					response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else {
-					response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
-				}
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		try{
+			if(responseBodyStr.isEmpty()) {
+				result.putAll(data.Holiday());
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Add")) {
-			try {
+			else if(responseBodyStr.get("Option").equals("Add")) {
 				result.putAll(data.Add＿Holiday(responseBodyStr));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 401) {
-					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 400) {
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else {
-					response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
-				}
-			}catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Update")) {
-			try {
+			else if(responseBodyStr.get("Option").equals("Update")) {
 				result.putAll(data.Update_Holiday(responseBodyStr));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 400) {
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else {
-					response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
-				}
-			}catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Delete")) {
-			try {
+			else if(responseBodyStr.get("Option").equals("Delete")) {
 				result.putAll(data.Delete_Holiday(responseBodyStr));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 401) {
-					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 400) {
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		int ch = (Integer)result.get("status");
+		if(ch == 200) {
+			response.setStatus(HttpServletResponse.SC_OK);
+		}
+		else if(ch == 401) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		}
+		else if(ch == 400) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		}
+		else {
+			response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
+		}
+		response.setContentType("application/json");
+		String jsonString = new Gson().toJson(result);
+		byte[] utf8JsonString = jsonString.getBytes("UTF8");
+		response.getOutputStream().write(utf8JsonString);
 	}
 
 }

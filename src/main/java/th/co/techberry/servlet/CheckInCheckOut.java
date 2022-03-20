@@ -58,106 +58,46 @@ public class CheckInCheckOut extends HttpServlet {
 		responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
 		CheckInCheckOutCtrl data = new CheckInCheckOutCtrl();
 		int id_in_token = apiUtil.getIdInToken(request);
-		if(responseBodyStr.get("Option").equals("Main")) {
-			try {
-				result.putAll(data.CheckInCheckOut_Data(id_in_token));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 400) {
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else {
-					response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
-				}
-			}  catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		try{
+			if(responseBodyStr.get("Option").equals("Main")) {
+					result.putAll(data.CheckInCheckOut_Data(id_in_token));
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Check_In")) {
-			try {
+			else if(responseBodyStr.get("Option").equals("Check_In")) {
 				result.putAll(data.CheckIn(id_in_token));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 400) {
-					response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else {
-					response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
-				}
-			}  catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Check_Out")) {
-			try {
+			else if(responseBodyStr.get("Option").equals("Check_Out")) {
 				result.putAll(data.CheckOut(id_in_token));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 400) {
-					response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else {
-					response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
-				}
-			}  catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
-		else if(responseBodyStr.get("Option").equals("Get_Check_List_Show_Emp_id")) {
-			try {
+			else if(responseBodyStr.get("Option").equals("Get_Check_List_Show_Emp_id")) {
 				result.putAll(data.Get_CheckInCheckOut_By_Emp_Id(responseBodyStr));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else if(ch == 400) {
-					response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-					response.setContentType("application/json");
-					response.getOutputStream().print(gson.toJson(result));
-				}
-				else {
-					response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
-				}
-			}  catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
+			else if(responseBodyStr.get("Option").equals("Get_Check_List_Show_Emp_id")) {
+				result.putAll(data.Get_CheckInCheckOut_By_Emp_Id(responseBodyStr));
+			}
+			else if(responseBodyStr.get("Option").equals("Get_All_Check_List")) {
+				result.putAll(data.Get_ALL_CheckInCheckOut(responseBodyStr));
+			}
+		}catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		int ch = (Integer)result.get("status");
+		if(ch == 200) {
+			response.setStatus(HttpServletResponse.SC_OK);
+		}
+		else if(ch == 400) {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+		}
+		else {
+			response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
+		}
+		response.setContentType("application/json");
+		String jsonString = new Gson().toJson(result);
+		byte[] utf8JsonString = jsonString.getBytes("UTF8");
+		response.getOutputStream().write(utf8JsonString);
 	}
 
 }

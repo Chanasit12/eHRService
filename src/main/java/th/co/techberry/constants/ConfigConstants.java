@@ -7,6 +7,7 @@ public class ConfigConstants {
 	public static final String DB_NAME = "e-hr";
 	public static final String DB_USER = "root";
 	public static final String DB_PASS = "";
+	public static final String DAY_OFF_NAME = "DayOff";
 	// response structure
 	public static final String RESPONSE_KEY_SUCCESS = "success";
 	public static final String RESPONSE_KEY_MESSAGE = "message";
@@ -32,6 +33,16 @@ public class ConfigConstants {
 	public static final String MAIL_SUBJECT_RESET_PASSWORD = "Reset password for eHR system";
 	public static final String MAIL_SUBJECT_EMPLOYEE_REQUEST = "Employee request leave in eHR system";
 	public static final String MAIL_SUBJECT_ADD_EMPLOYEE = "Welcome To TechBerry";
+	public static final String LEAVE_REQUEST_REQUESTED = "Requested";
+	public static final String LEAVE_REQUEST_APPROVED_BY_CHIEF = "Approved by chief";
+	public static final String LEAVE_REQUEST_DECLINED_BY_CHIEF = "Declined by chief";
+//	public static final String LEAVE_REQUEST_APPROVED_BY_MANAGER = "Approved by manager";
+//	public static final String LEAVE_REQUEST_DECLINED_BY_MANAGER = "Declined by manager";
+	public static final String APPROVED_BY_APPROVER = "Approved by approver";
+	public static final String DECLINED_BY_APPROVER = "Declined by approver";
+	public static final String CANCELLATION_REQUEST = "Cancellation Request";
+	public static final String APPROVED_CANCELLATION = "Approved cancellation";
+	public static final String DECLINED_CANCELLATION = "Declined cancellation";
 //	public static final String PATH_MAIL_TEMPLATE = "E:/Mail/";
 	public static final String PATH_MAIL_TEMPLATE = "D:/Mail";
 	public static final String MAIL_TEMPLATE_FORGOT_PASSWORD = "Mail.ftl";

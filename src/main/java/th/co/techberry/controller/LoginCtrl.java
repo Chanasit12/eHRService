@@ -36,7 +36,11 @@ public class LoginCtrl {
 		Map<String, Object> Login_info = new HashMap<String, Object>();
 		Connection connection = dbutil.connectDB();
 		// Get Login Information
-		Login_info = (dbutil.Login(connection,"Username",input_username));
+		try{
+			Login_info = (dbutil.Login(connection,"Username",input_username));
+		}catch (SQLException e){
+			e.printStackTrace();
+		}
 		if(Login_info == null) {
 			responseBodyStr.put("status", 404);
 			responseBodyStr.put(ConfigConstants.RESPONSE_KEY_SUCCESS, false);
@@ -86,7 +90,6 @@ public class LoginCtrl {
 				.withClaim("exp", afterAddingTenMins).withIssuer("auth0")
 				.sign(algorithm);
 		Map<String, Object> data = new HashMap<String, Object>();
-		System.out.println("Generate Token : "+token);
 		data.put("status", 200);
 		data.put(ConfigConstants.RESPONSE_KEY_SUCCESS, true);
 		data.put("access_token", token);

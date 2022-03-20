@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.mysql.jdbc.Connection;
+import th.co.techberry.constants.ConfigConstants;
 import th.co.techberry.model.*;
 import th.co.techberry.util.DatabaseUtil;
 public class DayOffCtrl {
@@ -17,27 +18,27 @@ public class DayOffCtrl {
 		List<Map<String, Object>> res = new ArrayList<Map<String, Object>>();
 		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
 		Map<String, Object> Emp_info = new HashMap<String, Object>();
+		Map<String, Object> Leave_type = new HashMap<String, Object>();
+		LeaveTypeModel Type_model = new LeaveTypeModel();
 		try {
-			DayOff = dbutil.selectAll(connection,"day_off_list");
-			int size = 0;
+			Leave_type = dbutil.select(connection,"leave_type","Type_name","DayOff");
+			Type_model.setModel(Leave_type);
+			DayOff = dbutil.selectArray(connection,"leave_day_count","Type_ID",Integer.toString(Type_model.getId()));
 			if(DayOff != null) {
-				while(size<DayOff.size()) {
+				for(Map<String, Object> temp : DayOff){
 					Map<String, Object> ans = new HashMap<String, Object>();
-					String Day_off_id = String.valueOf((Integer) DayOff.get(size).get("Day_off_id"));
-					String Emp_id = String.valueOf((Integer) DayOff.get(size).get("Emp_id"));
+					String Type_ID = String.valueOf((Integer) temp.get("Type_ID"));
+					String Emp_id = String.valueOf((Integer) temp.get("Emp_id"));
 					Emp_info = dbutil.select(connection,"Employee","Emp_id",Emp_id);
 					String Firstname = (String)Emp_info.get("Firstname");
 					String Lastname = (String)Emp_info.get("Lastname");
 					String Fullname = Firstname + " " + Lastname;
-					String Detail = (String)DayOff.get(size).get("Detail");
-					System.out.println("Detail " + Detail);
-					int Hour = (Integer) DayOff.get(size).get("Hours");
-					ans.put("ID",Day_off_id);
+					int Hour = (Integer) temp.get("Leaved");
+					ans.put("Emp_id",Emp_id);
 					ans.put("Name",Fullname);
-					ans.put("Detail",Detail);
+					ans.put("Type_ID",Type_ID);
 					ans.put("Hour",Hour);
 					res.add(ans);
-					size++;
 				}
 				responseBodyStr.put("data",res);
 				responseBodyStr.put("status",200);
@@ -49,8 +50,6 @@ public class DayOffCtrl {
 			}
 		}catch(SQLException e) {
 			e.printStackTrace();
-			responseBodyStr.put("status",400);
-			responseBodyStr.put("message","Add fail");
 		}
 		return responseBodyStr;
 	}
@@ -59,16 +58,24 @@ public class DayOffCtrl {
 		DatabaseUtil dbutil = new DatabaseUtil();
 		Connection connection = dbutil.connectDB();
 		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> Leave_type = new HashMap<String, Object>();
+		Map<String, Object> Leave_count = new HashMap<String, Object>();
+		LeaveTypeModel Type_model = new LeaveTypeModel();
+		LeaveCountModel leave_count = new LeaveCountModel();
 		if(data.get("Hours").equals("") || data.get("Emp_id").equals("")) {
 			result.put("status",401);
-			result.put("message","Please input required field");
+			result.put("message", ConfigConstants.PLEASE_INPUT_REQUIRED_FIELD);
 		}
 		else {
 			String hour = (String) data.get("Hours");
 			String id = (String) data.get("Emp_id");
-			String detail = (String) data.get("Detail");
 			try {
-				dbutil.AddDayOff(connection,id,detail,hour);
+				Leave_type = dbutil.select(connection,"leave_type","Type_name",ConfigConstants.DAY_OFF_NAME);
+				Type_model.setModel(Leave_type);
+				Leave_count = dbutil.select2con(connection,"leave_day_count","Emp_id","Type_ID",id,Integer.toString(Type_model.getId()));
+				leave_count.setModel(Leave_count);
+				leave_count.setLeaved(leave_count.getLeaved()+Integer.parseInt(hour));
+				dbutil.AddDayOff(connection,leave_count);
 				result.put("status",200);
 				result.put("message","Add success");
 			}catch (SQLException e) {
@@ -80,49 +87,23 @@ public class DayOffCtrl {
 		return result;
 	}
 	
-	public Map<String, Object> Delete_DayOff(Map<String, Object> data) throws SQLException, ClassNotFoundException {
-		DatabaseUtil dbutil = new DatabaseUtil();
-		Connection connection = dbutil.connectDB();
-		Map<String, Object> result = new HashMap<String, Object>();
-		List Target = new ArrayList();
-		Target = ((ArrayList)data.get("Value"));
-		int size = 0;
-		if(!Target.isEmpty()) {
-			while(Target.size() > size) {
-				try {
-					dbutil.Delete(connection,"day_off_list","Day_off_id",(String)Target.get(size));
-				}catch (SQLException e) {
-					e.printStackTrace();
-					result.put("status",400);
-					result.put("message","Delete fail");
-					break;
-				}
-				size++;
-			}
-			result.put("status",200);
-			result.put("message","Delete Complete");
-		}
-		else {
-			result.put("status",401);
-			result.put("message","Please input required field");
-		}
-		return result;
-	}
-	
 	public Map<String, Object> Update_DayOff(Map<String, Object> data) throws SQLException, ClassNotFoundException {
 		DatabaseUtil dbutil = new DatabaseUtil();
 		Connection connection = dbutil.connectDB();
 		Map<String, Object> result = new HashMap<String, Object>();
-		Map<String, Object> DayOff_info = new HashMap<String, Object>();
-		DayOffModel model = new DayOffModel();
-		DayOff_info = (dbutil.select(connection,"day_off_list","Day_off_id",(String)data.get("ID"))); 
-		model.setModel(DayOff_info);
+		Map<String, Object> Leave_count_info = new HashMap<String, Object>();
+		Map<String, Object> Leave_type = new HashMap<String, Object>();
+		LeaveTypeModel Type_model = new LeaveTypeModel();
+		LeaveCountModel model = new LeaveCountModel();
+		String Emp_id = (String) data.get("Emp_id");
         try {
-        	if(!data.get("Detail").equals("")) {
-        		model.setDetail((String)data.get("Detail"));
-        	}
+			Leave_type = dbutil.select(connection,"leave_type","Type_name",ConfigConstants.DAY_OFF_NAME);
+			Type_model.setModel(Leave_type);
+			Leave_count_info = dbutil.select2con(connection,"leave_day_count","Emp_id","Type_ID",
+					Emp_id,Integer.toString(Type_model.getId()));
+			model.setModel(Leave_count_info);
         	if(!data.get("Hours").equals("")) {
-        		model.setHour(Integer.valueOf((String)data.get("Hours")));
+        		model.setLeaved(Integer.valueOf((String)data.get("Hours")));
         	}
     		dbutil.UpdateDayOff(connection,model);
         }catch (SQLException e) {

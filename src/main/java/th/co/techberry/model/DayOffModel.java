@@ -1,6 +1,7 @@
 package th.co.techberry.model;
 import java.util.Map;
 public class DayOffModel {
+
 	private int DayOff_id;
 	private String Detail;
 	private int hour;

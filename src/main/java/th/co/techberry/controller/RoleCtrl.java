@@ -20,16 +20,14 @@ public class RoleCtrl {
 		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
 		try {
 			Role = dbutil.selectAll(connection,"user_role");
-			int size = 0;
 			if(Role != null) {
-				while(size<Role.size()) {
+				for(Map<String, Object> temp : Role){
 					Map<String, Object> ans = new HashMap<String, Object>();
-					String Role_id = String.valueOf((Integer) Role.get(size).get("Role_ID"));
-					String Role_Name = (String) Role.get(size).get("Role_Name");
+					String Role_id = String.valueOf((Integer) temp.get("Role_ID"));
+					String Role_Name = (String) temp.get("Role_Name");
 					ans.put("ID",Role_id);
 					ans.put("Role_Name",Role_Name);
 					res.add(ans);
-					size++;
 				}
 				responseBodyStr.put("data",res);
 				responseBodyStr.put("status",200);

@@ -52,149 +52,43 @@ public class Profile extends HttpServlet {
 		apiUtil.setAccessControlHeaders(response);
 		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
 		responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
-		System.out.print("responseBodyStr"+responseBodyStr);
+		ProfileCtrl ctrl = new ProfileCtrl();
+		Gson gson = new Gson();
+		Map<String, Object> result = new HashMap<String, Object>();
+		int id_in_token = apiUtil.getIdInToken(request);
+		try{
 			if(responseBodyStr.isEmpty()) {
-				int id_in_token = apiUtil.getIdInToken(request);
-				System.out.println("responseBodyStr"+responseBodyStr);
-				ProfileCtrl ctrl = new ProfileCtrl();
-				Gson gson = new Gson();
-				Map<String, Object> result = new HashMap<String, Object>();
-				try {
-					result.putAll(ctrl.Profile(id_in_token));
-					System.out.print("result"+result);
-					int ch = (Integer)result.get("status");
-					if(ch == 200) {
-						response.setStatus(HttpServletResponse.SC_OK);
-						response.setContentType("application/json");
-						System.out.print("gson.toJson(result)"+gson.toJson(result));
-						response.getOutputStream().print(gson.toJson(result));
-					}
-					else if(ch == 404) {
-						response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-						response.setContentType("application/json");
-						System.out.print("gson.toJson(result)"+gson.toJson(result));
-						response.getOutputStream().print(gson.toJson(result));
-					}
-				}catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				result.putAll(ctrl.Profile(id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Update")){
-				int id_in_token = apiUtil.getIdInToken(request);
-				System.out.println("responseBodyStr"+responseBodyStr);
-				ProfileCtrl ctrl = new ProfileCtrl();
-				Gson gson = new Gson();
-				Map<String, Object> result = new HashMap<String, Object>();
-				try {
 				result.putAll(ctrl.UpdateProfile(responseBodyStr,id_in_token));
-					System.out.print("result"+result);
-					int ch = (Integer)result.get("status");
-					System.out.println("ch"+ch);
-					if(ch == 200) {
-						response.setStatus(HttpServletResponse.SC_OK);
-						response.setContentType("application/json");
-						response.getOutputStream().print(gson.toJson(result));
-					}
-					else if(ch == 400) {
-						response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-						response.setContentType("application/json");
-						response.getOutputStream().print(gson.toJson(result));
-					}
-				}catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 			}
 			else if(responseBodyStr.get("Option").equals("Get_Profile_By_Id")){
-				System.out.println("responseBodyStr"+responseBodyStr);
-				ProfileCtrl ctrl = new ProfileCtrl();
-				Gson gson = new Gson();
-				Map<String, Object> result = new HashMap<String, Object>();
-				try {
 				result.putAll(ctrl.GetProfileById(responseBodyStr));
-					System.out.print("result"+result);
-					int ch = (Integer)result.get("status");
-					System.out.println("ch"+ch);
-					if(ch == 200) {
-						response.setStatus(HttpServletResponse.SC_OK);
-						response.setContentType("application/json");
-						response.getOutputStream().print(gson.toJson(result));
-					}
-					else if(ch == 404) {
-						response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-						response.setContentType("application/json");
-						response.getOutputStream().print(gson.toJson(result));
-					}
-				}catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 			}
 			else if(responseBodyStr.get("Option").equals("Update_Profile_By_Id")){
-				System.out.println("responseBodyStr"+responseBodyStr);
-				ProfileCtrl ctrl = new ProfileCtrl();
-				Gson gson = new Gson();
-				Map<String, Object> result = new HashMap<String, Object>();
-				try {
 				result.putAll(ctrl.UpdateProfileById(responseBodyStr));
-					System.out.print("result"+result);
-					int ch = (Integer)result.get("status");
-					System.out.println("ch"+ch);
-					if(ch == 200) {
-						response.setStatus(HttpServletResponse.SC_OK);
-						response.setContentType("application/json");
-						response.getOutputStream().print(gson.toJson(result));
-					}
-					else if(ch == 404) {
-						response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-						response.setContentType("application/json");
-						response.getOutputStream().print(gson.toJson(result));
-					}
-				}catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 			}
 			else if(responseBodyStr.get("Option").equals("Get_Profile_Leave")){
-				System.out.println("responseBodyStr"+responseBodyStr);
-				ProfileCtrl ctrl = new ProfileCtrl();
-				Gson gson = new Gson();
-				Map<String, Object> result = new HashMap<String, Object>();
-				try {
 				result.putAll(ctrl.UpdateProfileById(responseBodyStr));
-					System.out.print("result"+result);
-					int ch = (Integer)result.get("status");
-					System.out.println("ch"+ch);
-					if(ch == 200) {
-						response.setStatus(HttpServletResponse.SC_OK);
-						response.setContentType("application/json");
-						response.getOutputStream().print(gson.toJson(result));
-					}
-					else if(ch == 404) {
-						response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-						response.setContentType("application/json");
-						response.getOutputStream().print(gson.toJson(result));
-					}
-				}catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 			}
+		}catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		int ch = (Integer)result.get("status");
+		if(ch == 200) {
+			response.setStatus(HttpServletResponse.SC_OK);
+		}
+		else if(ch == 404) {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+		}
+		response.setContentType("application/json");
+		String jsonString = new Gson().toJson(result);
+		byte[] utf8JsonString = jsonString.getBytes("UTF8");
+		response.getOutputStream().write(utf8JsonString);
 	}
 }
