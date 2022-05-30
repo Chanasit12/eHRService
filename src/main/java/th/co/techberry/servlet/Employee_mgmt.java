@@ -19,18 +19,18 @@ import th.co.techberry.util.ApidataUtil;
  * Servlet implementation class Employee_mgmt
  */
 public class Employee_mgmt extends HttpServlet {
-	private static final long serialVersionUID = 1L;
+	public static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
     public Employee_mgmt() {
-        super();
+//        super();
         // TODO Auto-generated constructor stub
     }
 
     @Override
-	protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	public void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     	ApidataUtil apiUtil = new ApidataUtil();
 		apiUtil.setAccessControlHeaders(resp);
 		resp.setStatus(HttpServletResponse.SC_OK);
@@ -38,7 +38,7 @@ public class Employee_mgmt extends HttpServlet {
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		response.getWriter().append("Served at: ").append(request.getContextPath());
 	}
@@ -46,34 +46,35 @@ public class Employee_mgmt extends HttpServlet {
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		ApidataUtil apiUtil = new ApidataUtil();
 		System.out.println("request " + request);
-		Gson gson = new Gson();
+//		Gson gson = new Gson();
 		apiUtil.setAccessControlHeaders(response);
-		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> responseBodyStr = new HashMap<>();
+		Map<String, Object> result = new HashMap<>();
 		responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
+		int id_in_token = apiUtil.getIdInToken(request);
 		Employee_mgmtCtrl data = new Employee_mgmtCtrl();
 		try{
 			if(responseBodyStr.get("Option").equals("Main")) {
 				result.putAll(data.Employee_mgmt());
 			}
 			else if(responseBodyStr.get("Option").equals("Add")) {
-				result.putAll(data.Add_Employee(responseBodyStr));
+				result.putAll(data.Add_Employee(responseBodyStr,id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Get_Detail_By_Id")) {
 				result.putAll(data.Employee_mgmt_detail(responseBodyStr));
 			}
 			else if(responseBodyStr.get("Option").equals("Update")) {
-				result.putAll(data.Update_Employee(responseBodyStr));
+				result.putAll(data.Update_Employee(responseBodyStr,id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Delete")) {
-				result.putAll(data.Delete_Employee(responseBodyStr));
+				result.putAll(data.Delete_Employee(responseBodyStr,id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Change_Active")) {
-				result.putAll(data.Active_Employee(responseBodyStr));
+				result.putAll(data.Active_Employee(responseBodyStr,id_in_token));
 			}
 		}  catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -82,15 +83,12 @@ public class Employee_mgmt extends HttpServlet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		int ch = (Integer)result.get("status");
-		if(ch == 200) {
+		int status = (Integer)result.get("status");
+		if(status == 200){
 			response.setStatus(HttpServletResponse.SC_OK);
 		}
-		else if(ch == 400) {
+		else{
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		}
-		else {
-			response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
 		}
 		response.setContentType("application/json");
 		String jsonString = new Gson().toJson(result);

@@ -25,7 +25,7 @@ public class ChargeCode extends HttpServlet {
      * @see HttpServlet#HttpServlet()
      */
     public ChargeCode() {
-        super();
+//        super();
         // TODO Auto-generated constructor stub
     }
 
@@ -50,24 +50,25 @@ public class ChargeCode extends HttpServlet {
 		// TODO Auto-generated method stub
 		ApidataUtil apiUtil = new ApidataUtil();
 		System.out.println("request " + request);
-		Gson gson = new Gson();
+//		Gson gson = new Gson();
 		apiUtil.setAccessControlHeaders(response);
-		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> responseBodyStr = new HashMap<>();
+		Map<String, Object> result = new HashMap<>();
 		responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
+		int id_in_token = apiUtil.getIdInToken(request);
 		ChargeCodeCtrl data = new ChargeCodeCtrl();
 		try{
 			if(responseBodyStr.get("Option").equals("Main")) {
 				result.putAll(data.ChargeCode());
 			}
-			if(responseBodyStr.get("Option").equals("Add")) {
-				result.putAll(data.Add_ChargeCode(responseBodyStr));
+			else if(responseBodyStr.get("Option").equals("Add")) {
+				result.putAll(data.Add_ChargeCode(responseBodyStr,id_in_token));
 			}
-			if(responseBodyStr.get("Option").equals("Delete")) {
-				result.putAll(data.Delete_ChargeCode(responseBodyStr));
+			else if(responseBodyStr.get("Option").equals("Delete")) {
+				result.putAll(data.Delete_ChargeCode(responseBodyStr,id_in_token));
 			}
-			if(responseBodyStr.get("Option").equals("Update")) {
-				result.putAll(data.Update_ChargeCode(responseBodyStr));
+			else if(responseBodyStr.get("Option").equals("Update")) {
+				result.putAll(data.Update_ChargeCode(responseBodyStr,id_in_token));
 			}
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block

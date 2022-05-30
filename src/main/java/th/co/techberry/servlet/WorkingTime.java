@@ -22,7 +22,7 @@ public class WorkingTime extends HttpServlet {
      * @see HttpServlet#HttpServlet()
      */
     public WorkingTime() {
-        super();
+//        super();
         // TODO Auto-generated constructor stub
     }
 
@@ -53,12 +53,13 @@ public class WorkingTime extends HttpServlet {
 		Map<String, Object> result = new HashMap<String, Object>();
 		responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
 		WorkingTimeCtrl data = new WorkingTimeCtrl();
+		int id_in_token = apiUtil.getIdInToken(request);
 		try{
 			if(responseBodyStr.isEmpty()) {
 				result.putAll(data.WorkingTime());
 			}
 			else if(responseBodyStr.get("Option").equals("Update")) {
-				result.putAll(data.Update_Time(responseBodyStr));
+				result.putAll(data.Update_Time(responseBodyStr,id_in_token));
 			}
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block

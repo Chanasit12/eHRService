@@ -25,7 +25,7 @@ public class Company extends HttpServlet {
      * @see HttpServlet#HttpServlet()
      */
     public Company() {
-        super();
+//        super();
         // TODO Auto-generated constructor stub
     }
     
@@ -50,25 +50,25 @@ public class Company extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		ApidataUtil apiUtil = new ApidataUtil();
-		System.out.println("request " + request);
-		Gson gson = new Gson();
+//		Gson gson = new Gson();
 		apiUtil.setAccessControlHeaders(response);
-		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> responseBodyStr = new HashMap<>();
+		Map<String, Object> result = new HashMap<>();
 		responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
+		int id_in_token = apiUtil.getIdInToken(request);
 		CompanyCtrl data = new CompanyCtrl();
 		try{
 			if(responseBodyStr.isEmpty()) {
 				result.putAll(data.Company());
 			}
 			else if(responseBodyStr.get("Option").equals("Add")) {
-				result.putAll(data.Add_Company(responseBodyStr));
+				result.putAll(data.Add_Company(responseBodyStr,id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Update")) {
-				result.putAll(data.Update_Company(responseBodyStr));
+				result.putAll(data.Update_Company(responseBodyStr,id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Delete")) {
-				result.putAll(data.Delete_Company(responseBodyStr));
+				result.putAll(data.Delete_Company(responseBodyStr,id_in_token));
 			}
 		}catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -77,19 +77,7 @@ public class Company extends HttpServlet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		int ch = (Integer)result.get("status");
-		if(ch == 200) {
-			response.setStatus(HttpServletResponse.SC_OK);
-		}
-		else if(ch == 400) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		}
-		else if(ch == 401) {
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-		}
-		else {
-			response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
-		}
+		response.setStatus(HttpServletResponse.SC_OK);
 		response.setContentType("application/json");
 		String jsonString = new Gson().toJson(result);
 		byte[] utf8JsonString = jsonString.getBytes("UTF8");

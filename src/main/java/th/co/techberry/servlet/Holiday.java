@@ -23,7 +23,7 @@ public class Holiday extends HttpServlet {
      * @see HttpServlet#HttpServlet()
      */
     public Holiday() {
-        super();
+//        super();
         // TODO Auto-generated constructor stub
     }
     @Override
@@ -49,22 +49,24 @@ public class Holiday extends HttpServlet {
 		System.out.println("request " + request);
 		Gson gson = new Gson();
 		apiUtil.setAccessControlHeaders(response);
-		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> responseBodyStr = new HashMap<>();
+		Map<String, Object> result = new HashMap<>();
+		int id_in_token = apiUtil.getIdInToken(request);
 		responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
+
 		HolidayCtrl data = new HolidayCtrl();
 		try{
 			if(responseBodyStr.isEmpty()) {
 				result.putAll(data.Holiday());
 			}
 			else if(responseBodyStr.get("Option").equals("Add")) {
-				result.putAll(data.Add＿Holiday(responseBodyStr));
+				result.putAll(data.Add＿Holiday(responseBodyStr,id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Update")) {
-				result.putAll(data.Update_Holiday(responseBodyStr));
+				result.putAll(data.Update_Holiday(responseBodyStr,id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Delete")) {
-				result.putAll(data.Delete_Holiday(responseBodyStr));
+				result.putAll(data.Delete_Holiday(responseBodyStr,id_in_token));
 			}
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block

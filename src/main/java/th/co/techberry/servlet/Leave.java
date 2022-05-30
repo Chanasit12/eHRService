@@ -23,7 +23,7 @@ public class Leave extends HttpServlet {
      * @see HttpServlet#HttpServlet()
      */
     public Leave() {
-        super();
+//        super();
         // TODO Auto-generated constructor stub
     }
 	@Override
@@ -71,7 +71,7 @@ public class Leave extends HttpServlet {
 				result.putAll(ctrl.Update_Leave_Type(responseBodyStr));
 			}
 			else if(responseBodyStr.get("Option").equals("Send_Leave_Req")) {
-				result.putAll(ctrl.Send_Request(responseBodyStr));
+				result.putAll(ctrl.Send_Request(responseBodyStr,id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Get_Leave_Req_Mgmt")) {
 				result.putAll(ctrl.Get_Request(id_in_token));
@@ -86,10 +86,16 @@ public class Leave extends HttpServlet {
 				result.putAll(ctrl.Emp_leave_information_By_id(responseBodyStr));
 			}
 			else if(responseBodyStr.get("Option").equals("Send_Cancellation")) {
-				result.putAll(ctrl.Send_Cancellation(responseBodyStr));
+				result.putAll(ctrl.Send_Cancellation(responseBodyStr,id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Response_Cancellation")) {
-				result.putAll(ctrl.Response_Cancelled_Leave_Request(responseBodyStr));
+				result.putAll(ctrl.Response_Cancelled_Leave_Request(responseBodyStr,id_in_token));
+			}
+			else if(responseBodyStr.get("Option").equals("Get_All_Leaved_Req")) {
+				result.putAll(ctrl.All_Leave_Request());
+			}
+			else if(responseBodyStr.get("Option").equals("Get_All_Leaved_Count")) {
+				result.putAll(ctrl.All_Leave_Count());
 			}
 		}catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block

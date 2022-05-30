@@ -5,19 +5,17 @@
 
 <web-app>
   <display-name>Archetype Created Web Application</display-name>
-	<filter>
-		<filter-name>UTF8Filter</filter-name>
-		<filter-class>th.co.techberry.Filter.Servlet_filtter</filter-class>
-	</filter>
-	<filter-mapping>
-		<filter-name>UTF8Filter</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
+<!--	<filter>-->
+<!--		<filter-name>UTF8Filter</filter-name>-->
+<!--		<filter-class>th.co.techberry.Filter.Servlet_filtter</filter-class>-->
+<!--	</filter>-->
+<!--	<filter-mapping>-->
+<!--		<filter-name>UTF8Filter</filter-name>-->
+<!--		<url-pattern>/*</url-pattern>-->
+<!--	</filter-mapping>-->
 
   <servlet>
   	<servlet-name>Login</servlet-name>
-  	<display-name>Login</display-name>
-  	<description></description>
   	<servlet-class>th.co.techberry.servlet.Login</servlet-class>
   </servlet>
   <servlet>
@@ -134,6 +132,18 @@
   	<description></description>
   	<servlet-class>th.co.techberry.servlet.CheckInCheckOut</servlet-class>
   </servlet>
+  <servlet>
+  	<servlet-name>ExpenseRequest</servlet-name>
+  	<display-name>ExpenseRequest</display-name>
+  	<description></description>
+  	<servlet-class>th.co.techberry.servlet.ExpenseRequest</servlet-class>
+  </servlet>
+  <servlet>
+  	<servlet-name>DocumentRequest</servlet-name>
+  	<display-name>DocumentRequest</display-name>
+  	<description></description>
+  	<servlet-class>th.co.techberry.servlet.DocumentRequest</servlet-class>
+  </servlet>
 
   <servlet-mapping>
   	<servlet-name>Login</servlet-name>
@@ -215,4 +225,14 @@
   	<servlet-name>CheckInCheckOut</servlet-name>
   	<url-pattern>/CheckInCheckOut</url-pattern>
   </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>ExpenseRequest</servlet-name>
+  	<url-pattern>/ExpenseRequest</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>DocumentRequest</servlet-name>
+  	<url-pattern>/DocumentRequest</url-pattern>
+
+  </servlet-mapping>
+
 </web-app>

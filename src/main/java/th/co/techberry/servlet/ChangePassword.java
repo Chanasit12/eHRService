@@ -22,7 +22,7 @@ public class ChangePassword extends HttpServlet {
      * @see HttpServlet#HttpServlet()
      */
     public ChangePassword() {
-        super();
+//        super();
         // TODO Auto-generated constructor stub
     }
     @Override
@@ -46,6 +46,7 @@ public class ChangePassword extends HttpServlet {
 		ApidataUtil apiUtil = new ApidataUtil();
 		System.out.println("request : "+request);
 		String username_in_token = apiUtil.getUsernameInToken(request);
+		int id_in_token = apiUtil.getIdInToken(request);
 		Map<String, Object> result = new HashMap<String, Object>();
 		Gson gson = new Gson();
 		try {
@@ -53,7 +54,7 @@ public class ChangePassword extends HttpServlet {
 			Map<String, Object> responseBodyStr = new HashMap<String, Object>();
 			responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
 			ChangePasswordCtrl ctrl = new ChangePasswordCtrl();
-			result.putAll(ctrl.ChangePassword(responseBodyStr,username_in_token));
+			result.putAll(ctrl.ChangePassword(responseBodyStr,username_in_token,id_in_token));
 			int ch = (Integer)result.get("status");
 			System.out.println("ch"+ch);
 			if(ch == 200) {

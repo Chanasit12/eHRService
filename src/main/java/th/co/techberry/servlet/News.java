@@ -26,7 +26,7 @@ public class News extends HttpServlet {
      * @see HttpServlet#HttpServlet()
      */
     public News() {
-        super();
+//        super();
         // TODO Auto-generated constructor stub
     }
 	@Override
@@ -53,40 +53,26 @@ public class News extends HttpServlet {
 		Gson gson = new Gson();
 		request.setCharacterEncoding("UTF-8");
 		apiUtil.setAccessControlHeaders(response);
-		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> responseBodyStr = new HashMap<>();
+		Map<String, Object> result = new HashMap<>();
 		responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
 		int id_in_token = apiUtil.getIdInToken(request);
 		NewsCtrl news = new NewsCtrl();
 		try{
 			if(responseBodyStr.isEmpty()) {
 				result.putAll(news.News());
-				response.setStatus(HttpServletResponse.SC_OK);
 			}
 			else if(responseBodyStr.get("Option").equals("Add")) {
 				result.putAll(news.Add_News(responseBodyStr,id_in_token));
-				response.setStatus(HttpServletResponse.SC_OK);
 			}
 			else if(responseBodyStr.get("Option").equals("Getall")) {
 				result.putAll(news.NewsAll());
-				response.setStatus(HttpServletResponse.SC_OK);
 			}
 			else if(responseBodyStr.get("Option").equals("Update")){
-				result.putAll(news.Update_News(responseBodyStr));
-				response.setStatus(HttpServletResponse.SC_OK);
+				result.putAll(news.Update_News(responseBodyStr,id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Delete")) {
-				result.putAll(news.Delete_News(responseBodyStr));
-				int ch = (Integer)result.get("status");
-				if(ch == 200) {
-					response.setStatus(HttpServletResponse.SC_OK);
-				}
-				else if(ch == 400) {
-					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				}
-			}
-			else if(responseBodyStr.get("Option").equals("")) {
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				result.putAll(news.Delete_News(responseBodyStr,id_in_token));
 			}
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -95,6 +81,7 @@ public class News extends HttpServlet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		response.setStatus(HttpServletResponse.SC_OK);
 		response.setContentType("application/json;");
 		String jsonString = new Gson().toJson(result);
 		byte[] utf8JsonString = jsonString.getBytes("UTF8");

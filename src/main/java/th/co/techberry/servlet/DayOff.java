@@ -25,7 +25,7 @@ public class DayOff extends HttpServlet {
      * @see HttpServlet#HttpServlet()
      */
     public DayOff() {
-        super();
+//        super();
         // TODO Auto-generated constructor stub
     }
     
@@ -52,19 +52,20 @@ public class DayOff extends HttpServlet {
 		System.out.println("request " + request);
 		Gson gson = new Gson();
 		apiUtil.setAccessControlHeaders(response);
-		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> responseBodyStr = new HashMap<>();
+		Map<String, Object> result = new HashMap<>();
 		responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
+		int id_in_token = apiUtil.getIdInToken(request);
 		DayOffCtrl data = new DayOffCtrl();
 		try{
 			if(responseBodyStr.isEmpty()) {
 				result.putAll(data.DayOff());
 			}
 			else if(responseBodyStr.get("Option").equals("Add")) {
-				result.putAll(data.DayOff_Add(responseBodyStr));
+				result.putAll(data.DayOff_Add(responseBodyStr,id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Update")) {
-				result.putAll(data.Update_DayOff(responseBodyStr));
+				result.putAll(data.Update_DayOff(responseBodyStr,id_in_token));
 			}
 		}catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block

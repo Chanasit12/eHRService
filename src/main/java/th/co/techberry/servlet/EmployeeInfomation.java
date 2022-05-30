@@ -22,7 +22,7 @@ public class EmployeeInfomation extends HttpServlet {
      * @see HttpServlet#HttpServlet()
      */
     public EmployeeInfomation() {
-        super();
+//        super();
         // TODO Auto-generated constructor stub
     }
     @Override

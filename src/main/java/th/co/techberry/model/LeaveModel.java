@@ -1,10 +1,7 @@
 package th.co.techberry.model;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.time.format.DateTimeFormatter;
 public class LeaveModel {
 
@@ -13,8 +10,8 @@ public class LeaveModel {
     private int Emp_id;
 	private int Depend;
 	private int Amount;
-    private Timestamp Begin;
-	private Timestamp End;
+    private Date Begin;
+	private Date End;
     private String Detail;
     private boolean Emergency;
 	private String Status;
@@ -40,11 +37,11 @@ public class LeaveModel {
 		Amount = number;
 	}
 
-	public void setBegin(Timestamp time) {
+	public void setBegin(Date time) {
 		Begin = time;
 	}
 
-	public void setEnd(Timestamp time) {
+	public void setEnd(Date time) {
 		End = time;
 	}
 
@@ -86,11 +83,11 @@ public class LeaveModel {
 		return Amount;
 	}
 
-	public Timestamp getBegin() {
+	public Date getBegin() {
 		return Begin;
 	}
 
-	public Timestamp getEnd() {
+	public Date getEnd() {
 		return End;
 	}
 
@@ -117,8 +114,8 @@ public class LeaveModel {
 			setEmpId((Integer) data.get("Emp_id"));
 			setDepend((Integer) data.get("Depend"));
 			setAmount((Integer) data.get("Amount"));
-			setBegin((Timestamp) data.get("Begin"));
-			setEnd((Timestamp) data.get("End"));
+			setBegin((Date) data.get("Begin"));
+			setEnd((Date) data.get("End"));
 			setDetail((String) data.get("Detail"));
 			setStatus((String) data.get("Status"));
 			setComment((String) data.get("Comment"));
@@ -131,7 +128,7 @@ public class LeaveModel {
 	public void setModelByReq(Map<String, Object> data) {
 		if(data != null) {
 			int Depend,Type_ID,Emp_id;
-			Timestamp Begin,End;
+			Date Begin,End;
 			String Detail;
 			String[] Raw_Begin,Raw_End;
 			Boolean Emergency;

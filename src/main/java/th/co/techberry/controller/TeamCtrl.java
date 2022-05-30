@@ -1,6 +1,8 @@
 package th.co.techberry.controller;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +10,7 @@ import java.util.Map;
 
 import com.mysql.jdbc.Connection;
 
+import th.co.techberry.constants.ConfigConstants;
 import th.co.techberry.model.*;
 import th.co.techberry.util.DatabaseUtil;
 
@@ -16,63 +19,59 @@ public class TeamCtrl {
 	public Map<String, Object> Team() throws SQLException, ClassNotFoundException {
 		DatabaseUtil dbutil = new DatabaseUtil();
 		Connection connection = dbutil.connectDB();
-		List<Map<String, Object>> Team = new ArrayList<Map<String, Object>>();
-		List<Map<String, Object>> res = new ArrayList<Map<String, Object>>();
-		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
-		Map<String, Object> Host_info = new HashMap<String, Object>();
-		Map<String, Object> Creator_info = new HashMap<String, Object>();
+		List<Map<String, Object>> Team ;
+		List<Map<String, Object>> res = new ArrayList<>();
+		Map<String, Object> responseBodyStr = new HashMap<>();
+		Map<String, Object> Host_info ;
+		Map<String, Object> Creator_info ;
+		TeamModel team_model = new TeamModel();
+		EmployeeModel host_model = new EmployeeModel();
+		EmployeeModel creator_model = new EmployeeModel();
 		try {
 			Team = dbutil.selectAll(connection,"team");
-			int size = 0;
 			if(Team != null) {
-				while(size<Team.size()) {
-					Map<String, Object> ans = new HashMap<String, Object>();
-					String Team_id = String.valueOf((Integer) Team.get(size).get("Team_id"));
-					String Teamname = (String) Team.get(size).get("Team_name");
-					String Team_host = String.valueOf((Integer) Team.get(size).get("Team_Host"));
-					Host_info = dbutil.select(connection,"Employee","Emp_id",Team_host);
-					String H_Firstname = (String)Host_info.get("Firstname");
-					String H_Lastname = (String)Host_info.get("Lastname");
-					String H_Fullname = H_Firstname + " " + H_Lastname;
-					String Creator = String.valueOf((Integer) Team.get(size).get("Creator"));
-					Creator_info = dbutil.select(connection,"Employee","Emp_id",Creator);
-					String C_Firstname = (String)Creator_info.get("Firstname");
-					String C_Lastname = (String)Creator_info.get("Lastname");
-					String C_Fullname = C_Firstname + " " + C_Lastname;
-					ans.put("Team_id",Team_id);
-					ans.put("Teamname",Teamname);
-					ans.put("Team_host",H_Fullname);
-					ans.put("Creator",C_Fullname);
+				for(Map<String, Object> temp : Team){
+					Map<String, Object> ans = new HashMap<>();
+					team_model.setModel(temp);
+					Host_info = dbutil.select(connection,"Employee","Emp_id",String.valueOf(team_model.getHost()));
+					host_model.setModel(Host_info);
+					Creator_info = dbutil.select(connection,"Employee","Emp_id",String.valueOf(team_model.getCreator()));
+					creator_model.setModel(Creator_info);
+					ans.put("Team_id",String.valueOf(team_model.getTeamId()));
+					ans.put("Teamname",team_model.getTeamName());
+					ans.put("Team_host",host_model.getFirstname()+" "+host_model.getLastname());
+					ans.put("Creator",creator_model.getFirstname()+" "+creator_model.getLastname());
 					res.add(ans);
-					size++;
 				}
-				responseBodyStr.put("data",res);
-				responseBodyStr.put("status",200);
 				responseBodyStr.put("Message","success");
 			}
 			else {
-				responseBodyStr.put("status",404);
 				responseBodyStr.put("Message","Not found");
 			}
+			responseBodyStr.put("data",res);
+			responseBodyStr.put("status",200);
 		}catch(SQLException e) {
 			e.printStackTrace();
-			responseBodyStr.put("status",400);
 		}
 		return responseBodyStr;
 	}
 	
-	public Map<String, Object> Team_Add(Map<String, Object> data) throws SQLException, ClassNotFoundException {
+	public Map<String, Object> Team_Add(Map<String, Object> data,int id) throws SQLException, ClassNotFoundException {
 		DatabaseUtil dbutil = new DatabaseUtil();
 		Connection connection = dbutil.connectDB();
-		Map<String, Object> result = new HashMap<String, Object>();
-		Map<String, Object> check = new HashMap<String, Object>();
-		Map<String, Object> Emp_info = new HashMap<String, Object>();
-		Map<String, Object> Team_info = new HashMap<String, Object>();
-		List Target = new ArrayList();
-		Target = ((ArrayList)data.get("Value"));
+		Map<String, Object> result = new HashMap<>();
+		Map<String, Object> check ;
+		Map<String, Object> Emp_info ;
+		Map<String, Object> Team_info ;
+		Map<String, Object> Log_detail ;
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		LocalDateTime now = LocalDateTime.now();
+		String Time = dtf.format(now);
+		TeamModel model = new TeamModel();
+		ArrayList<String> Target = (ArrayList)data.get("Value");
 		if(data.get("Team_name").equals("") || data.get("Creator").equals("") || data.get("Team_Host").equals("")) {
 			result.put("status",401);
-			result.put("message","Please input required field");
+			result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.PLEASE_INPUT_REQUIRED_FIELD);
 		}
 		else {
 			String Teamname = (String) data.get("Team_name");
@@ -80,84 +79,94 @@ public class TeamCtrl {
 			String Team_Host = (String) data.get("Team_Host");
 			try {
 				dbutil.AddTeam(connection,Teamname,Creator,Team_Host);
-				Team_info = dbutil.select(connection,"team","Team_name",Teamname); 
-				String Team_id = String.valueOf((Integer) Team_info.get("Team_id"));
-				dbutil.AddTeamMember(connection,Team_Host,Team_id);
-				int size = 0;
+				Team_info = dbutil.select(connection,"team","Team_name",Teamname);
+				model.setModel(Team_info);
+				dbutil.Team_Detail_log(connection,model,Time);
+				Log_detail = dbutil.select2con(connection,"team_detail_log",
+						"Team_id","Time",Integer.toString(model.getTeamId()),Time);
+				dbutil.Addlog(connection,"team_log","Team_id",Integer.toString(model.getTeamId()),
+						Time, Integer.toString(id),"1","Add",(Integer)Log_detail.get("Log_id"));
+//				dbutil.AddTeamMember(connection,Team_Host,Integer.toString(model.getTeamId()));
 				if(!Target.isEmpty()) {
-					while(Target.size() > size) {
-						try {
-							check = dbutil.select2con(connection,"emp_team","Emp_id","Team_id",(String)Target.get(size),(String)data.get("Team_id"));
+					dbutil.Emp_Team_log(connection,Integer.toString(model.getTeamId()),Time,Integer.toString(id),"1","Add");
+					Log_detail = dbutil.select(connection,"emp_team_log","Team_id",Integer.toString(model.getTeamId()));
+					for(String temp : Target){
+							check = dbutil.select2con(connection,"emp_team","Emp_id","Team_id",temp,(String)data.get("Team_id"));
 							if(check != null) {
-								Emp_info = dbutil.select(connection,"Employee","Emp_id",(String)Target.get(size));
+								Emp_info = dbutil.select(connection,"Employee","Emp_id",temp);
 								String Firstname = (String)Emp_info.get("Firstname");
 								String Lastname = (String)Emp_info.get("Lastname");
 								String Fullname = Firstname + " " + Lastname;
 								result.put("status",400);
 								result.put("Name",Fullname);
-								result.put("message","This Employee Has Already in This Team");
+								result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,"This Employee Has Already in This Team");
 								return result;
 							}
 							else {
-								dbutil.AddTeamMember(connection,(String)Target.get(size),Team_id);
+								dbutil.AddTeamMember(connection,temp,Integer.toString(model.getTeamId()));
+								dbutil.Emp_Team_Detail_log(connection,temp,model.getTeamId(),(Integer)Log_detail.get("Log_id"),Time);
 							}
 							result.put("status",200);
-							result.put("message","Add success");
-						}catch (SQLException e) {
-							e.printStackTrace();
-							result.put("status",400);
-							result.put("message","Add Fail");
-						}
-						size++;
+							result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.RESPONSE_KEY_SUCCESS);
+					}
 				}
-			}
 				else {
 					result.put("status",200);
-					result.put("message","Add success");
+					result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.RESPONSE_KEY_SUCCESS);
 				}
 		}catch (SQLException e) {
 			e.printStackTrace();
 			result.put("status",400);
-			result.put("message","Add Fail");
+			result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.RESPONSE_KEY_ERROR_MESSAGE);
+			}
 		}
-		}
+		System.out.println("result "+result);
 		return result;
 	}
 	
-	public Map<String, Object> Team_Update(Map<String, Object> data) throws SQLException, ClassNotFoundException {
+	public Map<String, Object> Team_Update(Map<String, Object> data,int id) throws SQLException, ClassNotFoundException {
 		DatabaseUtil dbutil = new DatabaseUtil();
 		Connection connection = dbutil.connectDB();
-		Map<String, Object> result = new HashMap<String, Object>();
-		Map<String, Object> Team_info = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>();
+		Map<String, Object> Team_info ;
+		Map<String, Object> Log_detail ;
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		LocalDateTime now = LocalDateTime.now();
+		String Time = dtf.format(now);
 		TeamModel model = new TeamModel();
-		Team_info = (dbutil.select(connection,"team","Team_id",(String)data.get("Team_id"))); 
-		model.setModel(Team_info);
-        if(!data.get("Team_name").equals("")) {
-        	model.setTeamName((String)data.get("Team_name"));
-        }
-        if(!data.get("Team_Host").equals("")) {
-        	model.setHost(Integer.valueOf((String)data.get("Team_Host")));
-        }
         try {
-        		dbutil.UpdateTeam(connection,model);
+			Team_info = (dbutil.select(connection,"team","Team_id",(String)data.get("Team_id")));
+			model.setModel(Team_info);
+			if(!data.get("Team_name").equals("")) {
+				model.setTeamName((String)data.get("Team_name"));
+			}
+			if(!data.get("Team_Host").equals("")) {
+				model.setHost(Integer.valueOf((String)data.get("Team_Host")));
+			}
+			dbutil.UpdateTeam(connection,model);
+			dbutil.Team_Detail_log(connection,model,Time);
+			Log_detail = dbutil.select2con(connection,"team_detail_log",
+					"Team_id","Time",Integer.toString(model.getTeamId()),Time);
+			dbutil.Addlog(connection,"team_log","Team_id",Integer.toString(model.getTeamId()),
+					Time, Integer.toString(id),"1","Add",(Integer)Log_detail.get("Log_id"));
         }catch (SQLException e) {
     		e.printStackTrace();
     		result.put("status",400);
-    		result.put("message","Update fail");
+			result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.RESPONSE_KEY_ERROR_MESSAGE);
     	}
 		result.put("status",200);
-		result.put("message","Update success");
+		result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.RESPONSE_KEY_SUCCESS);
 		return result;
 	}
 	
 	public Map<String, Object> Member(Map<String, Object> data) throws SQLException, ClassNotFoundException {
 		DatabaseUtil dbutil = new DatabaseUtil();
 		Connection connection = dbutil.connectDB();
-		List<Map<String, Object>> Team_member = new ArrayList<Map<String, Object>>();
-		List<Map<String, Object>> res = new ArrayList<Map<String, Object>>();
-		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
-		Map<String, Object> Emp_info = new HashMap<String, Object>();
-		Map<String, Object> Position_info = new HashMap<String, Object>();
+		List<Map<String, Object>> Team_member ;
+		List<Map<String, Object>> res = new ArrayList<>();
+		Map<String, Object> responseBodyStr = new HashMap<>();
+		Map<String, Object> Emp_info ;
+		Map<String, Object> Position_info ;
 		EmployeeModel emp_model = new EmployeeModel();
 		try {
 			Team_member = dbutil.selectArray(connection,"emp_team","Team_id",(String) data.get("Team_id"));
@@ -193,21 +202,26 @@ public class TeamCtrl {
 		return responseBodyStr;
 	}
 	
-	public Map<String, Object> Add_member(Map<String, Object> data) throws SQLException, ClassNotFoundException {
+	public Map<String, Object> Add_member(Map<String, Object> data,int id) throws SQLException, ClassNotFoundException {
 		DatabaseUtil dbutil = new DatabaseUtil();
 		Connection connection = dbutil.connectDB();
-		Map<String, Object> result = new HashMap<String, Object>();
-		Map<String, Object> check = new HashMap<String, Object>();
-		Map<String, Object> Emp_info = new HashMap<String, Object>();
-		List Target = new ArrayList();
-		Target = ((ArrayList)data.get("Value"));
-		int size = 0;
+		Map<String, Object> result = new HashMap<>();
+		Map<String, Object> check ;
+		Map<String, Object> Emp_info ;
+		Map<String, Object> Log_detail ;
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		LocalDateTime now = LocalDateTime.now();
+		String Time = dtf.format(now);
+		ArrayList<String> Target = (ArrayList)data.get("Value");
 		if(!Target.isEmpty()) {
-			while(Target.size() > size) {
+			dbutil.Update_Log_Status(connection,"emp_team_log","Team_id",(String)data.get("Team_id"));
+			dbutil.Emp_Team_log(connection,(String)data.get("Team_id"),Time,Integer.toString(id),"1","Update");
+			Log_detail = dbutil.select(connection,"emp_team_log","Team_id",(String)data.get("Team_id"));
+			for(String temp : Target){
 				try {
-					check = dbutil.select2con(connection,"emp_team","Emp_id","Team_id",(String)Target.get(size),(String)data.get("Team_id"));
+					check = dbutil.select2con(connection,"emp_team","Emp_id","Team_id",temp,(String)data.get("Team_id"));
 					if(check != null) {
-						Emp_info = dbutil.select(connection,"Employee","Emp_id",(String)Target.get(size));
+						Emp_info = dbutil.select(connection,"Employee","Emp_id",temp);
 						String Firstname = (String)Emp_info.get("Firstname");
 						String Lastname = (String)Emp_info.get("Lastname");
 						String Fullname = Firstname + " " + Lastname;
@@ -217,82 +231,91 @@ public class TeamCtrl {
 						return result;
 					}
 					else {
-						dbutil.AddTeamMember(connection,(String)Target.get(size),(String)data.get("Team_id"));
+						dbutil.AddTeamMember(connection,temp,(String)data.get("Team_id"));
+						dbutil.Emp_Team_Detail_log(connection,temp,Integer.valueOf((String)data.get("Team_id")),(Integer)Log_detail.get("Log_id"),Time);
 					}
 				}catch (SQLException e) {
 					e.printStackTrace();
-					System.out.println("check " + "1");
 					result.put("status",400);
-					result.put("message","Add fail");
+					result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.RESPONSE_KEY_ERROR_MESSAGE);
 					return result;
 				}
-				size++;
 			}
 			result.put("status",200);
-			result.put("message","Add Complete");
+			result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.RESPONSE_KEY_SUCCESS);
 		}
 		else {
 			result.put("status",401);
-			result.put("message","Please input required field");
+			result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.PLEASE_INPUT_REQUIRED_FIELD);
 		}
 		return result;
 	}
 	
-	public Map<String, Object> Delete_Team(Map<String, Object> data) throws SQLException, ClassNotFoundException {
+	public Map<String, Object> Delete_Team(Map<String, Object> data,int id) throws SQLException, ClassNotFoundException {
 		DatabaseUtil dbutil = new DatabaseUtil();
 		Connection connection = dbutil.connectDB();
-		Map<String, Object> result = new HashMap<String, Object>();
-		List Target = new ArrayList();
-		Target = ((ArrayList)data.get("Value"));
-		int size = 0;
+		Map<String, Object> result = new HashMap<>();
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		LocalDateTime now = LocalDateTime.now();
+		String Time = dtf.format(now);
+		ArrayList<String> Target = (ArrayList)data.get("Value");
 		if(!Target.isEmpty()) {
-			while(Target.size() > size) {
+			for(String temp : Target){
 				try {
-					dbutil.Delete(connection,"emp_team","Team_id",(String)Target.get(size));
-					dbutil.Delete(connection,"team","Team_id",(String)Target.get(size));
+					dbutil.Update_Log_Status(connection,"emp_team_log","Team_id",temp);
+					dbutil.Update_Log_Status(connection,"emp_team_log","Team_id",temp);
+					dbutil.Emp_Team_log(connection,temp,Time,Integer.toString(id),"1","Delete");
+					dbutil.Addlog(connection,"team_log","Team_id",temp,
+							Time, Integer.toString(id),"1","Delete",0);
+					dbutil.Delete(connection,"emp_team","Team_id",temp);
+					dbutil.Delete(connection,"team","Team_id",temp);
 				}catch (SQLException e) {
 					e.printStackTrace();
 					result.put("status",400);
-					result.put("message","Delete fail");
+					result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.RESPONSE_KEY_ERROR_MESSAGE);
 					break;
 				}
-				size++;
 			}
 			result.put("status",200);
-			result.put("message","Delete Complete");
+			result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.RESPONSE_KEY_SUCCESS);
 		}
 		else {
 			result.put("status",401);
-			result.put("message","Please input required field");
+			result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.PLEASE_INPUT_REQUIRED_FIELD);
 		}
 		return result;
 	}
 	
-	public Map<String, Object> Delete_Member(Map<String, Object> data) throws SQLException, ClassNotFoundException {
+	public Map<String, Object> Delete_Member(Map<String, Object> data,int id) throws SQLException, ClassNotFoundException {
 		DatabaseUtil dbutil = new DatabaseUtil();
 		Connection connection = dbutil.connectDB();
-		Map<String, Object> result = new HashMap<String, Object>();
-		List Target = new ArrayList();
-		Target = ((ArrayList)data.get("Value"));
-		int size = 0;
+		Map<String, Object> result = new HashMap<>();
+		Map<String, Object> Log_detail ;
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		LocalDateTime now = LocalDateTime.now();
+		String Time = dtf.format(now);
+		ArrayList<String> Target = (ArrayList)data.get("Value");
 		if(!Target.isEmpty()) {
-			while(Target.size() > size) {
+			dbutil.Update_Log_Status(connection,"emp_team_log","Team_id",(String)data.get("Team_id"));
+			dbutil.Emp_Team_log(connection,(String)data.get("Team_id"),Time,Integer.toString(id),"1","Delete");
+			Log_detail = dbutil.select(connection,"emp_team_log","Team_id",(String)data.get("Team_id"));
+			for(String temp : Target){
 				try {
-					dbutil.Delete_2con(connection,"emp_team","Emp_id",(String)Target.get(size),"Team_id",(String) data.get("Team_id"));
+					dbutil.Emp_Team_Detail_log(connection,temp,Integer.valueOf((String)data.get("Team_id")),(Integer)Log_detail.get("Log_id"),Time);
+					dbutil.Delete_2con(connection,"emp_team","Emp_id",temp,"Team_id",(String) data.get("Team_id"));
 				}catch (SQLException e) {
 					e.printStackTrace();
 					result.put("status",400);
-					result.put("message","Delete fail");
+					result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.RESPONSE_KEY_ERROR_MESSAGE);
 					break;
 				}
-				size++;
 			}
 			result.put("status",200);
-			result.put("message","Delete Complete");
+			result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.RESPONSE_KEY_SUCCESS);
 		}
 		else {
 			result.put("status",401);
-			result.put("message","Please input required field");
+			result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.PLEASE_INPUT_REQUIRED_FIELD);
 		}
 		return result;
 	}
@@ -300,17 +323,16 @@ public class TeamCtrl {
 	public Map<String, Object> Get_Team_By_Host(int id) throws SQLException, ClassNotFoundException {
 		DatabaseUtil dbutil = new DatabaseUtil();
 		Connection connection = dbutil.connectDB();
-		List<Map<String, Object>> Team = new ArrayList<Map<String, Object>>();
-		List<Map<String, Object>> res = new ArrayList<Map<String, Object>>();
-		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
-		Map<String, Object> result = new HashMap<String, Object>();
+		List<Map<String, Object>> Team ;
+		List<Map<String, Object>> res = new ArrayList<>();
+		Map<String, Object> responseBodyStr = new HashMap<>();
 		TeamModel team = new TeamModel();
 		String Emp_id = Integer.toString(id);
 		try {
 			Team = dbutil.selectArray(connection,"team","Team_Host",Emp_id);
 			if(Team != null){
 				for(Map<String,Object> temp : Team) {
-					Map<String, Object> ans = new HashMap<String, Object>();
+					Map<String, Object> ans = new HashMap<>();
 					team.setModel(temp);
 					ans.put("Team_id",team.getTeamId());
 					ans.put("Teamname",team.getTeamName());
@@ -330,11 +352,10 @@ public class TeamCtrl {
 	public Map<String, Object> Get_Team_By_Empid(Map<String, Object> data) throws SQLException, ClassNotFoundException {
 		DatabaseUtil dbutil = new DatabaseUtil();
 		Connection connection = dbutil.connectDB();
-		List<Map<String, Object>> Team = new ArrayList<Map<String, Object>>();
-		List<Map<String, Object>> res = new ArrayList<Map<String, Object>>();
-		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
-		Map<String, Object> Team_detail = new HashMap<String, Object>();
-		Map<String, Object> result = new HashMap<String, Object>();
+		List<Map<String, Object>> Team ;
+		List<Map<String, Object>> res = new ArrayList<>();
+		Map<String, Object> responseBodyStr = new HashMap<>();
+		Map<String, Object> Team_detail ;
 		TeamModel team = new TeamModel();
 		String Emp_id = (String) data.get("Emp_id");
 		try {
@@ -343,7 +364,7 @@ public class TeamCtrl {
 				for(Map<String,Object> temp : Team) {
 					String team_id = temp.get("Team_id").toString();
 					Team_detail = dbutil.select(connection,"team","Team_id",team_id);
-					Map<String, Object> ans = new HashMap<String, Object>();
+					Map<String, Object> ans = new HashMap<>();
 					team.setModel(Team_detail);
 					ans.put("Team_id",team.getTeamId());
 					ans.put("Teamname",team.getTeamName());

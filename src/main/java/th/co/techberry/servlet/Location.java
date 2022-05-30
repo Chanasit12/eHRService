@@ -25,7 +25,7 @@ public class Location extends HttpServlet {
      * @see HttpServlet#HttpServlet()
      */
     public Location() {
-        super();
+//        super();
         // TODO Auto-generated constructor stub
     }
     
@@ -55,19 +55,20 @@ public class Location extends HttpServlet {
 		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
 		Map<String, Object> result = new HashMap<String, Object>();
 		responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
+		int id_in_token = apiUtil.getIdInToken(request);
 		LocationCtrl data = new LocationCtrl();
 		try{
 			if(responseBodyStr.get("Option").equals("Main")) {
 				result.putAll(data.Location());
 			}
 			if(responseBodyStr.get("Option").equals("Add")) {
-				result.putAll(data.Add_Location(responseBodyStr));
+				result.putAll(data.Add_Location(responseBodyStr,id_in_token));
 			}
 			if(responseBodyStr.get("Option").equals("Delete")) {
-				result.putAll(data.Delete_DayOff(responseBodyStr));
+				result.putAll(data.Delete_Location(responseBodyStr,id_in_token));
 			}
 			if(responseBodyStr.get("Option").equals("Update")) {
-				result.putAll(data.Update_Location(responseBodyStr));
+				result.putAll(data.Update_Location(responseBodyStr,id_in_token));
 			}
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block

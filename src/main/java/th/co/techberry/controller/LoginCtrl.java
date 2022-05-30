@@ -1,6 +1,8 @@
 package th.co.techberry.controller;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,16 +30,16 @@ public class LoginCtrl {
 
 	public Map<String, Object> Login(Map<String, Object> data)
 			throws NoSuchAlgorithmException, InvalidKeySpecException, ClassNotFoundException, SQLException {
-		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
+		Map<String, Object> responseBodyStr = new HashMap<>();
 		DatabaseUtil dbutil = new DatabaseUtil();
 		LoginModel login_model = new LoginModel();
 		input_password = (String) data.get("password");
 		input_username = (String) data.get("username");
-		Map<String, Object> Login_info = new HashMap<String, Object>();
+		Map<String, Object> Login_info = new HashMap<>();
 		Connection connection = dbutil.connectDB();
 		// Get Login Information
 		try{
-			Login_info = (dbutil.Login(connection,"Username",input_username));
+			Login_info = dbutil.Login(connection,"Username",input_username);
 		}catch (SQLException e){
 			e.printStackTrace();
 		}
@@ -52,7 +54,7 @@ public class LoginCtrl {
 			if(login_model.getActivestatus() == false) {
 				responseBodyStr.put("status", 404);
 				responseBodyStr.put(ConfigConstants.RESPONSE_KEY_SUCCESS, false);
-				responseBodyStr.put("message",ConfigConstants.USERNAME_NOT_FOUND);
+				responseBodyStr.put("message",ConfigConstants.LOGIN_INACTIVE_USER);
 				return responseBodyStr;
 			}
 			else {
@@ -61,11 +63,16 @@ public class LoginCtrl {
 		}
 	}
 
-	Map<String, Object> checkLogin(LoginModel login_model,String password,String username)
-			throws NoSuchAlgorithmException, InvalidKeySpecException, ClassNotFoundException, SQLException {
-		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
+	Map<String, Object> checkLogin(LoginModel login_model,String password,String username) throws SQLException, ClassNotFoundException {
+		Map<String, Object> responseBodyStr = new HashMap<>();
+		DatabaseUtil dbutil = new DatabaseUtil();
+		Connection connection = dbutil.connectDB();
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		LocalDateTime now = LocalDateTime.now();
+		String Time = dtf.format(now);
 		if(Encryption.verifyPassword(login_model.getPassword(),username, password)) {
 			responseBodyStr.putAll(createSession(login_model));
+			dbutil.Last_Login(connection,Time,login_model.getId());
 		}
 		else {
 			if (password.equals("")) {
@@ -82,14 +89,25 @@ public class LoginCtrl {
 		return responseBodyStr;
 	}
 
-	private Map<String, Object> createSession(LoginModel LoginModel) throws JWTCreationException {
+	private Map<String, Object> createSession(LoginModel LoginModel) throws JWTCreationException ,ClassNotFoundException,SQLException{
+		DatabaseUtil dbutil = new DatabaseUtil();
+		Connection connection = dbutil.connectDB();
+		EmployeeModel model = new EmployeeModel();
+		Map<String, Object> Emp_detail;
 		long afterAddingTenMins = new Date().getTime() + (30 * 60000);
 		Algorithm algorithm = Algorithm.HMAC256(ConfigConstants.SECRET_KEY);
-		String token = JWT.create().withClaim("id", LoginModel.getId())
+		try{
+			Emp_detail = dbutil.select(connection,"employee","Id",Integer.toString(LoginModel.getId()));
+			model.setModel(Emp_detail);
+		} catch(SQLException e){
+			e.printStackTrace();
+		}
+		System.out.print("id "+model.getEmpid());
+		String token = JWT.create().withClaim("id", model.getEmpid())
 				.withClaim("username", LoginModel.getUsername())
 				.withClaim("exp", afterAddingTenMins).withIssuer("auth0")
 				.sign(algorithm);
-		Map<String, Object> data = new HashMap<String, Object>();
+		Map<String, Object> data = new HashMap<>();
 		data.put("status", 200);
 		data.put(ConfigConstants.RESPONSE_KEY_SUCCESS, true);
 		data.put("access_token", token);

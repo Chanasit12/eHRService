@@ -25,7 +25,7 @@ public class Role extends HttpServlet {
      * @see HttpServlet#HttpServlet()
      */
     public Role() {
-        super();
+//        super();
         // TODO Auto-generated constructor stub
     }
 

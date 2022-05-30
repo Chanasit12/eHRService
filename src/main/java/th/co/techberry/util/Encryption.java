@@ -22,15 +22,15 @@ import th.co.techberry.constants.ConfigConstants;
 
 public class Encryption {
 	public static String encryptPassword(String username, String password) {
-		TextEncryptor encrytor = Encryptors.text(username + password,ConfigConstants.ENCRYPT_KEY);
-		String cipherText = encrytor.encrypt(username + password);
+		TextEncryptor encrytor = Encryptors.text(password,ConfigConstants.ENCRYPT_KEY);
+		String cipherText = encrytor.encrypt(password);
 		System.out.println("cipherText : "+cipherText);
 		return cipherText;
 	}
 
 	public static boolean verifyPassword(String encode, String username, String password) {
 		try {
-			TextEncryptor encrytor = Encryptors.text(username + password,ConfigConstants.ENCRYPT_KEY);
+			TextEncryptor encrytor = Encryptors.text(password,ConfigConstants.ENCRYPT_KEY);
 			System.out.println("encrytor : "+encrytor);
 			System.out.println("encode : "+encode);
 			String decrypText = encrytor.decrypt(encode);

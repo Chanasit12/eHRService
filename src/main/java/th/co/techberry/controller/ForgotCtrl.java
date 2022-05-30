@@ -44,9 +44,9 @@ public class ForgotCtrl {
 	}
 
 	private Map<String, Object> generatepassword(LoginModel login_model) {
-        Map<String, Object> requestMap = new HashMap<String, Object>();
-        Map<String, Object> mailmap = new HashMap<String, Object>();
-        Map<String, Object> Employee_info = new HashMap<String, Object>();
+        Map<String, Object> requestMap = new HashMap<>();
+        Map<String, Object> mailmap = new HashMap<>();
+        Map<String, Object> Employee_info ;
         EmployeeModel employee_model = new EmployeeModel();
         DatabaseUtil dbutil = new DatabaseUtil();
 		if (login_model.getUsername().isEmpty()) {
@@ -57,7 +57,6 @@ public class ForgotCtrl {
 		else {
 			 try {
 	                Connection connection = dbutil.connectDB();
-	                System.out.println("connect!" + connection);
 	                char[] password = RandomUtil.generatePassword(15);
 	                String newPassword = String.valueOf(password);
 	    			String encryptedPassword = Encryption.encryptPassword(login_model.getUsername(), newPassword);
@@ -67,10 +66,9 @@ public class ForgotCtrl {
 	                Employee_info = (dbutil.select(connection,"Employee","ID",userid));
 	                System.out.println("Employee_info"+Employee_info);
 	                employee_model.setModel(Employee_info);
-	                MailUtil2 mail = new MailUtil2();
+	                MailUtil mail = new MailUtil();
 	                mailmap.put("to", employee_model.getFirstname()+" "+employee_model.getLastname());
 	                mailmap.put("password", newPassword);
-	                System.out.println("employee_model.getEmail()"+employee_model.getEmail());
 	                try {
 						mail.sendMail(employee_model.getEmail(),ConfigConstants.MAIL_SUBJECT_RESET_PASSWORD,mailmap, ConfigConstants.MAIL_TEMPLATE_FORGOT_PASSWORD);
 					} catch (Exception e) {

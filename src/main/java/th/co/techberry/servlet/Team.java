@@ -25,7 +25,7 @@ public class Team extends HttpServlet {
      * @see HttpServlet#HttpServlet()
      */
     public Team() {
-        super();
+//        super();
         // TODO Auto-generated constructor stub
     }
 
@@ -62,22 +62,22 @@ public class Team extends HttpServlet {
 				result.putAll(data.Team());
 			}
 			else if(responseBodyStr.get("Option").equals("Add")) {
-				result.putAll(data.Team_Add(responseBodyStr));
+				result.putAll(data.Team_Add(responseBodyStr,id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Team_Update")) {
-				result.putAll(data.Team_Update(responseBodyStr));
+				result.putAll(data.Team_Update(responseBodyStr,id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Member")) {
 				result.putAll(data.Member(responseBodyStr));
 			}
 			else if(responseBodyStr.get("Option").equals("Add_Member")) {
-				result.putAll(data.Add_member(responseBodyStr));
+				result.putAll(data.Add_member(responseBodyStr,id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Delete_Team")) {
-				result.putAll(data.Delete_Team(responseBodyStr));
+				result.putAll(data.Delete_Team(responseBodyStr,id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Delete_Member")) {
-				result.putAll(data.Delete_Member(responseBodyStr));
+				result.putAll(data.Delete_Member(responseBodyStr,id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Host_Team")) {
 				result.putAll(data.Get_Team_By_Host(id_in_token));
@@ -95,18 +95,22 @@ public class Team extends HttpServlet {
 		int ch = (Integer)result.get("status");
 		if(ch == 200) {
 			response.setStatus(HttpServletResponse.SC_OK);
-			response.setContentType("application/json");
-			response.getOutputStream().print(gson.toJson(result));
+//			response.setContentType("application/json");
+//			response.getOutputStream().print(gson.toJson(result));
 		}
 		else if(ch == 401) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			response.setContentType("application/json");
-			response.getOutputStream().print(gson.toJson(result));
+//			response.setContentType("application/json");
+//			response.getOutputStream().print(gson.toJson(result));
 		}
 		else if(ch == 400) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.setContentType("application/json");
-			response.getOutputStream().print(gson.toJson(result));
+//			response.setContentType("application/json");
+//			response.getOutputStream().print(gson.toJson(result));
 		}
+		response.setContentType("application/json");
+		String jsonString = new Gson().toJson(result);
+		byte[] utf8JsonString = jsonString.getBytes("UTF8");
+		response.getOutputStream().write(utf8JsonString);
 	}
 }

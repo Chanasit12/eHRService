@@ -26,7 +26,7 @@ public class TimeSheet extends HttpServlet {
      * @see HttpServlet#HttpServlet()
      */
     public TimeSheet() {
-        super();
+//        super();
         // TODO Auto-generated constructor stub
     }
 
@@ -69,10 +69,10 @@ public class TimeSheet extends HttpServlet {
 				result.putAll(data.Show_Time_Sheet_By_Date(responseBodyStr,id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Update_Time_Sheet")) {
-				result.putAll(data.Updated_Time_Sheet(responseBodyStr));
+				result.putAll(data.Updated_Time_Sheet(responseBodyStr,id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Delete_Time_Sheet")) {
-				result.putAll(data.Delete_Time_Sheet(responseBodyStr));
+				result.putAll(data.Delete_Time_Sheet(responseBodyStr,id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Show_Time_Sheet_By_Id")) {
 				result.putAll(data.Show_Time_Sheet_By_id(responseBodyStr));

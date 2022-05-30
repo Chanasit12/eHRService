@@ -25,7 +25,7 @@ public class CheckInCheckOut extends HttpServlet {
      * @see HttpServlet#HttpServlet()
      */
     public CheckInCheckOut() {
-        super();
+//        super();
         // TODO Auto-generated constructor stub
     }
     
@@ -66,7 +66,7 @@ public class CheckInCheckOut extends HttpServlet {
 				result.putAll(data.CheckIn(id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Check_Out")) {
-				result.putAll(data.CheckOut(id_in_token));
+				result.putAll(data.CheckOut(responseBodyStr,id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Get_Check_List_Show_Emp_id")) {
 				result.putAll(data.Get_CheckInCheckOut_By_Emp_Id(responseBodyStr));
@@ -84,16 +84,16 @@ public class CheckInCheckOut extends HttpServlet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		int ch = (Integer)result.get("status");
-		if(ch == 200) {
-			response.setStatus(HttpServletResponse.SC_OK);
-		}
-		else if(ch == 400) {
-			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-		}
-		else {
-			response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
-		}
+//		int ch = (Integer)result.get("status");
+//		if(ch == 200) {
+//		}
+//		else if(ch == 400) {
+//			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+//		}
+//		else {
+//			response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
+//		}
+		response.setStatus(HttpServletResponse.SC_OK);
 		response.setContentType("application/json");
 		String jsonString = new Gson().toJson(result);
 		byte[] utf8JsonString = jsonString.getBytes("UTF8");

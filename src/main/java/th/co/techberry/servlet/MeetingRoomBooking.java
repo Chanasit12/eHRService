@@ -27,7 +27,7 @@ public class MeetingRoomBooking extends HttpServlet {
      * @see HttpServlet#HttpServlet()
      */
     public MeetingRoomBooking() {
-        super();
+//        super();
         // TODO Auto-generated constructor stub
     }
 
@@ -89,7 +89,16 @@ public class MeetingRoomBooking extends HttpServlet {
 				result.putAll(data.Confirm_Add_Meeting(responseBodyStr,id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Update")) {
-				result.putAll(data.Update_Meeting(responseBodyStr));
+				result.putAll(data.Update_Meeting(responseBodyStr,id_in_token));
+			}
+			else if(responseBodyStr.get("Option").equals("Confirm_Update")) {
+				result.putAll(data.Confirm_Update_Meeting(responseBodyStr,id_in_token));
+			}
+			else if(responseBodyStr.get("Option").equals("Check_Employee")) {
+				result.putAll(data.Check_Employee(responseBodyStr));
+			}
+			else if(responseBodyStr.get("Option").equals("Check_Room")) {
+				result.putAll(data.Check_Meeting_Room(responseBodyStr));
 			}
 		}  catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -100,24 +109,19 @@ public class MeetingRoomBooking extends HttpServlet {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		int ch = (Integer)result.get("status");
-		if(ch == 200) {
+		int status = (Integer)result.get("status");
+		if(status == 200){
 			response.setStatus(HttpServletResponse.SC_OK);
-			response.setContentType("application/json");
-			response.getOutputStream().print(gson.toJson(result));
 		}
-		else if(ch == 400) {
+		else{
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.setContentType("application/json");
-			response.getOutputStream().print(gson.toJson(result));
-		}
-		else {
-			response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
 		}
 		response.setContentType("application/json");
 		String jsonString = new Gson().toJson(result);
 		byte[] utf8JsonString = jsonString.getBytes("UTF8");
 		response.getOutputStream().write(utf8JsonString);
+//		response.setContentType("application/json");
+//		response.getOutputStream().print(gson.toJson(result));
 	}
 
 }

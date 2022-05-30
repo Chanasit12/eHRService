@@ -17,13 +17,13 @@ public class EmployeeInfoCtrl {
 	public Map<String, Object> Employee_info() throws SQLException, ClassNotFoundException {
 		DatabaseUtil dbutil = new DatabaseUtil();
 		Connection connection = dbutil.connectDB();
-		List<Map<String, Object>> Emp = new ArrayList<Map<String, Object>>();
-		Map<String, Object> Login_info = new HashMap<String, Object>();
-		List<Map<String, Object>> res = new ArrayList<Map<String, Object>>();
-		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
-		Map<String, Object> Position_info = new HashMap<String, Object>();
-		Map<String, Object> Comp_info = new HashMap<String, Object>();
-		Map<String, Object> Role_info = new HashMap<String, Object>();
+		List<Map<String, Object>> Emp ;
+		Map<String, Object> Login_info ;
+		List<Map<String, Object>> res = new ArrayList<>();
+		Map<String, Object> responseBodyStr = new HashMap<>();
+		Map<String, Object> Position_info ;
+		Map<String, Object> Comp_info ;
+		Map<String, Object> Role_info ;
 		EmployeeModel employee_model = new EmployeeModel();
 		EmployeeModel host_model = new EmployeeModel();
 		LoginModel login_model = new LoginModel();
@@ -33,8 +33,9 @@ public class EmployeeInfoCtrl {
 			if(Emp != null) {
 				for(Map<String, Object> Emp_temp : Emp){
 					employee_model.setModel(Emp_temp);
-					Map<String, Object> ans = new HashMap<String, Object>();
-					List<Map<String, Object>> team_info = new ArrayList<Map<String, Object>>();
+					List<Map<String, Object>> Team_info ;
+					Map<String, Object> ans = new HashMap<>();
+					List<Map<String, Object>> team_info = new ArrayList<>();
 					int id = employee_model.getId();
 					Login_info = dbutil.select(connection, "login", "Id", Integer.toString(id));
 					login_model.setModel(Login_info);
@@ -44,14 +45,13 @@ public class EmployeeInfoCtrl {
 					String Position = (String) Position_info.get("Position_Name");
 					String Company = (String) Comp_info.get("Company_Name");
 					String Role = (String) Role_info.get("Role_Name");
-					List<Map<String, Object>> Team_info = new ArrayList<Map<String, Object>>();
 					Team_info = dbutil.selectArray(connection,"emp_team","Emp_id",String.valueOf(employee_model.getEmpid()));
 					if(Team_info != null) {
 						int index = 1;
 						for(Map<String, Object> Team_temp : Team_info){
-							Map<String, Object> team_ans = new HashMap<String, Object>();
-							Map<String, Object> Team_data = new HashMap<String, Object>();
-							Map<String, Object> Host_info = new HashMap<String, Object>();
+							Map<String, Object> team_ans = new HashMap<>();
+							Map<String, Object> Team_data ;
+							Map<String, Object> Host_info ;
 							Team_data = dbutil.select(connection,"team","Team_id",String.valueOf((Integer) Team_temp.get("Team_id")));
 							team_model.setModel(Team_data);
 							Host_info = dbutil.select(connection,"Employee","Emp_id",Integer.toString(team_model.getHost()));
@@ -68,12 +68,13 @@ public class EmployeeInfoCtrl {
 					else {
 						ans.put("Team_Info", team_info);
 					}
+					String data = new String(employee_model.getImg_Path());
 					ans.put("Name",employee_model.getFirstname()+" "+employee_model.getLastname());
 					ans.put("Title",employee_model.getTitle());
 					ans.put("Phone",employee_model.getPhone());
 					ans.put("Emp_id",String.valueOf(employee_model.getEmpid()));
 					ans.put("Email",employee_model.getEmail());
-					ans.put("Img",employee_model.getImg_Path());
+					ans.put("Img",data);
 					ans.put("Company",Company);
 					ans.put("Position",Position);
 					ans.put("Role",Role);

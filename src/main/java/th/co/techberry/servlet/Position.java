@@ -25,7 +25,7 @@ public class Position extends HttpServlet {
      * @see HttpServlet#HttpServlet()
      */
     public Position() {
-        super();
+//        super();
         // TODO Auto-generated constructor stub
     }
 
@@ -56,18 +56,19 @@ public class Position extends HttpServlet {
 		Map<String, Object> result = new HashMap<String, Object>();
 		responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
 		PositionCtrl data = new PositionCtrl();
+		int id_in_token = apiUtil.getIdInToken(request);
 		try{
 			if(responseBodyStr.isEmpty()) {
 				result.putAll(data.Position());
 			}
 			else if(responseBodyStr.get("Option").equals("Add")) {
-				result.putAll(data.Add＿Position(responseBodyStr));
+				result.putAll(data.Add＿Position(responseBodyStr,id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Update")) {
-				result.putAll(data.Update＿Position(responseBodyStr));
+				result.putAll(data.Update＿Position(responseBodyStr,id_in_token));
 			}
 			else if(responseBodyStr.get("Option").equals("Delete")) {
-				result.putAll(data.Delete＿Position(responseBodyStr));
+				result.putAll(data.Delete＿Position(responseBodyStr,id_in_token));
 			}
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block

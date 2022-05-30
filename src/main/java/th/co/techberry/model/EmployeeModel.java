@@ -16,10 +16,11 @@ public class EmployeeModel {
 	private int Role_id;
 	private int Company_id;
 	private int Position_id;
-	private String Img_Path;
+	private byte[] Img_Path;
 	private String Role;
 	private String Position;
 	private String Company;
+	private String StrImg;
 
 	public void setEmpid(int id) {
 		Emp_id = id;
@@ -100,12 +101,14 @@ public class EmployeeModel {
 		Role_id = id;
 	}
 
-	public void setImg(String path) {
-		if(path != "") {
+	public void setImg(byte[] path) {
 			Img_Path = path;
-		}
 	}
-	
+
+	public void setStrImg(String img) {
+		StrImg = img;
+	}
+
 /// Get
 	public int getEmpid() {
 		return Emp_id;
@@ -159,7 +162,7 @@ public class EmployeeModel {
 		return Role_id;
 	}
 
-	public String getImg_Path() {
+	public byte[] getImg_Path() {
 		return Img_Path;
 	}
 	
@@ -171,6 +174,10 @@ public class EmployeeModel {
 	}
 	public String getCompany() {
 		return Company;
+	}
+
+	public String getStrImg() {
+		return StrImg;
 	}
 
 	public void setModel(Map<String, Object> data) {
@@ -187,9 +194,11 @@ public class EmployeeModel {
 			setEmail((String) data.get("Email"));
 			setAddress((String)data.get("Address"));
 			setRole((Integer) data.get("Role_ID"));
-			setImg((String) data.get("Img"));
+			setImg((byte[]) data.get("Img"));
 			setCompanyid((Integer) data.get("Comp_ID"));
 			setPositionid((Integer) data.get("Position_ID"));
+			String Img = new String(getImg_Path());
+			setStrImg(Img);
 		}
 		else {
 			return;

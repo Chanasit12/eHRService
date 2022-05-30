@@ -1,6 +1,7 @@
 package th.co.techberry.controller;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,16 +21,15 @@ public class HolidayCtrl {
 	public Map<String, Object> Holiday() throws SQLException, ClassNotFoundException, ParseException {
 		DatabaseUtil dbutil = new DatabaseUtil();
 		Connection connection = dbutil.connectDB();
-		List<Map<String, Object>> Holiday = new ArrayList<Map<String, Object>>();
-		List<Map<String, Object>> res = new ArrayList<Map<String, Object>>();
-		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
-        SimpleDateFormat formatter = new SimpleDateFormat("MM-dd");
+		List<Map<String, Object>> Holiday;
+		List<Map<String, Object>> res = new ArrayList<>();
+		Map<String, Object> responseBodyStr = new HashMap<>();
 		try {
 			Holiday = dbutil.selectAll(connection,"holiday_list");
 			if(Holiday != null) {
 				for(Map<String,Object> temp : Holiday) {
-					Map<String, Object> ans = new HashMap<String, Object>();
-					String Holiday_id = String.valueOf((Integer) temp.get("ID"));
+					Map<String, Object> ans = new HashMap<>();
+					String Holiday_id = String.valueOf(temp.get("ID"));
 					String Holiday_Name = (String) temp.get("Holiday_Name");
 					Date Start = ((Date) temp.get("begin_date"));
 					Date End = ((Date) temp.get("end_date"));
@@ -49,10 +49,16 @@ public class HolidayCtrl {
 		return responseBodyStr;
 	}
 	
-	public Map<String, Object> Add＿Holiday(Map<String, Object> data) throws SQLException, ClassNotFoundException {
+	public Map<String, Object> Add＿Holiday(Map<String, Object> data,int id) throws SQLException, ClassNotFoundException {
 		DatabaseUtil dbutil = new DatabaseUtil();
 		Connection connection = dbutil.connectDB();
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>();
+		Map<String, Object> Holiday_detail ;
+		Map<String, Object> Log_detail ;
+		HolidayModel model = new HolidayModel();
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		LocalDateTime now = LocalDateTime.now();
+		String Time = dtf.format(now);
 		if(data.get("Holiday_Name").equals("") || data.get("begin_date").equals("") || data.get("end_date").equals("")) {
 			result.put("status",401);
 			result.put("message","Please input required field");
@@ -63,6 +69,13 @@ public class HolidayCtrl {
 			String end_date = (String) data.get("end_date");
 			try {
 				int check = dbutil.AddHoliday(connection,Name,begin_date,end_date);
+				Holiday_detail = dbutil.select2con(connection,"holiday_list","Holiday_Name","begin_date",Name,begin_date);
+				model.setModel(Holiday_detail);
+				dbutil.Holiday_Detail_log(connection,model.getId(),Time);
+				Log_detail = dbutil.select2con(connection,"holiday_list_detail_log",
+						"Holiday_ID","Time",Integer.toString(model.getId()),Time);
+				dbutil.Addlog(connection,"holiday_list_log","Holiday_ID",Integer.toString(model.getId()),
+						Time, Integer.toString(id),"1","Add",(Integer)Log_detail.get("Log_id"));
 				if(check == 1) {
 					result.put("status",200);
 					result.put("message","Add success");
@@ -76,16 +89,20 @@ public class HolidayCtrl {
 		return result;
 	}
 	
-	public Map<String, Object> Update_Holiday(Map<String, Object> data) throws SQLException, ClassNotFoundException {
+	public Map<String, Object> Update_Holiday(Map<String, Object> data,int id) throws SQLException, ClassNotFoundException {
 		DatabaseUtil dbutil = new DatabaseUtil();
 		Connection connection = dbutil.connectDB();
-		Map<String, Object> result = new HashMap<String, Object>();
-		Map<String, Object> Holiday_info = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>();
+		Map<String, Object> Holiday_info ;
+		Map<String, Object> Log_detail ;
 		HolidayModel model = new HolidayModel();
-		Holiday_info = (dbutil.select(connection,"holiday_list","ID",(String)data.get("ID"))); 
-		model.setModel(Holiday_info);
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		LocalDateTime now = LocalDateTime.now();
+		String Time = dtf.format(now);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         try {
+			Holiday_info = (dbutil.select(connection,"holiday_list","ID",(String)data.get("ID")));
+			model.setModel(Holiday_info);
             Date date = formatter.parse((String)data.get("begin_date"));
             Date date1 = formatter.parse((String)data.get("end_date"));
             java.sql.Date sqlPackageDate = new java.sql.Date(date.getTime());
@@ -94,6 +111,14 @@ public class HolidayCtrl {
     		model.setStart(sqlPackageDate);
     		model.setEnd(sqlPackageDate1);
     		dbutil.UpdateHoliday(connection,model);
+			Holiday_info = (dbutil.select(connection,"holiday_list","ID",(String)data.get("ID")));
+			model.setModel(Holiday_info);
+			dbutil.Update_Log_Status(connection,"holiday_list_log","Holiday_ID",Integer.toString(model.getId()));
+			dbutil.Holiday_Detail_log(connection,model.getId(),Time);
+			Log_detail = dbutil.select2con(connection,"holiday_list_detail_log",
+					"Holiday_ID","Time",Integer.toString(model.getId()),Time);
+			dbutil.Addlog(connection,"holiday_list_log","Holiday_ID",Integer.toString(model.getId()),
+					Time, Integer.toString(id),"1","Update",(Integer)Log_detail.get("Log_id"));
         } catch (ParseException e) {
             e.printStackTrace();
         }catch (SQLException e) {
@@ -106,24 +131,25 @@ public class HolidayCtrl {
 		return result;
 	}
 	
-	public Map<String, Object> Delete_Holiday(Map<String, Object> data) throws SQLException, ClassNotFoundException {
+	public Map<String, Object> Delete_Holiday(Map<String, Object> data,int id) throws SQLException, ClassNotFoundException {
 		DatabaseUtil dbutil = new DatabaseUtil();
 		Connection connection = dbutil.connectDB();
-		Map<String, Object> result = new HashMap<String, Object>();
-		List Target = new ArrayList();
-		Target = ((ArrayList)data.get("Value"));
-		int size = 0;
+		Map<String, Object> result = new HashMap<>();
+		Map<String, Object> Log_detail ;
+		ArrayList<String> Target = (ArrayList)data.get("Value");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		LocalDateTime now = LocalDateTime.now();
+		String Time = dtf.format(now);
 		if(!Target.isEmpty()) {
-			while(Target.size() > size) {
-				try {
-					dbutil.Delete(connection,"holiday_list","ID",(String)Target.get(size));
-				}catch (SQLException e) {
-					e.printStackTrace();
-					result.put("status",400);
-					result.put("message","Delete fail");
-					break;
+			try{
+				for(String temp : Target){
+					dbutil.Delete(connection,"holiday_list","ID",temp);
+					dbutil.Update_Log_Status(connection,"holiday_list_log","Holiday_ID",temp);
+					dbutil.Addlog(connection,"holiday_list_log","Holiday_ID",temp,
+							Time, Integer.toString(id),"1","Delete",0);
 				}
-				size++;
+			}catch (SQLException e){
+				e.printStackTrace();
 			}
 			result.put("status",200);
 			result.put("message","Delete Complete");

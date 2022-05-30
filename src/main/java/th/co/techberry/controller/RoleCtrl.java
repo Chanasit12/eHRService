@@ -15,15 +15,15 @@ public class RoleCtrl {
 	public Map<String, Object> Role() throws SQLException, ClassNotFoundException {
 		DatabaseUtil dbutil = new DatabaseUtil();
 		Connection connection = dbutil.connectDB();
-		List<Map<String, Object>> Role = new ArrayList<Map<String, Object>>();
-		List<Map<String, Object>> res = new ArrayList<Map<String, Object>>();
-		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
+		List<Map<String, Object>> Role ;
+		List<Map<String, Object>> res = new ArrayList<>();
+		Map<String, Object> responseBodyStr = new HashMap<>();
 		try {
 			Role = dbutil.selectAll(connection,"user_role");
 			if(Role != null) {
 				for(Map<String, Object> temp : Role){
 					Map<String, Object> ans = new HashMap<String, Object>();
-					String Role_id = String.valueOf((Integer) temp.get("Role_ID"));
+					String Role_id = String.valueOf(temp.get("Role_ID"));
 					String Role_Name = (String) temp.get("Role_Name");
 					ans.put("ID",Role_id);
 					ans.put("Role_Name",Role_Name);
@@ -39,8 +39,6 @@ public class RoleCtrl {
 			}
 		}catch(SQLException e) {
 			e.printStackTrace();
-			responseBodyStr.put("status",400);
-			responseBodyStr.put("message","Add fail");
 		}
 		return responseBodyStr;
 	}

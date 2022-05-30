@@ -25,7 +25,7 @@ public class Profile extends HttpServlet {
      * @see HttpServlet#HttpServlet()
      */
     public Profile() {
-        super();
+//        super();
         // TODO Auto-generated constructor stub
     }
 	@Override
@@ -50,11 +50,11 @@ public class Profile extends HttpServlet {
 		// TODO Auto-generated method stub
 		ApidataUtil apiUtil = new ApidataUtil();
 		apiUtil.setAccessControlHeaders(response);
-		Map<String, Object> responseBodyStr = new HashMap<String, Object>();
+		Map<String, Object> responseBodyStr = new HashMap<>();
 		responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
 		ProfileCtrl ctrl = new ProfileCtrl();
 		Gson gson = new Gson();
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>();
 		int id_in_token = apiUtil.getIdInToken(request);
 		try{
 			if(responseBodyStr.isEmpty()) {
@@ -67,10 +67,7 @@ public class Profile extends HttpServlet {
 				result.putAll(ctrl.GetProfileById(responseBodyStr));
 			}
 			else if(responseBodyStr.get("Option").equals("Update_Profile_By_Id")){
-				result.putAll(ctrl.UpdateProfileById(responseBodyStr));
-			}
-			else if(responseBodyStr.get("Option").equals("Get_Profile_Leave")){
-				result.putAll(ctrl.UpdateProfileById(responseBodyStr));
+				result.putAll(ctrl.UpdateProfileById(responseBodyStr,id_in_token));
 			}
 		}catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
