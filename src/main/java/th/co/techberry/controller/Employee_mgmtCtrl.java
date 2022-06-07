@@ -202,7 +202,7 @@ public class Employee_mgmtCtrl {
 							dbutil.Leave_count_log(connection,count_model,req_model,Time,"Add",id);
 						}
 					}
-					MailUtil mail = new MailUtil();
+					MailUtil2 mail = new MailUtil2();
 					mailmap.put("to", employee_model.getFirstname()+" "+employee_model.getLastname());
 					mailmap.put("username", Username);
 					mailmap.put("password", Password);

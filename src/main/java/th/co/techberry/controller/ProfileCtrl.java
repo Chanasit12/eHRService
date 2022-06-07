@@ -31,7 +31,7 @@ public class ProfileCtrl {
 		Map<String, Object> Company_info ;
 		String Id = String.valueOf(id);
 		try{
-			Employee_info = (dbutil.select(connection,"Employee","Emp_id",Id));
+			Employee_info = (dbutil.select(connection,"employee","Emp_id",Id));
 			if (Employee_info == null) {
 				responseBodyStr.put("status", 404);
 				responseBodyStr.put(ConfigConstants.RESPONSE_KEY_SUCCESS, false);
@@ -75,7 +75,7 @@ public class ProfileCtrl {
 						Map<String, Object> Host_info ;
 						Team_data = dbutil.select(connection,"team","Team_id",String.valueOf((Integer) Team_temp.get("Team_id")));
 						team_model.setModel(Team_data);
-						Host_info = dbutil.select(connection,"Employee","Emp_id",Integer.toString(team_model.getHost()));
+						Host_info = dbutil.select(connection,"employee","Emp_id",Integer.toString(team_model.getHost()));
 						host_model.setModel(Host_info);
 						team_ans.put("TeamName", team_model.getTeamName());
 						team_ans.put("HostName", host_model.getFirstname()+" "+host_model.getLastname());
@@ -109,7 +109,7 @@ public class ProfileCtrl {
 		LocalDateTime now = LocalDateTime.now();
 		String Time = dtf.format(now);
 		try{
-			Employee_info = (dbutil.select(connection,"Employee","Emp_id",Id));
+			Employee_info = (dbutil.select(connection,"employee","Emp_id",Id));
 			employee_model.setModel(Employee_info);
 			if(!data.get("Email").equals("")) {
 				employee_model.setEmail((String) data.get("Email"));
@@ -171,7 +171,7 @@ public class ProfileCtrl {
 		String Time = dtf.format(now);
 		String Emp_Id = (String) data.get("Id");
 		try{
-			Employee_info = (dbutil.select(connection,"Employee","Emp_id",Emp_Id));
+			Employee_info = (dbutil.select(connection,"employee","Emp_id",Emp_Id));
 			employee_model.setModel(Employee_info);
 			if(!data.get("Email").equals("")) {
 				employee_model.setEmail((String) data.get("Email"));
@@ -241,7 +241,7 @@ public class ProfileCtrl {
 		Map<String, Object> Company_info ;
 		String Id = (String) data.get("Id");
 		try{
-			Employee_info = (dbutil.select(connection,"Employee","Emp_id",Id));
+			Employee_info = (dbutil.select(connection,"employee","Emp_id",Id));
 			if (Employee_info == null) {
 				responseBodyStr.put("status", 404);
 				responseBodyStr.put(ConfigConstants.RESPONSE_KEY_SUCCESS, false);
@@ -287,7 +287,7 @@ public class ProfileCtrl {
 						Map<String, Object> Host_info ;
 						Team_data = dbutil.select(connection,"team","Team_id",String.valueOf((Integer) Team_temp.get("Team_id")));
 						team_model.setModel(Team_data);
-						Host_info = dbutil.select(connection,"Employee","Emp_id",Integer.toString(team_model.getHost()));
+						Host_info = dbutil.select(connection,"employee","Emp_id",Integer.toString(team_model.getHost()));
 						host_model.setModel(Host_info);
 						String Img2 = new String(host_model.getImg_Path());
 						team_ans.put("TeamName", team_model.getTeamName());

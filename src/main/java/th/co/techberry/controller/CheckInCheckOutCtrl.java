@@ -99,10 +99,17 @@ public class CheckInCheckOutCtrl {
         	Checkin = dbutil.selectLastCheckIn(connection,current_day,Emp_id);
 			working_time_model.setModel(working_time_data);
 			Leave_req = dbutil.Select_Leave_req(connection,Emp_id,current_date_time[0]);
-			java.util.Date Start_time = inFormat2.parse(current_day+" "+current_time);
+//			java.util.Date Start_time = inFormat2.parse(current_day+" "+current_time);
+			SimpleDateFormat formatter1=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			Date Start_time =formatter1.parse(current_day+" "+current_time);
 			java.util.Date Start_working = inFormat2.parse(current_day+" "+working_time_model.getStart());
 			boolean start_status = Start_working.after(Start_time)
 					|| working_time_model.getStart().toString().equals(current_time);
+			System.out.println("Time "+current_day+" "+current_time);
+			System.out.println("start_status "+start_status);
+			System.out.println("Start_working "+Start_working);
+			System.out.println("Start_time "+Start_time);
+			System.out.println("Start_working.after(Start_time) "+Start_working.after(Start_time));
 			if(Checkin != null){
 				model.setModel(Checkin);
 				if(model.getStatusCheckIn().equals("-")){

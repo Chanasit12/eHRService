@@ -54,7 +54,7 @@ public class EmployeeInfoCtrl {
 							Map<String, Object> Host_info ;
 							Team_data = dbutil.select(connection,"team","Team_id",String.valueOf((Integer) Team_temp.get("Team_id")));
 							team_model.setModel(Team_data);
-							Host_info = dbutil.select(connection,"Employee","Emp_id",Integer.toString(team_model.getHost()));
+							Host_info = dbutil.select(connection,"employee","Emp_id",Integer.toString(team_model.getHost()));
 							host_model.setModel(Host_info);
 							team_ans.put("TeamName", team_model.getTeamName());
 							team_ans.put("HostName", host_model.getFirstname()+" "+host_model.getLastname());

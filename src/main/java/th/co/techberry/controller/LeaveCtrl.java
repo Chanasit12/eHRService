@@ -30,7 +30,7 @@ public class LeaveCtrl {
 		LeaveCountModel count = new LeaveCountModel();
 		String Id = String.valueOf(id);
 		try{
-			Employee_info = dbutil.select(connection,"Employee","Emp_id",Id);
+			Employee_info = dbutil.select(connection,"employee","Emp_id",Id);
 			if(Employee_info != null) {
 				String emp_id = String.valueOf(Employee_info.get("Emp_id"));
 				Leave_info = dbutil.selectArray(connection,"leave_day_count","Emp_id",emp_id);
@@ -72,7 +72,7 @@ public class LeaveCtrl {
 		LeaveTypeModel type_model = new LeaveTypeModel();
 		String Id = String.valueOf(id);
 		try{
-			Employee_info = dbutil.select(connection,"Employee","Emp_id",Id);
+			Employee_info = dbutil.select(connection,"employee","Emp_id",Id);
 			if(Employee_info != null) {
 				String emp_id = String.valueOf(Employee_info.get("Emp_id"));
 				Leave_request = dbutil.selectArray(connection,"leave_request","Emp_id",emp_id);
@@ -751,7 +751,7 @@ public class LeaveCtrl {
 		LeaveTypeModel type_model = new LeaveTypeModel();
 		String Id = Integer.toString(id);
 		try{
-			Employee_info = dbutil.select(connection,"Employee","Emp_id",Id);
+			Employee_info = dbutil.select(connection,"employee","Emp_id",Id);
 			if(Employee_info != null) {
 				String emp_id = String.valueOf(Employee_info.get("Emp_id"));
 				Leave_request = dbutil.selectArray(connection,"leave_request","Emp_id",emp_id);

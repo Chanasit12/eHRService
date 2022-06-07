@@ -30,12 +30,12 @@ import th.co.techberry.constants.ConfigConstants;
 import javax.activation.DataSource;
 public class MailUtil2 {
 
-//			String from = "bubkim94@gmail.com";
-			String from = "newsorazen@gmail.com";
-//		    String user = "bubkim94@gmail.com";
-			String user = "newsorazen@gmail.com";
-//		    String password = "chanasit14";
-			String password = "K27e06n99g44";
+			String from = "bubkim94@gmail.com";
+//			String from = "newsorazen@gmail.com";
+		    String user = "bubkim94@gmail.com";
+//			String user = "newsorazen@gmail.com";
+		    String password = "chanasit14";
+//			String password = "K27e06n99g44";
 	public void sendMail(String mailRecipient, String subject, Map<String, Object> dataMap,String template_name)
 			throws Exception {
 		String host = "smtp.gmail.com";//or IP address  

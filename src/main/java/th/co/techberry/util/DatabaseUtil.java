@@ -352,7 +352,7 @@ public class DatabaseUtil {
 
 	public Map<String, Object> Login(Connection dbconnet , String condition, String value)
 			throws SQLException {
-			String db_query2 = "SELECT * FROM " + "Login" + " WHERE " + condition + " = " + "'" + value + "'" + ";";
+			String db_query2 = "SELECT * FROM " + "login" + " WHERE " + condition + " = " + "'" + value + "'" + ";";
 			PreparedStatement ps2 = dbconnet.prepareStatement(db_query2);
 			ResultSet rs = ps2.executeQuery();
 			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
@@ -374,11 +374,11 @@ public class DatabaseUtil {
 	
 	public void Changepassword(Connection dbconnet,int id,String password,boolean status) throws SQLException {
 		if(status) {
-			String db_query1 = "UPDATE Login SET Need_reset_password = " + false + " WHERE " + " Id " + " = " + "'" + id + "'" + ";" ;
+			String db_query1 = "UPDATE login SET Need_reset_password = " + false + " WHERE " + " Id " + " = " + "'" + id + "'" + ";" ;
 			PreparedStatement ps = dbconnet.prepareStatement(db_query1);
 			ps.executeUpdate();
 		}
-			String q = "UPDATE Login SET Password_hash = '" + password + "' WHERE " + "Id" + " = " + "'" + id + "'" + ";" ;
+			String q = "UPDATE login SET Password_hash = '" + password + "' WHERE " + "Id" + " = " + "'" + id + "'" + ";" ;
 			System.out.println("sql " + q);
 			PreparedStatement ps = dbconnet.prepareStatement(q);
 			ps.executeUpdate();
@@ -495,8 +495,8 @@ public class DatabaseUtil {
 	}
 
 	public int AddTimeSheet(Connection dbconnet,String id,String Date,String start,String end) throws SQLException {
-		String q = "INSERT INTO `timesheet`(`Emp_id`,`Date`,`Start_at`,`End_at`)"
-				+ " VALUES ('"+id+"','"+Date+"','"+start+"','"+end+"');";
+		String q = "INSERT INTO `timesheet`(`Emp_id`,`Date`,`Start_at`,`End_at`,`Detail`,`Remark`)"
+				+ " VALUES ('"+id+"','"+Date+"','"+start+"','"+end+"','-','-');";
 		System.out.println("sql " + q);
 		PreparedStatement ps = dbconnet.prepareStatement(q);
 		return ps.executeUpdate();
@@ -622,7 +622,7 @@ public class DatabaseUtil {
 	
 	public void UpdateNews(Connection dbconnet,NewsModel model) throws SQLException {
 		String q = "UPDATE `news` SET `Img`='"+model.getStrImg()+"',`Topic`='"+model.getTopic()+"',`Detail`='"+model.getDetail()+"',"
-				+ "`Creator`='"+model.getCreator()+"',`start_at`='"+model.getStart()+"',`end_at`='"+model.getEnd()+"' WHERE News_id = '"+model.getId()+"';";
+				+ "`Creator`='"+model.getCreator()+"',`start_at`='"+model.getStrStart()+"',`end_at`='"+model.getStrEnd()+"' WHERE News_id = '"+model.getId()+"';";
 		System.out.println("sql " + q);
 		PreparedStatement ps = dbconnet.prepareStatement(q);
 		ps.executeUpdate();

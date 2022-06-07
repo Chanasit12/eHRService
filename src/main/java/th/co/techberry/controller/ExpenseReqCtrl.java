@@ -122,7 +122,7 @@ public class ExpenseReqCtrl {
             Employee = dbutil.selectArray(connection,"employee","Role_ID",Integer.toString((Integer) Role_data.get("Role_ID")));
             if(Employee != null) {
                 for (Map<String, Object> temp : Employee) {
-                    MailUtil mail = new MailUtil();
+                    MailUtil2 mail = new MailUtil2();
                     employee_model.setModel(temp);
                     mailmap.put("to", employee_model.getFirstname() + " " + employee_model.getLastname());
                     mailmap.put("Detail", ConfigConstants.MESSAGE_IN_EMAIL_EXPENSE_REQUEST_MGMT);
@@ -179,7 +179,7 @@ public class ExpenseReqCtrl {
                     "Req_id","Time",Integer.toString(req_model.getReqId()),Time);
             dbutil.Addlog(connection,"expense_request_log","Req_id",Integer.toString(req_model.getReqId()),
                     Time, Integer.toString(id),"1","Update",(Integer)Log_detail.get("Log_id"));
-            MailUtil mail = new MailUtil();
+            MailUtil2 mail = new MailUtil2();
             mailmap.put("to", emp_model.getFirstname() + " " + emp_model.getLastname());
             mailmap.put("Detail", ConfigConstants.MESSAGE_IN_EMAIL_EXPENSE_REQUEST);
             mail.sendMail(emp_model.getEmail(), ConfigConstants.SUBJECT_EXPENSE_REQUEST_MAIL,

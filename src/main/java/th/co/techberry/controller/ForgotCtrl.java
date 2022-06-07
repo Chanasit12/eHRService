@@ -66,7 +66,7 @@ public class ForgotCtrl {
 	                Employee_info = (dbutil.select(connection,"Employee","ID",userid));
 	                System.out.println("Employee_info"+Employee_info);
 	                employee_model.setModel(Employee_info);
-	                MailUtil mail = new MailUtil();
+	                MailUtil2 mail = new MailUtil2();
 	                mailmap.put("to", employee_model.getFirstname()+" "+employee_model.getLastname());
 	                mailmap.put("password", newPassword);
 	                try {

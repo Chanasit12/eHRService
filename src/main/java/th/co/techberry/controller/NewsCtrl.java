@@ -36,7 +36,7 @@ public class NewsCtrl {
 				for(Map<String, Object> temp :  News) {
 					Map<String, Object> ans = new HashMap<>();
 					news_model.setModel(temp);
-					Emp_info = (dbutil.select(connection,"Employee","Emp_id",Integer.toString(news_model.getCreator())));
+					Emp_info = (dbutil.select(connection,"employee","Emp_id",Integer.toString(news_model.getCreator())));
 					emp_model.setModel(Emp_info);
 					System.out.println("news_model.getImg() "+news_model.getImg());
 					String data = new String((byte[])temp.get("Img"));
@@ -191,7 +191,7 @@ public class NewsCtrl {
 					Map<String, Object> ans = new HashMap<>();
 					news_model.setModel(temp);
 					String Img = new String(news_model.getImg());
-					Emp_info = (dbutil.select(connection,"Employee","Emp_id",
+					Emp_info = (dbutil.select(connection,"employee","Emp_id",
 							Integer.toString(news_model.getCreator())));
 					emp_model.setModel(Emp_info);
 					ans.put("News_id",String.valueOf(news_model.getId()));

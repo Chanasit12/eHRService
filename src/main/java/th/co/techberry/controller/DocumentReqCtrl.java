@@ -257,7 +257,7 @@ public class DocumentReqCtrl {
             Employee = dbutil.selectArray(connection,"employee","Role_ID",Integer.toString((Integer) Role_data.get("Role_ID")));
             if(Employee != null) {
                 for (Map<String, Object> temp : Employee) {
-                    MailUtil mail = new MailUtil();
+                    MailUtil2 mail = new MailUtil2();
                     emp_model.setModel(temp);
                     mailmap.put("to", emp_model.getFirstname() + " " + emp_model.getLastname());
                     mailmap.put("Detail", ConfigConstants.MESSAGE_IN_EMAIL_DOCUMENT_REQUEST_MGMT);
@@ -288,7 +288,7 @@ public class DocumentReqCtrl {
         Map<String, Object> Log_detail ;
         Map<String, Object> Emp_detail ;
         Map<String, Object> Role_detail ;
-        MailUtil mail = new MailUtil();
+        MailUtil2 mail = new MailUtil2();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         DocumentReqModel req_model = new DocumentReqModel();
         EmployeeModel emp_model = new EmployeeModel();

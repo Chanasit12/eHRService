@@ -9,7 +9,7 @@ import com.mysql.jdbc.Connection;
 import th.co.techberry.constants.ConfigConstants;
 import th.co.techberry.model.*;
 import th.co.techberry.util.DatabaseUtil;
-import th.co.techberry.util.MailUtil;
+import th.co.techberry.util.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -401,7 +401,7 @@ public class MeetingRoomCtrl {
 					Room_info = dbutil.select(connection,"meeting_room","Room_Id",Integer.toString(meeting_model.getRoomId()));
 					employee_model.setModel(Employee_info);
 					room_model.setModel(Room_info);
-					MailUtil mail = new MailUtil();
+					MailUtil2 mail = new MailUtil2();
 					mailmap.put("to", employee_model.getFirstname()+" "+employee_model.getLastname());
 					mailmap.put("Link",room_model.getDescription());
 					mailmap.put("Date",meeting_model.getDate());
