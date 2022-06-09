@@ -1,6 +1,6 @@
 package Constant;
 
-import Model.CheckInCheckOutModel;
+import Model.*;
 import com.mysql.jdbc.Connection;
 
 import java.sql.*;
@@ -84,7 +84,7 @@ public class DatabaseUtil
         }
     }
 
-    public int AddCheckIn(Connection dbconnet,CheckInCheckOutModel model) throws SQLException {
+    public int AddCheckIn(Connection dbconnet,CheckinModel model) throws SQLException {
         String q = "INSERT INTO `checkin_checkout`(`Checkin_at`, `Checkout_at`, `Emp_id`, `Status_CheckIn`, `Status_CheckOut`,`Detail`) " +
                 "VALUES ('"+model.getCheckInStr()+"','"+model.getCheckoutStr()+"','"+model.getEmpId()+"'," +
                 "'"+model.getStatusCheckIn()+"','"+model.getStatusCheckOut()+"','"+model.getDetail()+"');";

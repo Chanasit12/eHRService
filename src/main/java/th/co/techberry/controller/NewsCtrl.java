@@ -67,7 +67,7 @@ public class NewsCtrl {
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> Log_detail ;
 		Map<String, Object> News_info ;
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
 		String Time = dtf.format(now);
 		NewsModel new_model = new NewsModel();
@@ -75,8 +75,10 @@ public class NewsCtrl {
 		String Topic = (String) data.get("Topic");
 		Topic = Topic.replace("\"","\\\"");
 		Topic = Topic.replace("\'","\\\'");
+		Topic = Topic.replace("\\","\\\\");
 		Detail = Detail.replace("\"","\\\"");
 		Detail = Detail.replace("\'","\\\'");
+		Detail = Detail.replace("\\","\\\\");
 		new_model.setDetail(Detail);
 		new_model.setTopic(Topic);
 		new_model.setStrCreatedate(Time);
@@ -109,7 +111,7 @@ public class NewsCtrl {
 		Map<String, Object> News_info ;
 		Map<String, Object> Log_detail ;
 		NewsModel new_model = new NewsModel();
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
 		String Detail = (String) data.get("Detail");
 		String Topic = (String) data.get("Topic");
@@ -156,7 +158,7 @@ public class NewsCtrl {
 		Connection connection = dbutil.connectDB();
 		Map<String, Object> result = new HashMap<>();
 		ArrayList<String> Target = (ArrayList)data.get("Value");
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
 		String Time = dtf.format(now);
 		if(!Target.isEmpty()) {

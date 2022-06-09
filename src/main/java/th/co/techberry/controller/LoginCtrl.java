@@ -65,6 +65,9 @@ public class LoginCtrl {
 
 	Map<String, Object> checkLogin(LoginModel login_model,String password,String username) throws SQLException, ClassNotFoundException {
 		Map<String, Object> responseBodyStr = new HashMap<>();
+		Map<String, Object> Login ;
+		Map<String, Object> Employee ;
+		Map<String, Object> Log_detail ;
 		DatabaseUtil dbutil = new DatabaseUtil();
 		Connection connection = dbutil.connectDB();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -73,6 +76,15 @@ public class LoginCtrl {
 		if(Encryption.verifyPassword(login_model.getPassword(),username, password)) {
 			responseBodyStr.putAll(createSession(login_model));
 			dbutil.Last_Login(connection,Time,login_model.getId());
+			Login = dbutil.select(connection,"login","Id",Integer.toString(login_model.getId()));
+			Employee = dbutil.select(connection,"employee","Id",Integer.toString(login_model.getId()));
+			login_model.setModel(Login);
+			dbutil.Login_Detail_log(connection,login_model.getId(),Time);
+			dbutil.Update_Log_Status(connection,"login_log","Login_id",Integer.toString(login_model.getId()));
+			Log_detail = dbutil.select2con(connection,"login_detail_log",
+					"Login_id","Time",Integer.toString(login_model.getId()),Time);
+			dbutil.Addlog(connection,"login_log","Login_id",Integer.toString(login_model.getId()),
+					Time,Integer.toString((Integer)Employee.get("Emp_id")),"1","Update",(Integer)Log_detail.get("Log_id"));
 		}
 		else {
 			if (password.equals("")) {

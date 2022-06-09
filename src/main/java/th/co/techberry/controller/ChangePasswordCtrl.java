@@ -59,7 +59,7 @@ public class ChangePasswordCtrl {
 		Map<String, Object> responseBodyStr = new HashMap<>();
 		Map<String, Object> Login ;
 		Map<String, Object> Log_detail ;
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
 		String Time = dtf.format(now);
 		Encryption encryptor = new Encryption();

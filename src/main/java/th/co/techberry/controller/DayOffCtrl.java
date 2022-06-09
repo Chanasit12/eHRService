@@ -31,7 +31,7 @@ public class DayOffCtrl {
 					Map<String, Object> ans = new HashMap<>();
 					String Type_ID = String.valueOf(temp.get("Type_ID"));
 					String Emp_id = String.valueOf(temp.get("Emp_id"));
-					Emp_info = dbutil.select(connection,"Employee","Emp_id",Emp_id);
+					Emp_info = dbutil.select(connection,"employee","Emp_id",Emp_id);
 					String Firstname = (String)Emp_info.get("Firstname");
 					String Lastname = (String)Emp_info.get("Lastname");
 					String Fullname = Firstname + " " + Lastname;

@@ -102,97 +102,105 @@ public class CheckInCheckOutCtrl {
 //			java.util.Date Start_time = inFormat2.parse(current_day+" "+current_time);
 			SimpleDateFormat formatter1=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			Date Start_time =formatter1.parse(current_day+" "+current_time);
+			Date Start_time_before =formatter1.parse(current_day+" "+"08:30:00");
 			java.util.Date Start_working = inFormat2.parse(current_day+" "+working_time_model.getStart());
 			boolean start_status = Start_working.after(Start_time)
 					|| working_time_model.getStart().toString().equals(current_time);
-			System.out.println("Time "+current_day+" "+current_time);
-			System.out.println("start_status "+start_status);
-			System.out.println("Start_working "+Start_working);
-			System.out.println("Start_time "+Start_time);
-			System.out.println("Start_working.after(Start_time) "+Start_working.after(Start_time));
-			if(Checkin != null){
-				model.setModel(Checkin);
-				if(model.getStatusCheckIn().equals("-")){
-					if(Leave_req != null){
-						leave_model.setModel(Leave_req);
-						String Begin = leave_model.getBegin().toString().split(" ")[0];
-						String End = leave_model.getEnd().toString().split(" ")[0];
-						if(!(leave_model.getBegin().getHours() == 9 && leave_model.getEnd().getHours() == 18)){
-							if(current_day.equals(Begin)){
-								if(leave_model.getBegin().getHours() > 9){
-									if(start_status){
-										model.setStatusCheckIn("In time");
-										responseBodyStr.put("Message","Check in complete");
-									}
-									else{
-										model.setStatusCheckIn("Late");
-										responseBodyStr.put("Message","Check in complete");
+			boolean early = Start_time.after(Start_time_before) ;
+			System.out.println("Start_time_before "+Start_time_before);
+			System.out.println("early "+early);
+			if(early){
+				if(Checkin != null){
+					model.setModel(Checkin);
+					if(model.getStatusCheckIn().equals("-")){
+						if(Leave_req != null){
+							leave_model.setModel(Leave_req);
+							String Begin = leave_model.getBegin().toString().split(" ")[0];
+							String End = leave_model.getEnd().toString().split(" ")[0];
+							if(!(leave_model.getBegin().getHours() == 9 && leave_model.getEnd().getHours() == 18)){
+								if(current_day.equals(Begin)){
+									if(leave_model.getBegin().getHours() > 9){
+										if(start_status){
+											model.setStatusCheckIn("In time");
+											responseBodyStr.put("Message","Check in complete");
+										}
+										else{
+											model.setStatusCheckIn("Late");
+											responseBodyStr.put("Message","Check in complete");
+										}
 									}
 								}
-							}
-							else if(current_day.equals(End)){
-								String leave_end_time = leave_model.getEnd().toString().split(" ")[1];
-								start_status = leave_model.getEnd().after(Start_time) || leave_end_time.equals(current_time+".0");
-								if(leave_model.getEnd().getHours() < 18){
-									if(start_status){
-										model.setStatusCheckIn("In time");
-										responseBodyStr.put("Message","Check in complete");
-									}
-									else{
-										model.setStatusCheckIn("Late");
-										responseBodyStr.put("Message","Check in complete");
+								else if(current_day.equals(End)){
+									String leave_end_time = leave_model.getEnd().toString().split(" ")[1];
+									start_status = leave_model.getEnd().after(Start_time) || leave_end_time.equals(current_time+".0");
+									if(leave_model.getEnd().getHours() < 18){
+										if(start_status){
+											model.setStatusCheckIn("In time");
+											responseBodyStr.put("Message","Check in complete");
+										}
+										else{
+											model.setStatusCheckIn("Late");
+											responseBodyStr.put("Message","Check in complete");
+										}
 									}
 								}
 							}
 						}
+						else if(start_status) {
+							model.setStatusCheckIn("In time");
+						}
+						else {
+							model.setStatusCheckIn("Late");
+						}
+						model.setEmpId(id);
+//						model.setCheckInStr(dtf.format(now)+":00");
+						model.setCheckInStr(Log_dtf.format(now));
+						model.setCheckoutStr(model.getCheckout().toString());
+						dbutil.Update_Checkin_Checkout(connection,model,current_day);
+						dbutil.Update_Log_Status(connection,"checkin_checkout_log","Check_id",Integer.toString(model.getCheckId()));
+						dbutil.Add_Checkin_Checkout_Detail_log(connection,model.getCheckId(),Log_Time);
+						Log_detail = dbutil.select2con(connection,"checkin_checkout_detail_log",
+								"Check_id","Time",Integer.toString(model.getCheckId()),Log_Time);
+						dbutil.Addlog(connection,"checkin_checkout_log","Check_id",
+								Integer.toString(model.getCheckId()),Log_Time,Integer.toString(id),"1","Update",(Integer)Log_detail.get("Log_id"));
+						responseBodyStr.put("Message","Check in complete");
 					}
-					else if(start_status) {
+					else{
+						responseBodyStr.put("Message","You have already Check in");
+					}
+				}
+				else{
+					Map<String, Object> emp_data;
+					EmployeeModel emp_model = new EmployeeModel();
+					emp_data = dbutil.select(connection,"employee","Emp_id",Integer.toString(id));
+					emp_model.setModel(emp_data);
+					if(start_status) {
 						model.setStatusCheckIn("In time");
 					}
 					else {
 						model.setStatusCheckIn("Late");
 					}
 					model.setEmpId(id);
-					model.setCheckInStr(dtf.format(now)+":00");
-					model.setCheckoutStr(model.getCheckout().toString());
-					dbutil.Update_Checkin_Checkout(connection,model,current_day);
-					dbutil.Update_Log_Status(connection,"checkin_checkout_log","Check_id",Integer.toString(model.getCheckId()));
+					model.setDetail("-");
+					model.setStatusCheckOut("-");
+//					model.setCheckInStr(dtf.format(now)+":00");
+					model.setCheckInStr(Log_dtf.format(now));
+					model.setCheckoutStr(current_day+" 00:00:00");
+					dbutil.AddCheckIn(connection,model);
+					Checkin = dbutil.select2con(connection,"checkin_checkout","Emp_id","Checkin_at",
+							Integer.toString(model.getEmpId()),model.getCheckInStr());
+					model.setModel(Checkin);
 					dbutil.Add_Checkin_Checkout_Detail_log(connection,model.getCheckId(),Log_Time);
 					Log_detail = dbutil.select2con(connection,"checkin_checkout_detail_log",
 							"Check_id","Time",Integer.toString(model.getCheckId()),Log_Time);
 					dbutil.Addlog(connection,"checkin_checkout_log","Check_id",
-							Integer.toString(model.getCheckId()),Log_Time,Integer.toString(id),"1","Update",(Integer)Log_detail.get("Log_id"));
-					responseBodyStr.put("Message","Check in complete");
+							Integer.toString(model.getCheckId()),Log_Time,"0","1","Add",(Integer)Log_detail.get("Log_id"));
 				}
-				else{
-					responseBodyStr.put("Message","You have already Check in");
-				}
+				responseBodyStr.put("status",200);
 			}
 			else{
-				Map<String, Object> emp_data;
-				EmployeeModel emp_model = new EmployeeModel();
-				emp_data = dbutil.select(connection,"employee","Emp_id",Integer.toString(id));
-				emp_model.setModel(emp_data);
-				if(start_status) {
-					model.setStatusCheckIn("In time");
-				}
-				else {
-					model.setStatusCheckIn("Late");
-				}
-				model.setEmpId(id);
-				model.setDetail("-");
-				model.setStatusCheckOut("-");
-				model.setCheckInStr(dtf.format(now)+":00");
-				model.setCheckoutStr(current_day+" 00:00:00");
-				dbutil.AddCheckIn(connection,model);
-				Checkin = dbutil.select2con(connection,"checkin_checkout","Emp_id","Checkin_at",
-						Integer.toString(model.getEmpId()),model.getCheckInStr());
-				model.setModel(Checkin);
-				dbutil.Add_Checkin_Checkout_Detail_log(connection,model.getCheckId(),Log_Time);
-				Log_detail = dbutil.select2con(connection,"checkin_checkout_detail_log",
-						"Check_id","Time",Integer.toString(model.getCheckId()),Log_Time);
-				dbutil.Addlog(connection,"checkin_checkout_log","Check_id",
-						Integer.toString(model.getCheckId()),Log_Time,"0","1","Add",(Integer)Log_detail.get("Log_id"));
+				responseBodyStr.put("Message","Please Come back to check in after 08:30:00");
+				responseBodyStr.put("status",400);
 			}
         	} catch(SQLException e) {
         	e.printStackTrace();
@@ -200,7 +208,6 @@ public class CheckInCheckOutCtrl {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			}
-		responseBodyStr.put("status",200);
 		return responseBodyStr;
 	}
 	
@@ -224,6 +231,8 @@ public class CheckInCheckOutCtrl {
 		LocalDateTime now = LocalDateTime.now();
 		String Emp_id = Integer.toString(id);
 		String Checkin_id = (String) data.get("Checkin_id");
+		DateTimeFormatter Log_dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		String Log_Time = Log_dtf.format(now);
         try {
 			Last_Checkin = dbutil.select(connection,"checkin_checkout","Check_id",Checkin_id);
 			model.setModel(Last_Checkin);
@@ -246,6 +255,7 @@ public class CheckInCheckOutCtrl {
 			boolean End_after = End_time.after(Workingtime_End_time)
 						|| current_time.equals(working_time_model.getEnd().toString());
 			String str_time = current_day+" "+current_time;
+
 			if(model.getStatusCheckOut().equals("-")) {
 				if(Leave_req != null){
 					leave_model.setModel(Leave_req);
@@ -325,15 +335,15 @@ public class CheckInCheckOutCtrl {
 					responseBodyStr.put("Message","Check Out Early");
 				}
 				model.setEmpId(id);
-				model.setCheckoutStr(str_time);
+				model.setCheckoutStr(Log_Time);
 				model.setCheckInStr(model.getCheckin().toString());
 				dbutil.Update_Checkin_Checkout(connection,model,Checkin_DateTime[0]);
 				dbutil.Update_Log_Status(connection,"checkin_checkout_log","Check_id",Integer.toString(model.getCheckId()));
-				dbutil.Update_Checkin_Checkout_Detail_log(connection,model,current_time);
+				dbutil.Update_Checkin_Checkout_Detail_log(connection,model,Log_Time);
 				Log_detail = dbutil.select2con(connection,"checkin_checkout_detail_log",
-						"Check_id","Time",Integer.toString(model.getCheckId()),current_time);
+						"Check_id","Time",Integer.toString(model.getCheckId()),Log_Time);
 				dbutil.Addlog(connection,"checkin_checkout_log","Check_id",
-						Integer.toString(model.getCheckId()),current_time,Integer.toString(id),"1","Update",(Integer)Log_detail.get("Log_id"));
+						Integer.toString(model.getCheckId()),Log_Time,Integer.toString(id),"1","Update",(Integer)Log_detail.get("Log_id"));
 				responseBodyStr.put("status",200);
 			}
 			else{
@@ -366,10 +376,10 @@ public class CheckInCheckOutCtrl {
 //		String current_time = current_date_time[1]+":00";
 		try{
 			if(Duration.equals("Day")){
-				Check_data = dbutil.selectCheckin(connection,"%-"+current_date_raw[2]+"%",Emp_id);
+				Check_data = dbutil.selectCheckin(connection,"%-"+current_date_raw[2]+" %",Emp_id);
 			}
 			else if(Duration.equals("Month")){
-				Check_data = dbutil.selectCheckin(connection,"%-"+current_date_raw[1]+"%",Emp_id);
+				Check_data = dbutil.selectCheckin(connection,"%-"+current_date_raw[1]+"-%",Emp_id);
 			}
 			else if(Duration.equals("Year")) {
 				Check_data = dbutil.selectCheckin(connection, current_date_raw[0] + "%", Emp_id);
@@ -414,10 +424,10 @@ public class CheckInCheckOutCtrl {
 //		String current_time = current_date_time[1]+":00";
 		try{
 			if(Duration.equals("Day")){
-				Check_data = dbutil.selectCheckinAll(connection,"%-"+current_date_raw[2]+"%");
+				Check_data = dbutil.selectCheckinAll(connection,"%-"+current_date_raw[2]+" %");
 			}
 			else if(Duration.equals("Month")){
-				Check_data = dbutil.selectCheckinAll(connection,"%-"+current_date_raw[1]+"%");
+				Check_data = dbutil.selectCheckinAll(connection,"%-"+current_date_raw[1]+"-%");
 			}
 			else if(Duration.equals("Year")){
 				Check_data = dbutil.selectCheckinAll(connection,current_date_raw[0]+"%");

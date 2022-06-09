@@ -11,6 +11,7 @@ import java.util.Map;
 import com.mysql.jdbc.Connection;
 
 import th.co.techberry.constants.ConfigConstants;
+import th.co.techberry.model.*;
 import th.co.techberry.util.DatabaseUtil;
 
 public class PositionCtrl {
@@ -55,6 +56,7 @@ public class PositionCtrl {
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
 		String Time = dtf.format(now);
+		PositionModel model = new PositionModel();
 		if(data.get("Position_Name").equals("")) {
 			result.put("status",401);
 			result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.PLEASE_INPUT_REQUIRED_FIELD);

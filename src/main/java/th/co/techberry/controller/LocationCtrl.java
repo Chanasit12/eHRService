@@ -50,7 +50,7 @@ public class LocationCtrl {
 		Map<String, Object> Location ;
 		Map<String, Object> Log_detail ;
 		LocationModel model = new LocationModel();
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
 		String Time = dtf.format(now);
 		if(data.get("Location_Name").equals("")) {
@@ -89,7 +89,7 @@ public class LocationCtrl {
 		Map<String, Object> Location ;
 		Map<String, Object> Log_detail ;
 		LocationModel model = new LocationModel();
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
 		String Time = dtf.format(now);
 		try {
@@ -123,7 +123,7 @@ public class LocationCtrl {
 		Map<String, Object> result = new HashMap<>();
 		List<Map<String, Object>> Location ;
 		LocationModel model = new LocationModel();
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
 		String Time = dtf.format(now);
 		String Location_id = (String)data.get("Location_id");

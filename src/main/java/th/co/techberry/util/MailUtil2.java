@@ -38,15 +38,12 @@ public class MailUtil2 {
 //			String password = "K27e06n99g44";
 	public void sendMail(String mailRecipient, String subject, Map<String, Object> dataMap,String template_name)
 			throws Exception {
-		String host = "smtp.gmail.com";//or IP address  
+		System.out.println("password "+password);
+		String host = "192.168.1.40";//or IP address
 		String port = "587";
 	    Properties properties = System.getProperties();
 	    properties.put("mail.smtp.auth", "true");
-        properties.setProperty("mail.smtp.host", host);
-        properties.setProperty("mail.smtp.port", port);
-        properties.setProperty("mail.smtp.user", user);
-        properties.setProperty("mail.smtp.password", password);
-        properties.setProperty("mail.smtp.starttls.enable", "true");
+		properties.setProperty("mail.smtp.host", host);
         Session session = Session.getDefaultInstance(properties);
         session.setDebug(true);
 

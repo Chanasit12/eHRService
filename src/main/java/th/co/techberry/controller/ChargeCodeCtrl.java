@@ -50,7 +50,7 @@ public class ChargeCodeCtrl {
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> Charge_code ;
 		Map<String, Object> Log_detail ;
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
 		String Time = dtf.format(now);
 		ChargeCodeModel model = new ChargeCodeModel();
@@ -87,7 +87,7 @@ public class ChargeCodeCtrl {
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> ChargeCode ;
 		Map<String, Object> Log_detail ;
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
 		String Time = dtf.format(now);
 		ChargeCodeModel model = new ChargeCodeModel();
@@ -123,10 +123,9 @@ public class ChargeCodeCtrl {
 		Connection connection = dbutil.connectDB();
 		List<Map<String, Object>> Charge_Code ;
 		Map<String, Object> result = new HashMap<>();
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
 		String Time = dtf.format(now);
-		ChargeCodeModel model = new ChargeCodeModel();
 		String ChargeCode_id = (String)data.get("ChargeCode_id");
 		if(ChargeCode_id.equals("")) {
 			result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.PLEASE_INPUT_REQUIRED_FIELD);
@@ -136,9 +135,9 @@ public class ChargeCodeCtrl {
 			try {
 				Charge_Code = dbutil.selectArray(connection,"timesheet","Charge_code_id",ChargeCode_id);
 				if(Charge_Code == null){
-					dbutil.Update_Log_Status(connection,"charge_code_log","Charge_code_id",Integer.toString(model.getChargeCodeId()));
+					dbutil.Update_Log_Status(connection,"charge_code_log","Charge_code_id",ChargeCode_id);
 					dbutil.Addlog(connection,"charge_code_log","Charge_code_id",
-							Integer.toString(model.getChargeCodeId()),Time,Integer.toString(id),"1","Delete",0);
+							ChargeCode_id,Time,Integer.toString(id),"1","Delete",0);
 					dbutil.Delete(connection,"charge_code","Charge_code_id",ChargeCode_id);
 					result.put("status",200);
 					result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.RESPONSE_KEY_SUCCESS);

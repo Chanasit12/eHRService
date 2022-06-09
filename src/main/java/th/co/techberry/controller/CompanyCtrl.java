@@ -62,8 +62,11 @@ public class CompanyCtrl {
 		}
 		else {
 			String Name = (String) data.get("Company_Name");
+			if(!data.get("description").equals("")){
+				model.setDescription((String)data.get("description"));
+			}
 			try {
-				dbutil.AddCompany(connection,Name);
+				dbutil.AddCompany(connection,model);
 				Company = dbutil.select(connection,"company", "Company_Name",Name);
 				model.setModel(Company);
 				dbutil.Company_Detail_log(connection,model,Time);
@@ -92,6 +95,14 @@ public class CompanyCtrl {
 		String Time = dtf.format(now);
 		CompanyModel model = new CompanyModel();
 			try {
+				Company = dbutil.select(connection,"company","Comp_ID",(String) data.get("Comp_ID"));
+				model.setModel(Company);
+				if(!data.get("Company_name").equals("")){
+					model.setCompanyName((String)data.get("Company_Name"));
+				}
+				if(!data.get("description").equals("")){
+					model.setDescription((String)data.get("description"));
+				}
 				dbutil.UpdateCompany(connection,(String) data.get("Comp_ID"),(String) data.get("Company_Name"));
 				Company = dbutil.select(connection,"company","Comp_ID",(String) data.get("Comp_ID"));
 				model.setModel(Company);
@@ -146,4 +157,6 @@ public class CompanyCtrl {
 		result.put("status",200);
 		return result;
 	}
+
+
 }

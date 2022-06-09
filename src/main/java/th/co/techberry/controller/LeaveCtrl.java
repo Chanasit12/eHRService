@@ -282,7 +282,7 @@ public class LeaveCtrl {
 		Map<String, Object> Leave_req ;
 		Map<String, Object> Log_detail ;
 		LeaveModel leave_model = new LeaveModel();
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
 		String Time = dtf.format(now);
 		leave_model.setModelByReq(data);
@@ -584,7 +584,7 @@ public class LeaveCtrl {
 		String Leave_type = (String) data.get("Leave_type");
 		String Depend = (String) data.get("Depend");
 		Boolean Status = Boolean.parseBoolean((String) data.get("Status"));
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
 		String Time = dtf.format(now);
  		try{
@@ -660,7 +660,7 @@ public class LeaveCtrl {
 		EmployeeModel emp_model = new EmployeeModel();
 		String Req_id = (String) data.get("Req_id");
 		String Depend = (String) data.get("Depend");
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
 		String Time = dtf.format(now);
 		try{

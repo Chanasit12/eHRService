@@ -105,7 +105,7 @@ public class ProfileCtrl {
 		Map<String, Object> Employee_info ;
 		Map<String, Object> Log_detail ;
 		String Id = String.valueOf(id);
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
 		String Time = dtf.format(now);
 		try{
@@ -115,7 +115,11 @@ public class ProfileCtrl {
 				employee_model.setEmail((String) data.get("Email"));
 			}
 			if(!data.get("Address").equals("")) {
-				employee_model.setAddress((String) data.get("Address"));
+				String Address = (String) data.get("Address");
+				Address = Address.replace("\"","\\\"");
+				Address = Address.replace("\'","\\\'");
+				Address = Address.replace("\\","\\\\");
+				employee_model.setAddress(Address);
 			}
 			if(!data.get("Lastname").equals("")) {
 				employee_model.setLastname((String) data.get("Lastname"));
@@ -177,7 +181,11 @@ public class ProfileCtrl {
 				employee_model.setEmail((String) data.get("Email"));
 			}
 			if(!data.get("Address").equals("")) {
-				employee_model.setAddress((String) data.get("Address"));
+				String Address = (String) data.get("Address");
+				Address = Address.replace("\"","\\\"");
+				Address = Address.replace("\'","\\\'");
+				Address = Address.replace("\\","\\\\");
+				employee_model.setAddress(Address);
 			}
 			if(!data.get("Lastname").equals("")) {
 				employee_model.setLastname((String) data.get("Lastname"));

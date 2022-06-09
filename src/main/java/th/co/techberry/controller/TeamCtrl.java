@@ -33,9 +33,9 @@ public class TeamCtrl {
 				for(Map<String, Object> temp : Team){
 					Map<String, Object> ans = new HashMap<>();
 					team_model.setModel(temp);
-					Host_info = dbutil.select(connection,"Employee","Emp_id",String.valueOf(team_model.getHost()));
+					Host_info = dbutil.select(connection,"employee","Emp_id",String.valueOf(team_model.getHost()));
 					host_model.setModel(Host_info);
-					Creator_info = dbutil.select(connection,"Employee","Emp_id",String.valueOf(team_model.getCreator()));
+					Creator_info = dbutil.select(connection,"employee","Emp_id",String.valueOf(team_model.getCreator()));
 					creator_model.setModel(Creator_info);
 					ans.put("Team_id",String.valueOf(team_model.getTeamId()));
 					ans.put("Teamname",team_model.getTeamName());
@@ -78,27 +78,26 @@ public class TeamCtrl {
 			String Creator = (String) data.get("Creator");
 			String Team_Host = (String) data.get("Team_Host");
 			try {
-				dbutil.AddTeam(connection,Teamname,Creator,Team_Host);
 				Team_info = dbutil.select(connection,"team","Team_name",Teamname);
-				model.setModel(Team_info);
-				dbutil.Team_Detail_log(connection,model,Time);
-				Log_detail = dbutil.select2con(connection,"team_detail_log",
-						"Team_id","Time",Integer.toString(model.getTeamId()),Time);
-				dbutil.Addlog(connection,"team_log","Team_id",Integer.toString(model.getTeamId()),
-						Time, Integer.toString(id),"1","Add",(Integer)Log_detail.get("Log_id"));
-//				dbutil.AddTeamMember(connection,Team_Host,Integer.toString(model.getTeamId()));
-				if(!Target.isEmpty()) {
-					dbutil.Emp_Team_log(connection,Integer.toString(model.getTeamId()),Time,Integer.toString(id),"1","Add");
-					Log_detail = dbutil.select(connection,"emp_team_log","Team_id",Integer.toString(model.getTeamId()));
-					for(String temp : Target){
+				if(Team_info == null){
+					dbutil.AddTeam(connection,Teamname,Creator,Team_Host);
+					Team_info = dbutil.select(connection,"team","Team_name",Teamname);
+					model.setModel(Team_info);
+					dbutil.Team_Detail_log(connection,model,Time);
+					Log_detail = dbutil.select2con(connection,"team_detail_log",
+							"Team_id","Time",Integer.toString(model.getTeamId()),Time);
+					dbutil.Addlog(connection,"team_log","Team_id",Integer.toString(model.getTeamId()),
+							Time, Integer.toString(id),"1","Add",(Integer)Log_detail.get("Log_id"));
+					Target.add(Team_Host);
+					if(!Target.isEmpty()) {
+						dbutil.Emp_Team_log(connection,Integer.toString(model.getTeamId()),Time,Integer.toString(id),"1","Add");
+						Log_detail = dbutil.select(connection,"emp_team_log","Team_id",Integer.toString(model.getTeamId()));
+						for(String temp : Target){
 							check = dbutil.select2con(connection,"emp_team","Emp_id","Team_id",temp,(String)data.get("Team_id"));
 							if(check != null) {
-								Emp_info = dbutil.select(connection,"Employee","Emp_id",temp);
-								String Firstname = (String)Emp_info.get("Firstname");
-								String Lastname = (String)Emp_info.get("Lastname");
-								String Fullname = Firstname + " " + Lastname;
+								Emp_info = dbutil.select(connection,"employee","Emp_id",temp);
 								result.put("status",400);
-								result.put("Name",Fullname);
+								result.put("Name",Emp_info.get("Firstname")+" "+Emp_info.get("Lastname"));
 								result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,"This Employee Has Already in This Team");
 								return result;
 							}
@@ -108,11 +107,16 @@ public class TeamCtrl {
 							}
 							result.put("status",200);
 							result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.RESPONSE_KEY_SUCCESS);
+						}
+					}
+					else {
+						result.put("status",200);
+						result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.RESPONSE_KEY_SUCCESS);
 					}
 				}
-				else {
-					result.put("status",200);
-					result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.RESPONSE_KEY_SUCCESS);
+				else{
+					result.put("status",400);
+					result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,"This Team Name has already use");
 				}
 		}catch (SQLException e) {
 			e.printStackTrace();
@@ -175,7 +179,7 @@ public class TeamCtrl {
 				for(Map<String, Object> temp : Team_member){
 					Map<String, Object> ans = new HashMap<String, Object>();
 					String Emp_id = String.valueOf((Integer) temp.get("Emp_id"));
-					Emp_info = dbutil.select(connection,"Employee","Emp_id",Emp_id);
+					Emp_info = dbutil.select(connection,"employee","Emp_id",Emp_id);
 					emp_model.setModel(Emp_info);
 					String Position_id  = String.valueOf(emp_model.getPositionid());
 					Position_info = dbutil.select(connection,"position","Position_ID",Position_id);
@@ -221,7 +225,7 @@ public class TeamCtrl {
 				try {
 					check = dbutil.select2con(connection,"emp_team","Emp_id","Team_id",temp,(String)data.get("Team_id"));
 					if(check != null) {
-						Emp_info = dbutil.select(connection,"Employee","Emp_id",temp);
+						Emp_info = dbutil.select(connection,"employee","Emp_id",temp);
 						String Firstname = (String)Emp_info.get("Firstname");
 						String Lastname = (String)Emp_info.get("Lastname");
 						String Fullname = Firstname + " " + Lastname;

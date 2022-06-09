@@ -55,6 +55,9 @@ public class TimeSheetCtrl {
 				}
 				responseBodyStr.put("status",200);
 			}
+			else{
+				responseBodyStr.put("status",200);
+			}
 		}catch(SQLException e) {
 			e.printStackTrace();
 			responseBodyStr.put("status",400);
@@ -102,6 +105,9 @@ public class TimeSheetCtrl {
 				}
 				responseBodyStr.put("status",200);
 			}
+			else{
+				responseBodyStr.put("status",200);
+			}
 		}catch(SQLException e) {
 			e.printStackTrace();
 			responseBodyStr.put("status",400);
@@ -147,6 +153,9 @@ public class TimeSheetCtrl {
 				}
 				responseBodyStr.put("status",200);
 			}
+			else{
+				responseBodyStr.put("status",200);
+			}
 		}catch(SQLException e) {
 			e.printStackTrace();
 			responseBodyStr.put("status",400);
@@ -169,7 +178,7 @@ public class TimeSheetCtrl {
 		String[] Raw_End = ((String) data.get("End_at")).split("[:]");
 		String Start = Raw_start[0]+":"+Raw_start[1]+":00";
 		String End = Raw_End[0]+":"+Raw_End[1]+":00";
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
 		String Time = dtf.format(now);
 		try {
@@ -205,17 +214,25 @@ public class TimeSheetCtrl {
 		String Raw_End = (String) data.get("End_at");;
 		String Sheet_id = (String) data.get("Sheet_id");
 		SimpleDateFormat formatter1 = new SimpleDateFormat("HH:mm");
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
 		String Time = dtf.format(now);
 		try {
 			Sheet_detail = dbutil.select(connection, "timesheet", "Sheet_id", Sheet_id);
 			Timesheet_model.setModel(Sheet_detail);
 			if (!data.get("Detail").equals("")) {
-				Timesheet_model.setDetail((String) data.get("Detail"));
+				String Detail = (String) data.get("Detail");
+				Detail = Detail.replace("\"","\\\"");
+				Detail = Detail.replace("\'","\\\'");
+				Detail = Detail.replace("\\","\\\\");
+				Timesheet_model.setDetail(Detail);
 			}
 			if (!data.get("Remark").equals("")) {
-				Timesheet_model.setRemark((String) data.get("Remark"));
+				String Remark = (String) data.get("Remark");
+				Remark = Remark.replace("\"","\\\"");
+				Remark = Remark.replace("\'","\\\'");
+				Remark = Remark.replace("\\","\\\\");
+				Timesheet_model.setRemark(Remark);
 			}
 			if (!Location_id.equals("")) {
 				int location = Integer.valueOf(Location_id);
@@ -260,9 +277,8 @@ public class TimeSheetCtrl {
 		DatabaseUtil dbutil = new DatabaseUtil();
 		Connection connection = dbutil.connectDB();
 		Map<String, Object> responseBodyStr = new HashMap<>();
-		Map<String, Object> Log_detail ;
 		String Sheet_id = (String) data.get("Sheet_id");
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
 		String Time = dtf.format(now);
 		try {

@@ -63,10 +63,10 @@ public class ForgotCtrl {
 	    			login_model.setPassword(encryptedPassword);
 	                dbutil.Changepassword(connection,login_model.getId(), login_model.getPassword(),login_model.getResetpassword());
 	                String userid = String.valueOf(login_model.getId());
-	                Employee_info = (dbutil.select(connection,"Employee","ID",userid));
+	                Employee_info = (dbutil.select(connection,"employee","ID",userid));
 	                System.out.println("Employee_info"+Employee_info);
 	                employee_model.setModel(Employee_info);
-	                MailUtil2 mail = new MailUtil2();
+	                MailUtil mail = new MailUtil();
 	                mailmap.put("to", employee_model.getFirstname()+" "+employee_model.getLastname());
 	                mailmap.put("password", newPassword);
 	                try {

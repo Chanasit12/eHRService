@@ -420,14 +420,21 @@ public class DatabaseUtil {
 		return ps.executeUpdate();
 	}
 	
-	public int AddCompany(Connection dbconnet,String name) throws SQLException {
-		String q = "INSERT INTO `company` (`Company_Name`)"
-				+ "VALUES ('"+name+"');";
+	public int AddCompany(Connection dbconnet,CompanyModel model) throws SQLException {
+		String q = "INSERT INTO `company` (`Company_Name`,`description`)"
+				+ "VALUES ('"+model.getCompanyName()+"','"+model.getDescription()+"')";
 		System.out.println("sql " + q);
 		PreparedStatement ps = dbconnet.prepareStatement(q);
 		return ps.executeUpdate();
 	}
-	
+
+	public int AddMeeting_Room(Connection dbconnet,MeetingRoomModel model) throws SQLException {
+		String q = "INSERT INTO `meeting_room`(`Room_Name`, `description`) VALUES ('"+model.getRoomName()+"','"+model.getDescription()+"')";
+		System.out.println("sql " + q);
+		PreparedStatement ps = dbconnet.prepareStatement(q);
+		return ps.executeUpdate();
+	}
+
 	public int AddPosition(Connection dbconnet,String name) throws SQLException {
 		String q = "INSERT INTO `position` (`Position_Name`)"
 				+ "VALUES ('"+name+"');";
@@ -687,7 +694,14 @@ public class DatabaseUtil {
 		PreparedStatement ps = dbconnet.prepareStatement(q);
 		ps.executeUpdate();
 	}
-	
+
+	public void UpdateMeetingRoom(Connection dbconnet,MeetingRoomModel model) throws SQLException {
+		String q = "UPDATE `meeting_room` SET `Room_Name`='"+model.getRoomName()+"',`description`='"+model.getDescription()+"' WHERE `Room_Id` = '"+model.getRoomId()+"';";
+		System.out.println("sql " + q);
+		PreparedStatement ps = dbconnet.prepareStatement(q);
+		ps.executeUpdate();
+	}
+
 	public void UpdatePosition(Connection dbconnet,String id,String name) throws SQLException {
 		String q = "UPDATE `position` SET `Position_Name`='"+name+"' WHERE `Position_ID`='"+id+"';";
 		System.out.println("sql " + q);
@@ -851,7 +865,14 @@ public class DatabaseUtil {
 		PreparedStatement ps_log = dbconnet.prepareStatement(q);
 		ps_log.executeUpdate();
 	}
-
+		//Meeting Room
+		public void MeetingRoom_Detail_log(Connection dbconnet,MeetingRoomModel model,String time) throws SQLException {
+			String q = "INSERT INTO `meeting_room_detail_log`(`Room_Id`, `Room_Name`, `description`, `Time`) " +
+					"SELECT `Room_Id`,`Room_Name`,`description`,'"+time+"' AS `Time` FROM `meeting_room` WHERE `Room_Id` = '"+model.getRoomId()+"'";
+			System.out.println("sql " + q);
+			PreparedStatement ps_log = dbconnet.prepareStatement(q);
+			ps_log.executeUpdate();
+		}
 		// Expense Request
 
 	public void Expense_Request_Detail_log(Connection dbconnet,ExpenseReqModel model,String time) throws SQLException {

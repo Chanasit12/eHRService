@@ -122,7 +122,7 @@ public class ExpenseReqCtrl {
             Employee = dbutil.selectArray(connection,"employee","Role_ID",Integer.toString((Integer) Role_data.get("Role_ID")));
             if(Employee != null) {
                 for (Map<String, Object> temp : Employee) {
-                    MailUtil2 mail = new MailUtil2();
+                    MailUtil mail = new MailUtil();
                     employee_model.setModel(temp);
                     mailmap.put("to", employee_model.getFirstname() + " " + employee_model.getLastname());
                     mailmap.put("Detail", ConfigConstants.MESSAGE_IN_EMAIL_EXPENSE_REQUEST_MGMT);
@@ -148,7 +148,7 @@ public class ExpenseReqCtrl {
         Map<String, Object> Log_detail ;
         Map<String, Object> Emp_detail ;
         Map<String, Object> Role_detail ;
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         ExpenseReqModel req_model = new ExpenseReqModel();
         EmployeeModel emp_model = new EmployeeModel();
         LocalDateTime now = LocalDateTime.now();
@@ -179,7 +179,7 @@ public class ExpenseReqCtrl {
                     "Req_id","Time",Integer.toString(req_model.getReqId()),Time);
             dbutil.Addlog(connection,"expense_request_log","Req_id",Integer.toString(req_model.getReqId()),
                     Time, Integer.toString(id),"1","Update",(Integer)Log_detail.get("Log_id"));
-            MailUtil2 mail = new MailUtil2();
+            MailUtil mail = new MailUtil();
             mailmap.put("to", emp_model.getFirstname() + " " + emp_model.getLastname());
             mailmap.put("Detail", ConfigConstants.MESSAGE_IN_EMAIL_EXPENSE_REQUEST);
             mail.sendMail(emp_model.getEmail(), ConfigConstants.SUBJECT_EXPENSE_REQUEST_MAIL,
@@ -199,7 +199,7 @@ public class ExpenseReqCtrl {
         Map<String, Object> req_data ;
         Map<String, Object> Log_detail ;
         ExpenseReqModel req_model = new ExpenseReqModel();
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
         String Time = dtf.format(now);
         try{
@@ -396,7 +396,7 @@ public class ExpenseReqCtrl {
         Map<String, Object> Log_detail ;
         Map<String, Object> File_inDb ;
         Gson gson = new Gson();
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         ExpenseReqModel req_model = new ExpenseReqModel();
         LocalDateTime now = LocalDateTime.now();
         String Time = dtf.format(now);

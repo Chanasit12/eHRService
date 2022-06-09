@@ -100,6 +100,16 @@ public class MeetingRoomBooking extends HttpServlet {
 			else if(responseBodyStr.get("Option").equals("Check_Room")) {
 				result.putAll(data.Check_Meeting_Room(responseBodyStr));
 			}
+			else if(responseBodyStr.get("Option").equals("Add_Meeting_Room")) {
+				System.out.println("test "+1);
+				result.putAll(data.Add_Meeting_Room(responseBodyStr,id_in_token));
+			}
+			else if(responseBodyStr.get("Option").equals("Update_Meeting_Room")) {
+				result.putAll(data.Update_Meeting_Room(responseBodyStr,id_in_token));
+			}
+			else if(responseBodyStr.get("Option").equals("Delete_Meeting_Room")) {
+				result.putAll(data.Delete_MeetingRoom(responseBodyStr,id_in_token));
+			}
 		}  catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

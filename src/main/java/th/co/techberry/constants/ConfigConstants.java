@@ -4,10 +4,10 @@ public class ConfigConstants {
 	// Database
 	public static final String DB_DRIVER = "com.mysql.jdbc.Driver";
 //	public static final String DB_HOST = "192.168.1.40";
-//	public static final String DB_HOST = "172.20.10.5";
 //	public static final String DB_HOST = "localhost";
 	public static final String DB_HOST = "103.2.114.226";
 //	public static final String DB_HOST = "103.2.114.70";
+//	public static final String DB_HOST = "54.169.214.132";
 	public static final String DB_NAME = "e-hr";
 	public static final String DB_USER = "root";
 	public static final String DB_PASS = "";
@@ -19,6 +19,7 @@ public class ConfigConstants {
 	public static final String RESPONSE_KEY_ERROR_MESSAGE = "errorMessage";
 	public static final String RESPONSE_KEY_CODE = "code";
 	public static final String DELETE_COMPANY_ERROR = "There Still Employee In This Company";
+	public static final String DELETE_MEETING_ROOM_ERROR = "There Still Meeting Room Booking Use This Meeting Room";
 	// Mail
 	public static final String MAIL_SMTP_HOST = "smtp.techberry.co.th";
 	public static final String MAIL_SMTP_PORT = "25";

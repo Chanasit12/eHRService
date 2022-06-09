@@ -48,10 +48,7 @@ public class Encryption {
 	public static String GetDecryText(String encode, String username, String password) {
 		try {
 			TextEncryptor encrytor = Encryptors.text(username + password,ConfigConstants.ENCRYPT_KEY);
-			System.out.println("encrytor : "+encrytor);
-			System.out.println("encode : "+encode);
 			String decrypText = encrytor.decrypt(encode);
-			System.out.println("decrypText : "+decrypText);
 			return decrypText.replace(username,"") ;
 		} catch (Exception e) {
 			e.printStackTrace();

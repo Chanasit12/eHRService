@@ -1,7 +1,7 @@
 package Ctrl;
 
 import Constant.DatabaseUtil;
-import Model.HolidayModel;
+import Model.*;
 import com.mysql.jdbc.Connection;
 
 import java.sql.SQLException;

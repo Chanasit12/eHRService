@@ -401,7 +401,7 @@ public class MeetingRoomCtrl {
 					Room_info = dbutil.select(connection,"meeting_room","Room_Id",Integer.toString(meeting_model.getRoomId()));
 					employee_model.setModel(Employee_info);
 					room_model.setModel(Room_info);
-					MailUtil2 mail = new MailUtil2();
+					MailUtil mail = new MailUtil();
 					mailmap.put("to", employee_model.getFirstname()+" "+employee_model.getLastname());
 					mailmap.put("Link",room_model.getDescription());
 					mailmap.put("Date",meeting_model.getDate());
@@ -763,5 +763,114 @@ public class MeetingRoomCtrl {
 		return responseBodyStr;
 	}
 
+	public Map<String, Object> Add_Meeting_Room(Map<String, Object> data,int id) throws SQLException, ClassNotFoundException {
+		DatabaseUtil dbutil = new DatabaseUtil();
+		Connection connection = dbutil.connectDB();
+		Map<String, Object> result = new HashMap<>();
+		Map<String, Object> Room ;
+		Map<String, Object> Log_detail ;
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		LocalDateTime now = LocalDateTime.now();
+		String Time = dtf.format(now);
+		MeetingRoomModel model = new MeetingRoomModel();
+		if(data.get("Room_Name").equals("")) {
+			result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.PLEASE_INPUT_REQUIRED_FIELD);
+		}
+		else {
+			model.setRoom_Name((String)data.get("Room_Name"));
+			if(!data.get("description").equals("")){
+				model.setDescription((String)data.get("description"));
+			}
+			try {
+				dbutil.AddMeeting_Room(connection,model);
+				Room = dbutil.select(connection,"meeting_room", "Room_Name",model.getRoomName());
+				model.setModel(Room);
+				dbutil.MeetingRoom_Detail_log(connection,model,Time);
+				Log_detail = dbutil.select2con(connection,"meeting_room_detail_log",
+						"Room_Id","Time",Integer.toString(model.getRoomId()),Time);
+				dbutil.Addlog(connection,"meeting_room_log","Room_Id",
+						Integer.toString(model.getRoomId()),Time,Integer.toString(id),"1","Add",(Integer)Log_detail.get("Log_id"));
+				result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.RESPONSE_KEY_SUCCESS);
+			}catch (SQLException e) {
+				e.printStackTrace();
+				result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.RESPONSE_KEY_ERROR_MESSAGE);
+			}
+		}
+		result.put("status",200);
+		return result;
+	}
 
+	public Map<String, Object> Update_Meeting_Room(Map<String, Object> data,int id) throws SQLException, ClassNotFoundException {
+		DatabaseUtil dbutil = new DatabaseUtil();
+		Connection connection = dbutil.connectDB();
+		Map<String, Object> result = new HashMap<>();
+		Map<String, Object> Room ;
+		Map<String, Object> Log_detail ;
+		MeetingRoomModel model = new MeetingRoomModel();
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		LocalDateTime now = LocalDateTime.now();
+		String Time = dtf.format(now);
+		try {
+			Room = dbutil.select(connection,"meeting_room","Room_Id",(String) data.get("Room_Id"));
+			model.setModel(Room);
+			if(!data.get("Room_Name").equals("")){
+				model.setRoom_Name((String)data.get("Room_Name"));
+			}
+			if(!data.get("description").equals("")){
+				model.setDescription((String)data.get("description"));
+			}
+			dbutil.UpdateMeetingRoom(connection,model);
+			Room = dbutil.select(connection,"meeting_room","Room_Id",Integer.toString(model.getRoomId()));
+			model.setModel(Room);
+			dbutil.Update_Log_Status(connection,"meeting_room_log","Room_Id",Integer.toString(model.getRoomId()));
+			dbutil.MeetingRoom_Detail_log(connection,model,Time);
+			Log_detail = dbutil.select2con(connection,"meeting_room_detail_log",
+					"Room_Id","Time",Integer.toString(model.getRoomId()),Time);
+			dbutil.Addlog(connection,"meeting_room_log","Room_Id",
+					Integer.toString(model.getRoomId()),Time,Integer.toString(id),"1","Update",(Integer)Log_detail.get("Log_id"));
+			result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.RESPONSE_KEY_SUCCESS);
+		}catch (SQLException e) {
+			e.printStackTrace();
+			result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.RESPONSE_KEY_ERROR_MESSAGE);
+		}
+		result.put("status",200);
+		return result;
+	}
+
+	public Map<String, Object> Delete_MeetingRoom(Map<String, Object> data,int id) throws SQLException, ClassNotFoundException {
+		DatabaseUtil dbutil = new DatabaseUtil();
+		Connection connection = dbutil.connectDB();
+		Map<String, Object> result = new HashMap<>();
+		List<Map<String, Object>> Room ;
+		ArrayList<String> Target = (ArrayList)data.get("Value");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		LocalDateTime now = LocalDateTime.now();
+		String Time = dtf.format(now);
+		try{
+			if(!Target.isEmpty()) {
+				for(String temp : Target){
+					Room = dbutil.selectArray(connection,"meeting_room_booking","Room_Id",temp);
+					if(Room == null) {
+						dbutil.Delete(connection,"meeting_room","Room_Id",temp);
+						dbutil.Update_Log_Status(connection,"meeting_room_log","Room_Id",temp);
+						dbutil.Addlog(connection,"meeting_room_log","Room_Id",
+								temp,Time,Integer.toString(id),"1","Delete",0);
+						result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.RESPONSE_KEY_SUCCESS);
+					}
+					else {
+						result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.DELETE_MEETING_ROOM_ERROR);
+						return result;
+					}
+				}
+			}
+			else {
+				result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.PLEASE_INPUT_REQUIRED_FIELD);
+			}
+		} catch(SQLException e){
+			e.printStackTrace();
+			result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.RESPONSE_KEY_ERROR_MESSAGE);
+		}
+		result.put("status",200);
+		return result;
+	}
 }

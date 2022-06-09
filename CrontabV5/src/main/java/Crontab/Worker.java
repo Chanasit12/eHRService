@@ -1,11 +1,9 @@
 package Crontab;
 
-import Constant.DatabaseUtil;
-import Ctrl.LeaveCtrl;
-import Model.CheckInCheckOutModel;
-import Model.EmployeeModel;
+import Constant.*;
+import Ctrl.*;
+import Model.*;
 import com.mysql.jdbc.Connection;
-
 import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -24,7 +22,8 @@ public class Worker {
         Map<String, Object> Role;
         Map<String, Object> Checkin ;
         Map<String, Object> Log_detail ;
-        CheckInCheckOutModel check_model = new CheckInCheckOutModel();
+        Map<String, Object> Login ;
+        CheckinModel check_model = new CheckinModel();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         DateTimeFormatter dtf2 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         EmployeeModel emp_model = new EmployeeModel();
@@ -44,14 +43,18 @@ public class Worker {
                     emp_model.setModel(temp);
                     Leave = dbutil.Check_Add_Checkin_CheckOut(connection,emp_model.getEmpid(),current_date_time[0]);
                     Role = dbutil.select(connection,"user_role","Role_ID",Integer.toString(emp_model.getRole_id()));
+                    Login = dbutil.select(connection,"login","Id",Integer.toString(emp_model.getId()));
                     String role_name = (String) Role.get("Role_Name");
-                    if(Leave == null && (role_name.equals("Staff") || role_name.equals("Manager") || role_name.equals("Hr"))){
+                    Boolean Active_status = (Boolean) Login.get("Active_status");
+                    System.out.println("Active status "+Active_status);
+                    if(Leave == null && (role_name.equals("Staff") || role_name.equals("Manager") || role_name.equals("Hr")) && Active_status){
                         check_model.setEmpId(emp_model.getEmpid());
                         check_model.setCheckInStr(Time);
                         check_model.setCheckoutStr(Time);
                         check_model.setDetail("-");
                         check_model.setStatusCheckOut("-");
                         check_model.setStatusCheckIn("-");
+//                        dbutil.AddCheckIn(connection,check_model);
                         dbutil.AddCheckIn(connection,check_model);
                         Checkin = dbutil.select2con(connection,"checkin_checkout","Emp_id","Checkin_at",
                                 Integer.toString(check_model.getEmpId()),check_model.getCheckInStr());
