@@ -3,14 +3,10 @@ package th.co.techberry.constants;
 public class ConfigConstants {
 	// Database
 	public static final String DB_DRIVER = "com.mysql.jdbc.Driver";
-//	public static final String DB_HOST = "192.168.1.40";
-//	public static final String DB_HOST = "localhost";
-	public static final String DB_HOST = "103.2.114.226";
-//	public static final String DB_HOST = "103.2.114.70";
-//	public static final String DB_HOST = "54.169.214.132";
+	public static final String DB_HOST = "54.169.214.132";
 	public static final String DB_NAME = "e-hr";
 	public static final String DB_USER = "root";
-	public static final String DB_PASS = "";
+	public static final String DB_PASS = "oydc9t";
 	public static final String DAY_OFF_NAME = "DayOff";
 	public static final String ROLE_HR_NAME = "Hr";
 	// response structure

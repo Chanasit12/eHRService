@@ -30,7 +30,6 @@ public class ForgotCtrl {
 		}catch (SQLException e){
 			e.printStackTrace();
 		}
-		System.out.println("Login_info!"+Login_info);
 		if(Login_info == null) {
 			responseBodyStr.put("status", 404);
 			responseBodyStr.put(ConfigConstants.RESPONSE_KEY_SUCCESS, false);
@@ -64,7 +63,6 @@ public class ForgotCtrl {
 	                dbutil.Changepassword(connection,login_model.getId(), login_model.getPassword(),login_model.getResetpassword());
 	                String userid = String.valueOf(login_model.getId());
 	                Employee_info = (dbutil.select(connection,"employee","ID",userid));
-	                System.out.println("Employee_info"+Employee_info);
 	                employee_model.setModel(Employee_info);
 	                MailUtil mail = new MailUtil();
 	                mailmap.put("to", employee_model.getFirstname()+" "+employee_model.getLastname());
@@ -72,22 +70,17 @@ public class ForgotCtrl {
 	                try {
 						mail.sendMail(employee_model.getEmail(),ConfigConstants.MAIL_SUBJECT_RESET_PASSWORD,mailmap, ConfigConstants.MAIL_TEMPLATE_FORGOT_PASSWORD);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 	                requestMap.put("status", 200);
 	                requestMap.put(ConfigConstants.RESPONSE_KEY_SUCCESS, true);
 	                requestMap.put(ConfigConstants.RESPONSE_KEY_MESSAGE, ConfigConstants.SENT_TO_EMAIL_SUCESS);
-	                System.out.println("Sent email success!");
 	            } catch (ClassNotFoundException e) {
-	                // TODO Auto-generated catch block
 	                e.printStackTrace();
 	            } catch (SQLException e) {
-	                // TODO Auto-generated catch block
 	                e.printStackTrace();
 	            }
 		}
-		System.out.println("requestMap!"+requestMap);
 		return requestMap;
 	}
 }

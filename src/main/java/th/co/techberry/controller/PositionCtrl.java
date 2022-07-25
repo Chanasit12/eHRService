@@ -136,6 +136,7 @@ public class PositionCtrl {
 					else {
 						result.put("status",400);
 						result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,"There are still employees in this Position.");
+						return result;
 					}
 				}catch (SQLException e) {
 					e.printStackTrace();

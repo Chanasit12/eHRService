@@ -210,7 +210,6 @@ public class DatabaseUtil {
 	public  Map<String, Object> selectLastCheckIn(Connection dbconnet,String date,String id)
 			throws SQLException {
 			String db_query = "SELECT * FROM `checkin_checkout` WHERE `Emp_id` = '"+id+"' AND `Checkin_at` LIKE '"+date+"%';";
-			System.out.println("sql " + db_query);
 			PreparedStatement ps = dbconnet.prepareStatement(db_query);
 			ResultSet rs = ps.executeQuery();
 			List<Map<String, Object>> list = new ArrayList<>();
@@ -222,10 +221,24 @@ public class DatabaseUtil {
 			}
 	}
 
+	public  Map<String, Object> selectCheckinByEmpid(Connection dbconnet,String date,String id)
+			throws SQLException {
+		String db_query = "SELECT * FROM `checkin_checkout` WHERE `Emp_id` = '"+id+"' AND `Checkin_at` LIKE '"+date+"%';";
+		PreparedStatement ps = dbconnet.prepareStatement(db_query);
+		System.out.println("sql " + db_query);
+		ResultSet rs = ps.executeQuery();
+		List<Map<String, Object>> list = new ArrayList<>();
+		list.addAll(convertResultSetFromDB(rs));
+		if (list.size() == 0) {
+			return null;
+		} else {
+			return list.get(0);
+		}
+	}
+
 	public  List<Map<String, Object>> selectCheckin(Connection dbconnet,String date,String id)
 			throws SQLException {
 		String db_query = "SELECT * FROM `checkin_checkout` WHERE `Emp_id` = '"+id+"' AND `Checkin_at` LIKE '"+date+"';";
-		System.out.println("sql " + db_query);
 		PreparedStatement ps = dbconnet.prepareStatement(db_query);
 		ResultSet rs = ps.executeQuery();
 		List<Map<String, Object>> list = new ArrayList<>();
@@ -284,24 +297,6 @@ public class DatabaseUtil {
 				return list;
 			}
 	}
-	
-//	public List<Map<String, Object>> selectEmpMeetingFromDate(Connection dbconnet,String target,String id,String Date)
-//			throws SQLException {
-//			String db_query = "SELECT * FROM `meeting` JOIN meeting_room_booking "
-//					+ "ON meeting.Meet_id = meeting_room_booking.Meet_id "
-//					+ "where `Status` = 1 "
-//					+ "AND `"+target+"` = '"+id+"'  AND Date >= '"+Date+"';";
-//			System.out.println("sql " + db_query);
-//			PreparedStatement ps = dbconnet.prepareStatement(db_query);
-//			ResultSet rs = ps.executeQuery();
-//			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-//			list.addAll(convertResultSetFromDB(rs));
-//			if (list.size() == 0) {
-//				return null;
-//			} else {
-//				return list;
-//			}
-//	}
 
 	public List<Map<String, Object>> selectEmpMeetingFromDate(Connection dbconnet,String target,String id)
 			throws SQLException {
@@ -321,27 +316,13 @@ public class DatabaseUtil {
 		}
 	}
 
-	public Map<String, Object> Check_Add_Checkin_CheckOut(Connection dbconnet ,int emp_id,String date)
-			throws SQLException {
-		String db_query2 = "SELECT * FROM `checkin_checkout` WHERE `Emp_id` = '"+emp_id+"' AND `Checkin_at` LIKE '"+date+"%'";
-		PreparedStatement ps2 = dbconnet.prepareStatement(db_query2);
-		ResultSet rs = ps2.executeQuery();
-		List<Map<String, Object>> list = new ArrayList<>();
-		list.addAll(convertResultSetFromDB(rs));
-		if (list.size() == 0) {
-			return null;
-		} else {
-			return list.get(0);
-		}
-	}
-
 	public Map<String, Object> Select_Leave_req(Connection dbconnet ,String emp_id,String date)
 			throws SQLException {
 		String db_query2 = "SELECT * FROM `leave_request` WHERE `Emp_id` = '"+emp_id+"' " +
 				"AND (`Begin` LIKE '"+date+"%' OR `End` LIKE '"+date+"%')";
 		PreparedStatement ps2 = dbconnet.prepareStatement(db_query2);
 		ResultSet rs = ps2.executeQuery();
-		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> list = new ArrayList<>();
 		list.addAll(convertResultSetFromDB(rs));
 		if (list.size() == 0) {
 			return null;
@@ -421,8 +402,8 @@ public class DatabaseUtil {
 	}
 	
 	public int AddCompany(Connection dbconnet,CompanyModel model) throws SQLException {
-		String q = "INSERT INTO `company` (`Company_Name`,`description`)"
-				+ "VALUES ('"+model.getCompanyName()+"','"+model.getDescription()+"')";
+		String q = "INSERT INTO `company` (`Company_Name`)"
+				+ "VALUES ('"+model.getCompanyName()+"')";
 		System.out.println("sql " + q);
 		PreparedStatement ps = dbconnet.prepareStatement(q);
 		return ps.executeUpdate();
@@ -496,14 +477,13 @@ public class DatabaseUtil {
 				+ "(`Title`, `Firstname`, `Lastname`, `Birth_date`, `Gender`, `Phone`, `Id`, `Email`, `Address`, `Role_ID`, `Img`, `Position_ID`, `Comp_ID`)"
 				+ " VALUES ('"+Title+"', '"+Firstname+"', '"+Lastname+"', '"+Birth+"', '"+Gender+"', '"+Phone+"', '"+id+"', '"+Email+
 				"', '"+add+"', '"+Role_ID+"', '"+img+"', '"+Position_Id+"', '"+Comp_ID+"');";
-		System.out.println("sql " + q);
 		PreparedStatement ps = dbconnet.prepareStatement(q);
 		return ps.executeUpdate();
 	}
 
-	public int AddTimeSheet(Connection dbconnet,String id,String Date,String start,String end) throws SQLException {
-		String q = "INSERT INTO `timesheet`(`Emp_id`,`Date`,`Start_at`,`End_at`,`Detail`,`Remark`)"
-				+ " VALUES ('"+id+"','"+Date+"','"+start+"','"+end+"','-','-');";
+	public int AddTimeSheet(Connection dbconnet,String Date,String start,String end,TimeSheetModel model) throws SQLException {
+		String q = "INSERT INTO `timesheet`(`Emp_id`,`Start_at`, `End_at`, `Date`, `Detail`, `Location_id`, `Charge_code_id`, `Remark`) " +
+				"VALUES ('"+model.getEmpId()+"','"+start+"','"+end+"','"+Date+"','"+model.getDetail()+"','"+model.getLocationId()+"','"+model.getChargeCodeId()+"','"+model.getRemark()+"')";
 		System.out.println("sql " + q);
 		PreparedStatement ps = dbconnet.prepareStatement(q);
 		return ps.executeUpdate();
@@ -622,7 +602,7 @@ public class DatabaseUtil {
 		String q = "UPDATE `employee` SET Title ='"+model.getTitle()+"' , Firstname='"+model.getFirstname()+"' , Lastname='"+model.getLastname()+"' ,Birth_date='"
 	+model.getBirthdate()+"',Gender='"+model.getGender()+"',Phone='"+model.getPhone()+"',Email='"+model.getEmail()+"',Address='"+model.getAddress()+
 	"',Img='"+model.getStrImg()+"', Position_ID = '"+model.getPositionid()+"', Comp_ID = '"+model.getCompanyid()+"' WHERE Emp_id ='"+model.getEmpid()+"';";
-		System.out.println("sql " + q);
+//		System.out.println("sql " + q);
 		PreparedStatement ps = dbconnet.prepareStatement(q);
 		ps.executeUpdate();
 	}
@@ -676,7 +656,7 @@ public class DatabaseUtil {
 	
 	public void UpdateRole(Connection dbconnet,EmployeeModel model) throws SQLException {
 		String q = "UPDATE `employee` SET `Role_ID`='"+model.getRole()+"' WHERE `Emp_id` = '"+model.getEmpid()+"';";
-		System.out.println("sql " + q);
+//		System.out.println("sql " + q);
 		PreparedStatement ps = dbconnet.prepareStatement(q);
 		ps.executeUpdate();
 	}
@@ -688,8 +668,8 @@ public class DatabaseUtil {
 		ps.executeUpdate();
 	}
 	
-	public void UpdateCompany(Connection dbconnet,String id,String name) throws SQLException {
-		String q = "UPDATE `company` SET `Company_Name`='"+name+"' WHERE `Comp_ID`='"+id+"';";
+	public void UpdateCompany(Connection dbconnet,CompanyModel model) throws SQLException {
+		String q = "UPDATE `company` SET `Company_Name`='"+model.getCompanyName()+"' WHERE `Comp_ID`='"+model.getCompId()+"';";
 		System.out.println("sql " + q);
 		PreparedStatement ps = dbconnet.prepareStatement(q);
 		ps.executeUpdate();
@@ -755,7 +735,7 @@ public class DatabaseUtil {
 	public void UpdateUsername(Connection dbconnet,String username,String id) throws SQLException {
 		String q = "UPDATE `login` SET `Username`='"+username+"' WHERE `Id` = '"+id+"';";
 		String q2 = "UPDATE `employee` SET `Email`='"+username+"' WHERE `Id` = '"+id+"';";
-		System.out.println("sql " + q);
+//		System.out.println("sql " + q);
 		PreparedStatement ps = dbconnet.prepareStatement(q);
 		PreparedStatement ps1 = dbconnet.prepareStatement(q2);
 		ps.executeUpdate();
@@ -764,7 +744,7 @@ public class DatabaseUtil {
 	
 	public void ActiveEmployee(Connection dbconnet,String id) throws SQLException {
 		String q = "UPDATE `login` SET `Active_status`='1' WHERE `Id` = '"+id+"';";
-		System.out.println("sql " + q);
+//		System.out.println("sql " + q);
 		PreparedStatement ps = dbconnet.prepareStatement(q);
 		ps.executeUpdate();
 	}
@@ -793,7 +773,7 @@ public class DatabaseUtil {
 	
 	public void DeleteEmployee(Connection dbconnet,String id) throws SQLException {
 		String q = "UPDATE `login` SET `Active_status`='0' WHERE `Id` = '"+id+"';";
-		System.out.println("sql " + q);
+//		System.out.println("sql " + q);
 		PreparedStatement ps = dbconnet.prepareStatement(q);
 		ps.executeUpdate();
 	}
@@ -958,7 +938,7 @@ public class DatabaseUtil {
 				"SELECT `Emp_id`,`Title`,`Firstname`,`Lastname`,`Birth_date`,`Gender`,`Phone`,`Id`," +
 				"`Email`,`Address`,`Role_ID`,`Img`,`Position_ID`,`Comp_ID`,'"+time+"' AS `Time` FROM" +
 				"`employee` WHERE `Emp_id` = '"+id+"'";
-		System.out.println("sql " + q);
+//		System.out.println("sql " + q);
 		PreparedStatement ps_log = dbconnet.prepareStatement(q);
 		ps_log.executeUpdate();
 	}

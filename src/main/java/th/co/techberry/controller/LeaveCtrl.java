@@ -421,7 +421,7 @@ public class LeaveCtrl {
 	public int Calculate_hour(LeaveModel model) throws SQLException, ClassNotFoundException ,ParseException{
 		DatabaseUtil dbutil = new DatabaseUtil();
 		Connection connection = dbutil.connectDB();
-		Map<String, Object> working_time_data = new HashMap<String, Object>();
+		Map<String, Object> working_time_data ;
 		WorkingTimeModel WorkingTime = new WorkingTimeModel();
 		String[] Begin = model.getBegin().toString().split(" ");
 		String[] End = model.getEnd().toString().split(" ");
@@ -484,6 +484,57 @@ public class LeaveCtrl {
 		return hour;
 	}
 
+	public int Delete_checkin(LeaveModel model) throws SQLException, ClassNotFoundException ,ParseException{
+		DatabaseUtil dbutil = new DatabaseUtil();
+		Connection connection = dbutil.connectDB();
+		Map<String, Object> Checkin_checkout ;
+		CheckInCheckOutModel check_model = new CheckInCheckOutModel();
+		String[] Begin = model.getBegin().toString().split(" ");
+		String[] End = model.getEnd().toString().split(" ");
+		LocalDate dateBefore = LocalDate.parse(Begin[0]);
+		LocalDate dateAfter = LocalDate.parse(End[0]);
+		long day = ChronoUnit.DAYS.between(dateBefore, dateAfter)+1;
+		long ONE_DAY_MILLI_SECONDS = 24 * 60 * 60 * 1000;
+		int hour = 0;
+		DateFormat dsf = new SimpleDateFormat("yyyy-MM-dd");
+		try{
+			if(Begin[0].equals(End[0])){
+				Checkin_checkout = dbutil.selectCheckinByEmpid(connection,Begin[0],Integer.toString(model.getEmpId()));
+				check_model.setModel(Checkin_checkout);
+				if(check_model.getDetail().equals("Leaved") ){
+					check_model.setDetail("-");
+					dbutil.Update_Checkin_Checkout(connection,check_model,Begin[0]);
+				}
+			}
+			else{
+				String date = Begin[0];
+				while(day>0){
+					String[] start = date.split("-");
+					LocalDate localDate = LocalDate.of(Integer.parseInt(start[0]),
+							Integer.parseInt(start[1]),Integer.parseInt(start[2]));
+					java.time.DayOfWeek dayOfWeek = localDate.getDayOfWeek();
+					String DayName = dayOfWeek.toString();
+					if(!DayName.equals("SATURDAY") && !DayName.equals("SUNDAY") && Check_Holliday(date)){
+						Checkin_checkout = dbutil.selectCheckinByEmpid(connection,date,Integer.toString(model.getEmpId()));
+						check_model.setModel(Checkin_checkout);
+						if(check_model.getDetail().equals("Leaved") ){
+							check_model.setDetail("-");
+							dbutil.Update_Checkin_Checkout(connection,check_model,date);
+						}
+					}
+					Date Nextdate = dsf.parse(date);
+					long nextDayMilliSeconds = Nextdate.getTime() + ONE_DAY_MILLI_SECONDS;
+					Date nextDate = new Date(nextDayMilliSeconds);
+					date = dsf.format(nextDate);
+					day--;
+				}
+			}
+		} catch (SQLException e){
+			e.printStackTrace();
+		}
+		return hour;
+	}
+
 	public int Add_Leave_Checkin_Checkout(LeaveModel model,int id) throws SQLException, ClassNotFoundException ,ParseException{
 		DatabaseUtil dbutil = new DatabaseUtil();
 		Connection connection = dbutil.connectDB();
@@ -491,7 +542,7 @@ public class LeaveCtrl {
 		Map<String, Object> Checkin ;
 		Map<String, Object> Log_detail ;
 		WorkingTimeModel WorkingTime = new WorkingTimeModel();
-		CheckInCheckOutModel check_model ;
+		CheckInCheckOutModel check_model = new CheckInCheckOutModel() ;
 		String[] Begin = model.getBegin().toString().split(" ");
 		String[] End = model.getEnd().toString().split(" ");
 		LocalDate dateBefore = LocalDate.parse(Begin[0]);
@@ -499,22 +550,37 @@ public class LeaveCtrl {
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
 		String current_time = dtf.format(now);
+		String Action = "";
 		long day = ChronoUnit.DAYS.between(dateBefore, dateAfter)+1;
 		long ONE_DAY_MILLI_SECONDS = 24 * 60 * 60 * 1000;
 		int hour = 0;
 		DateFormat dsf = new SimpleDateFormat("yyyy-MM-dd");
 		try{
 			if(Begin[0].equals(End[0])){
-				String[] current_date_time = model.getBegin().toString().split(" ");
-				String Time = current_date_time[0]+" "+"00:00:00";
-				check_model = new CheckInCheckOutModel();
-				check_model.setEmpId(model.getEmpId());
-				check_model.setStatusCheckIn("-");
-				check_model.setStatusCheckOut("-");
-				check_model.setDetail("Leaved");
-				check_model.setCheckInStr(Time);
-				check_model.setCheckoutStr(Time);
-				dbutil.AddCheckIn(connection,check_model);
+				System.out.println("Ch "+1);
+				System.out.println("Begin[0] "+Begin[0]);
+				Checkin = dbutil.selectCheckinByEmpid(connection,Begin[0],Integer.toString(model.getEmpId()));
+				System.out.println("Checkin "+Checkin);
+				if(Checkin != null){
+					check_model.setModel(Checkin);
+					check_model.setDetail("Leaved");
+					Action = "Update";
+					dbutil.Update_Checkin_Checkout(connection,check_model,Begin[0]);
+				}
+				else{
+					System.out.println("Ch "+2);
+					String[] date_time = model.getBegin().toString().split(" ");
+					String Time = date_time[0]+" "+"00:00:00";
+//					check_model = new CheckInCheckOutModel();
+					check_model.setEmpId(model.getEmpId());
+					check_model.setStatusCheckIn("-");
+					check_model.setStatusCheckOut("-");
+					check_model.setDetail("Leaved");
+					check_model.setCheckInStr(Time);
+					check_model.setCheckoutStr(Time);
+					dbutil.AddCheckIn(connection,check_model);
+					Action = "Add";
+				}
 				Checkin = dbutil.select2con(connection,"checkin_checkout","Emp_id","Checkin_at",
 						Integer.toString(check_model.getEmpId()),check_model.getCheckInStr());
 				check_model.setModel(Checkin);
@@ -522,7 +588,7 @@ public class LeaveCtrl {
 				Log_detail = dbutil.select2con(connection,"checkin_checkout_detail_log",
 						"Check_id","Time",Integer.toString(check_model.getCheckId()),current_time);
 				dbutil.Addlog(connection,"checkin_checkout_log","Check_id",
-						Integer.toString(check_model.getCheckId()),current_time,Integer.toString(id),"1","Add",(Integer)Log_detail.get("Log_id"));
+						Integer.toString(check_model.getCheckId()),current_time,Integer.toString(id),"1",Action,(Integer)Log_detail.get("Log_id"));
 			}
 			else{
 				String date = Begin[0];
@@ -535,24 +601,33 @@ public class LeaveCtrl {
 					java.time.DayOfWeek dayOfWeek = localDate.getDayOfWeek();
 					String DayName = dayOfWeek.toString();
 					if(!DayName.equals("SATURDAY") && !DayName.equals("SUNDAY") && Check_Holliday(date)){
-						working_time_data = dbutil.select(connection,"working_time","Day_Name",DayName);
-						WorkingTime.setModel(working_time_data);
-						check_model.setDetail("Leaved");
-						check_model.setEmpId(model.getEmpId());
-						check_model.setStatusCheckIn("-");
-						check_model.setStatusCheckOut("-");
-						check_model.setCheckInStr(Time);
-						check_model.setCheckoutStr(Time);
-						dbutil.AddCheckIn(connection,check_model);
+						Checkin = dbutil.selectCheckinByEmpid(connection,date,Integer.toString(model.getEmpId()));
+						if(Checkin != null){
+							check_model.setModel(Checkin);
+							check_model.setDetail("Leaved");
+							Action = "Update";
+							dbutil.Update_Checkin_Checkout(connection,check_model,date);
+						}
+						else{
+							working_time_data = dbutil.select(connection,"working_time","Day_Name",DayName);
+							WorkingTime.setModel(working_time_data);
+							check_model.setDetail("Leaved");
+							check_model.setEmpId(model.getEmpId());
+							check_model.setStatusCheckIn("-");
+							check_model.setStatusCheckOut("-");
+							check_model.setCheckInStr(Time);
+							check_model.setCheckoutStr(Time);
+							dbutil.AddCheckIn(connection,check_model);
+							Action = "Add";
+						}
 						Checkin = dbutil.select2con(connection,"checkin_checkout","Emp_id","Checkin_at",
 								Integer.toString(check_model.getEmpId()),check_model.getCheckInStr());
 						check_model.setModel(Checkin);
-						System.out.println("current_time "+current_time);
 						dbutil.Add_Checkin_Checkout_Detail_log(connection,check_model.getCheckId(),current_time);
 						Log_detail = dbutil.select2con(connection,"checkin_checkout_detail_log",
 								"Check_id","Time",Integer.toString(check_model.getCheckId()),current_time);
 						dbutil.Addlog(connection,"checkin_checkout_log","Check_id",
-								Integer.toString(check_model.getCheckId()),current_time,Integer.toString(id),"1","Add",(Integer)Log_detail.get("Log_id"));
+								Integer.toString(check_model.getCheckId()),current_time,Integer.toString(id),"1",Action,(Integer)Log_detail.get("Log_id"));
 					}
 					Date Nextdate = dsf.parse(date);
 					long nextDayMilliSeconds = Nextdate.getTime() + ONE_DAY_MILLI_SECONDS;
@@ -711,12 +786,15 @@ public class LeaveCtrl {
 			Leave_req = dbutil.select(connection,"leave_request","Req_id",Req_id);
 			leave_model.setModel(Leave_req);
 			if(Status){
+				if(leave_model.getStatus().equals(ConfigConstants.APPROVED_BY_APPROVER)){
+					Leave_count = dbutil.select2con(connection,"leave_day_count","Emp_id","Type_ID",
+							Integer.toString(leave_model.getEmpId()),Integer.toString(leave_model.getTypeId()));
+					count_model.setModel(Leave_count);
+					count_model.setLeaved(count_model.getLeaved()+leave_model.getAmount());
+					Delete_checkin(leave_model);
+				}
 				leave_model.setStatus(ConfigConstants.APPROVED_CANCELLATION);
 				leave_model.setComment(Comment);
-				Leave_count = dbutil.select2con(connection,"leave_day_count","Emp_id","Type_ID",
-						Integer.toString(leave_model.getEmpId()),Integer.toString(leave_model.getTypeId()));
-				count_model.setModel(Leave_count);
-				count_model.setLeaved(count_model.getLeaved()+leave_model.getAmount());
 				dbutil.UpdateLeaveCount(connection,count_model);
 				dbutil.Leave_count_log(connection,count_model,leave_model,Time,"Add",id);
 			}
@@ -735,6 +813,8 @@ public class LeaveCtrl {
 			responseBodyStr.put("status",200);
 			responseBodyStr.put("message",leave_model.getStatus());
 		} catch(SQLException e){
+			e.printStackTrace();
+		} catch (Exception e){
 			e.printStackTrace();
 		}
 		return responseBodyStr;

@@ -176,13 +176,11 @@ public class MeetingRoomCtrl {
 		Map<String, Object> Emp = new HashMap<>();
 		MeetingModel meeting_model = new MeetingModel();
 		ArrayList<String> Target = (ArrayList)data.get("Value");
-		String Date = java.time.LocalDate.now().toString();
 		if(!Target.isEmpty()) {
 			for(String temp1 : Target){
 				try {
 					List<Map<String, Object>> Emp_Meeting = new ArrayList<>();
 					List<Map<String, Object>> member ;
-//					Meeting = dbutil.selectEmpMeetingFromDate(connection,"Emp_id",temp1,Date);
 					Meeting = dbutil.selectEmpMeetingFromDate(connection,"Emp_id",temp1);
 					if(Meeting != null) {
 						for(Map<String,Object> temp : Meeting) {
@@ -560,7 +558,6 @@ public class MeetingRoomCtrl {
 		DatabaseUtil dbutil = new DatabaseUtil();
 		Connection connection = dbutil.connectDB();
 		Map<String, Object> responseBodyStr = new HashMap<>();
-		Map<String, Object> Log_detail ;
 		String Meeting_Id = (String) data.get("Meeting_id");
 		String emp_id = Integer.toString(id);
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -573,7 +570,7 @@ public class MeetingRoomCtrl {
 			dbutil.Addlog(connection,"meeting_room_booking_log","Meet_id",Meeting_Id,
 					Time, Integer.toString(id),"1","Delete",0);
 				dbutil.DeleteMeeting(connection,Time,emp_id,Meeting_Id);
-				dbutil.Delete(connection,"Meeting","Meet_id",Meeting_Id);
+				dbutil.Delete(connection,"meeting","Meet_id",Meeting_Id);
 			} catch(SQLException e) {
 				e.printStackTrace();
 				responseBodyStr.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.RESPONSE_KEY_ERROR_MESSAGE);
@@ -604,7 +601,7 @@ public class MeetingRoomCtrl {
 			Meeting_detail = dbutil.select(connection,"meeting_room_booking","Meet_id",Meeting_id);
 			Meeting_model.setModel(Meeting_detail);
 			if(Integer.toString(Meeting_model.getRoomId()).equals(Room_id)) {
-				dbutil.Delete(connection,"Meeting","Meet_id",Meeting_id);
+				dbutil.Delete(connection,"meeting","Meet_id",Meeting_id);
 				Check_Emp = Check_Employee(data);
 				if(!description.equals("")) {
 					Meeting_model.setDescription(description);
@@ -621,7 +618,6 @@ public class MeetingRoomCtrl {
 					}
 				}
 				else {
-//					Add_Employee_To_Meeting(Target,id,Meeting_model,"Update");
 					responseBodyStr.put(ConfigConstants.RESPONSE_KEY_MESSAGE,"");
 					responseBodyStr.put("Emp_message","");
 					responseBodyStr.put("Room_message","");
@@ -634,7 +630,7 @@ public class MeetingRoomCtrl {
 			else {
 				Check_Room = Check_Meeting_Room(data);
 				if((Boolean)Check_Room.get("status")) {
-					dbutil.Delete(connection,"Meeting","Meet_id",Meeting_id);
+					dbutil.Delete(connection,"meeting","Meet_id",Meeting_id);
 					Check_Emp = Check_Employee(data);
 					if(!description.equals("")) {
 						Meeting_model.setDescription(description);
@@ -711,7 +707,7 @@ public class MeetingRoomCtrl {
 			Meeting_detail = dbutil.select(connection,"meeting_room_booking","Meet_id",Meeting_id);
 			Meeting_model.setModel(Meeting_detail);
 			if(Integer.toString(Meeting_model.getRoomId()).equals(Room_id)) {
-				dbutil.Delete(connection,"Meeting","Meet_id",Meeting_id);
+				dbutil.Delete(connection,"meeting","Meet_id",Meeting_id);
 				if(!description.equals("")) {
 					Meeting_model.setDescription(description);
 				}
@@ -727,7 +723,7 @@ public class MeetingRoomCtrl {
 			else {
 				Check_Room = Check_Meeting_Room(data);
 				if((Boolean)Check_Room.get("status")) {
-					dbutil.Delete(connection,"Meeting","Meet_id",Meeting_id);
+					dbutil.Delete(connection,"m","Meet_id",Meeting_id);
 					if(!description.equals("")) {
 						Meeting_model.setDescription(description);
 					}
@@ -859,6 +855,7 @@ public class MeetingRoomCtrl {
 					}
 					else {
 						result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.DELETE_MEETING_ROOM_ERROR);
+						result.put("status",400);
 						return result;
 					}
 				}

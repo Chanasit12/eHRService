@@ -48,6 +48,7 @@ public class MailUtil {
 		message.setRecipients(Message.RecipientType.TO,InternetAddress.parse(mailRecipient));
 		message.setSubject(subject);
 		message.setContent(multipart, "text/html;charset=UTF-8");
+		System.out.println("Sent message successfully....");
 		Transport.send(message);
 	}
 	
@@ -97,6 +98,7 @@ public class MailUtil {
 		message.setRecipients(Message.RecipientType.TO,InternetAddress.parse(mailRecipient));
 		message.setSubject(subject);
 		message.setContent(multipart, "text/html;charset=UTF-8");
+		System.out.println("Sent message successfully....");
 		Transport.send(message);
 	}
 

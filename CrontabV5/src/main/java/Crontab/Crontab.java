@@ -13,7 +13,7 @@ public class Crontab {
     private static JobDetail createJob(Worker worker, String identity) throws ClassNotFoundException, NoSuchMethodException {
         MethodInvokingJobDetailFactoryBean jobDetail = new MethodInvokingJobDetailFactoryBean();
         jobDetail.setTargetObject(worker);
-        jobDetail.setTargetMethod("Add_Checkin");
+        jobDetail.setTargetMethod("Add_Leavecount");
         jobDetail.setName(identity);
         jobDetail.setConcurrent(false);
         jobDetail.afterPropertiesSet();
@@ -24,12 +24,11 @@ public class Crontab {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
         String Time = dtf.format(now);
-        System.out.println("Time "+Time);
-        CronExpression cx = new CronExpression("0 0 6 ? * MON,TUE,WED,THU,FRI *");
+        CronExpression cx = new CronExpression("0 0 0 1 1 ?");
         CronScheduleBuilder atHourAndMinuteOnGivenDaysOfWeek = CronScheduleBuilder.cronSchedule(cx);
         return TriggerBuilder.newTrigger()
-                .withSchedule(atHourAndMinuteOnGivenDaysOfWeek) //set เวลา
-                .withIdentity(identity) //ระบุคีย์ trigger โดยจะต้องไม่ซ้ำกัน
+                .withSchedule(atHourAndMinuteOnGivenDaysOfWeek)
+                .withIdentity(identity)
                 .startNow()
                 .build();
     }

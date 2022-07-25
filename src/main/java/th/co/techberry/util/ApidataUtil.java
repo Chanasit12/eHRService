@@ -33,7 +33,6 @@ public class ApidataUtil {
 
 	public String getUsernameInToken(HttpServletRequest httpRequest) {
 		String token = getBearerToken(httpRequest);
-		System.out.println("token"+token);
 		Algorithm algorithm = Algorithm.HMAC256(ConfigConstants.SECRET_KEY);
 		JWTVerifier verifier = JWT.require(algorithm).withIssuer("auth0").build(); // Reusable verifier instance
 		DecodedJWT jwt = verifier.verify(token);
@@ -53,7 +52,6 @@ public class ApidataUtil {
 
 	public String getBearerToken(HttpServletRequest request) {
 		String authHeader = request.getHeader(AUTH_HEADER_KEY);
-		System.out.println("authHeader : "+ authHeader);
 		if (authHeader != null && authHeader.startsWith(AUTH_HEADER_VALUE_PREFIX)) {
 			return authHeader.substring(AUTH_HEADER_VALUE_PREFIX.length());
 		}
@@ -63,7 +61,6 @@ public class ApidataUtil {
 	public Map<String, Object> getRequestBodyToMap(HttpServletRequest request) throws IOException {
 		String requestBodyStr = IOUtils.toString(request.getInputStream(),"UTF-8");
 		Gson gson = new Gson();
-		System.out.println("Request body = " + requestBodyStr);
 		return gson.fromJson(requestBodyStr, Map.class);
 	}
 }

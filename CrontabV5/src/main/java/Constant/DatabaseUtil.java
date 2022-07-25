@@ -84,49 +84,9 @@ public class DatabaseUtil
         }
     }
 
-    public int AddCheckIn(Connection dbconnet,CheckinModel model) throws SQLException {
-        String q = "INSERT INTO `checkin_checkout`(`Checkin_at`, `Checkout_at`, `Emp_id`, `Status_CheckIn`, `Status_CheckOut`,`Detail`) " +
-                "VALUES ('"+model.getCheckInStr()+"','"+model.getCheckoutStr()+"','"+model.getEmpId()+"'," +
-                "'"+model.getStatusCheckIn()+"','"+model.getStatusCheckOut()+"','"+model.getDetail()+"');";
-        System.out.println("sql " + q);
-        PreparedStatement ps = dbconnet.prepareStatement(q);
-        return ps.executeUpdate();
-    }
-
-    public Map<String, Object> Check_Add_Checkin_CheckOut(Connection dbconnet ,int emp_id,String date)
+    public List<Map<String, Object>> selectArray(Connection dbconnet, String tableName, String condition, String value)
             throws SQLException {
-        String db_query2 = "SELECT * FROM `checkin_checkout` WHERE `Emp_id` = '"+emp_id+"' AND `Checkin_at` LIKE '"+date+"%'";
-        PreparedStatement ps2 = dbconnet.prepareStatement(db_query2);
-        ResultSet rs = ps2.executeQuery();
-        List<Map<String, Object>> list = new ArrayList<>();
-        list.addAll(convertResultSetFromDB(rs));
-        if (list.size() == 0) {
-            return null;
-        } else {
-            return list.get(0);
-        }
-    }
-
-    public void Addlog(Connection dbconnet,String table,String key,String id,String time,String operator_id,String Status,String Action,int Detail_id) throws SQLException {
-        String q = "INSERT INTO `"+table+"`(`"+key+"`, `Time`, `Operator`, `Status`, `Action`,`Detail_id`) " +
-                "VALUES ('"+id+"','"+time+"','"+operator_id+"','"+Status+"','"+Action+"','"+Detail_id+"');";
-        System.out.println("sql " + q);
-        PreparedStatement ps_log = dbconnet.prepareStatement(q);
-        ps_log.executeUpdate();
-    }
-
-    public void Add_Checkin_Checkout_Detail_log(Connection dbconnet,int id,String time) throws SQLException {
-        String q = "INSERT INTO `checkin_checkout_detail_log`(`Check_id`, `Checkin_at`, `Checkout_at`, `Emp_id`, `Status_CheckIn`, `Status_CheckOut`, `Detail`, `Time`) " +
-                "SELECT `Check_id`,`Checkin_at`,`Checkout_at`,`Emp_id`,`Status_CheckIn`,`Status_CheckOut`,`Detail`," +
-                "'"+time+"' AS `Time` FROM `checkin_checkout` WHERE Check_id = '"+id+"'";
-        System.out.println("sql " + q);
-        PreparedStatement ps_log = dbconnet.prepareStatement(q);
-        ps_log.executeUpdate();
-    }
-
-    public  List<Map<String, Object>> selectHoliday(Connection dbconnet,String date)
-            throws SQLException {
-        String db_query = "SELECT * FROM `holiday_list` WHERE `begin_date` LIKE '%-"+date+"' OR `end_date` LIKE '%-"+date+"'";
+        String db_query = "SELECT * FROM " + tableName + " WHERE " + condition + " = " + "'" + value + "'" + ";";
         System.out.println("sql " + db_query);
         PreparedStatement ps = dbconnet.prepareStatement(db_query);
         ResultSet rs = ps.executeQuery();
@@ -138,6 +98,22 @@ public class DatabaseUtil
             return list;
         }
     }
+
+    public void UpdateLeaveCount(Connection dbconnet,LeaveCountModel model) throws SQLException {
+        String q = "UPDATE `leave_day_count` SET `Leaved`= "+model.getLeaved() +" WHERE `Type_ID` = '"+model.getTypeId()+"' AND `Emp_id` = '"+model.getEmpId()+"';";
+        System.out.println("sql " + q);
+        PreparedStatement ps = dbconnet.prepareStatement(q);
+        ps.executeUpdate();
+    }
+
+    public void Addlog(Connection dbconnet,String table,String key,String id,String time,String operator_id,String Status,String Action,int Detail_id) throws SQLException {
+        String q = "INSERT INTO `"+table+"`(`"+key+"`, `Time`, `Operator`, `Status`, `Action`,`Detail_id`) " +
+                "VALUES ('"+id+"','"+time+"','"+operator_id+"','"+Status+"','"+Action+"','"+Detail_id+"');";
+        System.out.println("sql " + q);
+        PreparedStatement ps_log = dbconnet.prepareStatement(q);
+        ps_log.executeUpdate();
+    }
+
 
     private List<Map<String, Object>> convertResultSetFromDB(ResultSet rs) throws SQLException {
         List<Map<String, Object>> resultList = new ArrayList<>();

@@ -77,7 +77,13 @@ public class Company extends HttpServlet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		response.setStatus(HttpServletResponse.SC_OK);
+		int status = (Integer)result.get("status");
+		if(status == 200){
+			response.setStatus(HttpServletResponse.SC_OK);
+		}
+		else{
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		}
 		response.setContentType("application/json");
 		String jsonString = new Gson().toJson(result);
 		byte[] utf8JsonString = jsonString.getBytes("UTF8");

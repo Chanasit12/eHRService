@@ -60,8 +60,6 @@ public class CheckInCheckOutCtrl {
 			long difference_In_Time = d2.getTime() - d1.getTime();
 			Long difference_In_Hours = (difference_In_Time / (1000 * 60 * 60)) % 24;
 			hour = difference_In_Hours.intValue();
-			System.out.println("Long Hour "+difference_In_Hours);
-			System.out.println("Int Hour "+hour);
 		}
 		catch (ParseException e) {
 			e.printStackTrace();
@@ -99,7 +97,6 @@ public class CheckInCheckOutCtrl {
         	Checkin = dbutil.selectLastCheckIn(connection,current_day,Emp_id);
 			working_time_model.setModel(working_time_data);
 			Leave_req = dbutil.Select_Leave_req(connection,Emp_id,current_date_time[0]);
-//			java.util.Date Start_time = inFormat2.parse(current_day+" "+current_time);
 			SimpleDateFormat formatter1=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			Date Start_time =formatter1.parse(current_day+" "+current_time);
 			Date Start_time_before =formatter1.parse(current_day+" "+"08:30:00");
@@ -107,17 +104,16 @@ public class CheckInCheckOutCtrl {
 			boolean start_status = Start_working.after(Start_time)
 					|| working_time_model.getStart().toString().equals(current_time);
 			boolean early = Start_time.after(Start_time_before) ;
-			System.out.println("Start_time_before "+Start_time_before);
-			System.out.println("early "+early);
 			if(early){
 				if(Checkin != null){
 					model.setModel(Checkin);
 					if(model.getStatusCheckIn().equals("-")){
-						if(Leave_req != null){
+						if(model.getDetail().equals("Leaved")){
 							leave_model.setModel(Leave_req);
 							String Begin = leave_model.getBegin().toString().split(" ")[0];
 							String End = leave_model.getEnd().toString().split(" ")[0];
-							if(!(leave_model.getBegin().getHours() == 9 && leave_model.getEnd().getHours() == 18)){
+							if(!((leave_model.getBegin().toString()).equals(current_day+" "+working_time_model.getStart())&&
+									(leave_model.getEnd().toString()).equals(current_day+" "+working_time_model.getStart()))){
 								if(current_day.equals(Begin)){
 									if(leave_model.getBegin().getHours() > 9){
 										if(start_status){
@@ -153,7 +149,6 @@ public class CheckInCheckOutCtrl {
 							model.setStatusCheckIn("Late");
 						}
 						model.setEmpId(id);
-//						model.setCheckInStr(dtf.format(now)+":00");
 						model.setCheckInStr(Log_dtf.format(now));
 						model.setCheckoutStr(model.getCheckout().toString());
 						dbutil.Update_Checkin_Checkout(connection,model,current_day);
@@ -183,7 +178,6 @@ public class CheckInCheckOutCtrl {
 					model.setEmpId(id);
 					model.setDetail("-");
 					model.setStatusCheckOut("-");
-//					model.setCheckInStr(dtf.format(now)+":00");
 					model.setCheckInStr(Log_dtf.format(now));
 					model.setCheckoutStr(current_day+" 00:00:00");
 					dbutil.AddCheckIn(connection,model);
@@ -205,7 +199,6 @@ public class CheckInCheckOutCtrl {
         	} catch(SQLException e) {
         	e.printStackTrace();
 			} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			}
 		return responseBodyStr;
@@ -234,11 +227,13 @@ public class CheckInCheckOutCtrl {
 		DateTimeFormatter Log_dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		String Log_Time = Log_dtf.format(now);
         try {
-			Last_Checkin = dbutil.select(connection,"checkin_checkout","Check_id",Checkin_id);
-			model.setModel(Last_Checkin);
 			String[] current_date_time = dtf.format(now).split(" ");
 			String current_time = current_date_time[1]+":00";
 			String current_day = current_date_time[0];
+			LocalDate today = LocalDate.now();
+			LocalDate yesterday = today.minusDays(1);
+			Last_Checkin = dbutil.select(connection,"checkin_checkout","Check_id",Checkin_id);
+			model.setModel(Last_Checkin);
 			String[] Checkout_DateTime = model.getCheckout().toString().split(" ");
 			String[] Checkout_Date = Checkout_DateTime[0].split("-");
 			String[] Checkin_DateTime = model.getCheckin().toString().split(" ");
@@ -368,18 +363,13 @@ public class CheckInCheckOutCtrl {
 		CheckInCheckOutModel model = new CheckInCheckOutModel();
 		String Emp_id = (String) data.get("Emp_id");
 		String Duration = (String) data.get("Type");
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
-		DateFormat timeFormat = new SimpleDateFormat("hh:mm");
-		LocalDateTime now = LocalDateTime.now();
 		String[] current_date_raw = ((String) data.get("Date")).split("-");
-		String current_time = dtf.format(now).split(" ")[1];
-//		String current_time = current_date_time[1]+":00";
 		try{
 			if(Duration.equals("Day")){
-				Check_data = dbutil.selectCheckin(connection,"%-"+current_date_raw[2]+" %",Emp_id);
+				Check_data = dbutil.selectCheckin(connection,current_date_raw[0]+"-"+current_date_raw[1]+"-"+current_date_raw[2]+" %",Emp_id);
 			}
 			else if(Duration.equals("Month")){
-				Check_data = dbutil.selectCheckin(connection,"%-"+current_date_raw[1]+"-%",Emp_id);
+				Check_data = dbutil.selectCheckin(connection,current_date_raw[0]+"-"+current_date_raw[1]+"-%",Emp_id);
 			}
 			else if(Duration.equals("Year")) {
 				Check_data = dbutil.selectCheckin(connection, current_date_raw[0] + "%", Emp_id);
@@ -416,18 +406,15 @@ public class CheckInCheckOutCtrl {
 		CheckInCheckOutModel model = new CheckInCheckOutModel();
 		String Duration = (String) data.get("Type");
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
-		DateFormat timeFormat = new SimpleDateFormat("hh:mm");
 		LocalDateTime now = LocalDateTime.now();
 		String[] current_date_raw = ((String) data.get("Date")).split("-");
 		String current_time = dtf.format(now).split(" ")[1];
-		System.out.println("Time now " + current_time);
-//		String current_time = current_date_time[1]+":00";
 		try{
 			if(Duration.equals("Day")){
-				Check_data = dbutil.selectCheckinAll(connection,"%-"+current_date_raw[2]+" %");
+				Check_data = dbutil.selectCheckinAll(connection,current_date_raw[0]+"-"+current_date_raw[1]+"-"+current_date_raw[2]+" %");
 			}
 			else if(Duration.equals("Month")){
-				Check_data = dbutil.selectCheckinAll(connection,"%-"+current_date_raw[1]+"-%");
+				Check_data = dbutil.selectCheckinAll(connection,current_date_raw[0]+"-"+current_date_raw[1]+"-%");
 			}
 			else if(Duration.equals("Year")){
 				Check_data = dbutil.selectCheckinAll(connection,current_date_raw[0]+"%");

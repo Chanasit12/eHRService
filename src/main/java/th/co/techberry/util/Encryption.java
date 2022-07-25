@@ -31,10 +31,7 @@ public class Encryption {
 	public static boolean verifyPassword(String encode, String username, String password) {
 		try {
 			TextEncryptor encrytor = Encryptors.text(password,ConfigConstants.ENCRYPT_KEY);
-			System.out.println("encrytor : "+encrytor);
-			System.out.println("encode : "+encode);
 			String decrypText = encrytor.decrypt(encode);
-			System.out.println("decrypText : "+decrypText);
 			if (password.equals(decrypText.replace(username,""))) {
 				return true ;
 			}

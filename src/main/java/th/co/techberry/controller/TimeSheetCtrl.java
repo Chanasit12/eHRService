@@ -174,15 +174,34 @@ public class TimeSheetCtrl {
 		TimeSheetModel Timesheet_model = new TimeSheetModel();
 		String emp_id = Integer.toString(id);
 		String Date = (String) data.get("Date");
-		String[] Raw_start = ((String) data.get("Start_at")).split("[:]");
-		String[] Raw_End = ((String) data.get("End_at")).split("[:]");
-		String Start = Raw_start[0]+":"+Raw_start[1]+":00";
-		String End = Raw_End[0]+":"+Raw_End[1]+":00";
+		String Start = (String) data.get("Start_at");
+		String End = (String) data.get("End_at");
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
 		String Time = dtf.format(now);
 		try {
-			dbutil.AddTimeSheet(connection,emp_id,Date,Start,End);
+			Timesheet_model.setEmpId(Integer.valueOf(emp_id));
+			if (!data.get("Location_id").equals("")) {
+				Timesheet_model.setLocationId(Integer.valueOf((String)data.get("Location_id")));
+			}
+			if (!data.get("Charge_Code_Id").equals("")) {
+				Timesheet_model.setChargeCodeId(Integer.valueOf((String)data.get("Charge_Code_Id")));
+			}
+			if (!data.get("Detail").equals("")) {
+				String Detail = (String) data.get("Detail");
+				Detail = Detail.replace("\"","\\\"");
+				Detail = Detail.replace("\'","\\\'");
+				Detail = Detail.replace("\\","\\\\");
+				Timesheet_model.setDetail(Detail);
+			}
+			if (!data.get("Remark").equals("")) {
+				String Remark = (String) data.get("Remark");
+				Remark = Remark.replace("\"","\\\"");
+				Remark = Remark.replace("\'","\\\'");
+				Remark = Remark.replace("\\","\\\\");
+				Timesheet_model.setRemark(Remark);
+			}
+			dbutil.AddTimeSheet(connection,Date,Start,End,Timesheet_model);
 			TimeSheet = dbutil.select3con(connection,"timesheet","Emp_id","Date","Start_at",
 					emp_id,Date,Start);
 			Timesheet_model.setModel(TimeSheet);
@@ -267,8 +286,8 @@ public class TimeSheetCtrl {
 			responseBodyStr.put("Message",ConfigConstants.RESPONSE_KEY_SUCCESS);
 		}catch(SQLException e) {
 			e.printStackTrace();
-			responseBodyStr.put("status",400);
-			responseBodyStr.put("Message","Update Fail");
+			responseBodyStr.put("status",200);
+
 		}
 		return responseBodyStr;
 	}

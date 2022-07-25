@@ -37,7 +37,6 @@ public class LoginCtrl {
 		input_username = (String) data.get("username");
 		Map<String, Object> Login_info = new HashMap<>();
 		Connection connection = dbutil.connectDB();
-		// Get Login Information
 		try{
 			Login_info = dbutil.Login(connection,"Username",input_username);
 		}catch (SQLException e){
@@ -106,15 +105,16 @@ public class LoginCtrl {
 		Connection connection = dbutil.connectDB();
 		EmployeeModel model = new EmployeeModel();
 		Map<String, Object> Emp_detail;
+		Map<String, Object> Role = new HashMap<>();
 		long afterAddingTenMins = new Date().getTime() + (30 * 60000);
 		Algorithm algorithm = Algorithm.HMAC256(ConfigConstants.SECRET_KEY);
 		try{
 			Emp_detail = dbutil.select(connection,"employee","Id",Integer.toString(LoginModel.getId()));
 			model.setModel(Emp_detail);
+			Role = dbutil.select(connection,"user_role","Role_ID",Integer.toString(model.getRold_id()));
 		} catch(SQLException e){
 			e.printStackTrace();
 		}
-		System.out.print("id "+model.getEmpid());
 		String token = JWT.create().withClaim("id", model.getEmpid())
 				.withClaim("username", LoginModel.getUsername())
 				.withClaim("exp", afterAddingTenMins).withIssuer("auth0")
@@ -125,6 +125,7 @@ public class LoginCtrl {
 		data.put("access_token", token);
 		data.put("NeedResetPassword",LoginModel.getResetpassword());
 		data.put("ID",LoginModel.getId());
+		data.put("Role",Role.get("Role_Name"));
 		return data;
 	}
 }

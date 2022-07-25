@@ -315,6 +315,7 @@ public class DocumentReqCtrl {
                 mailmap.put("Detail",ConfigConstants.MESSAGE_IN_EMAIL_DOCUMENT_REQUEST);
                 mailmap.put("Remark",req_model.getRemark());
                 if(File.size() != 0){
+                    System.out.println("Ch "+1);
                     for(Object temp : File){
                         Map<String, Object> File_detail  = new HashMap<>();
                         JsonObject jsonObject = gson.toJsonTree(temp).getAsJsonObject();
@@ -324,6 +325,7 @@ public class DocumentReqCtrl {
                         List_File.add(File_detail);
                     }
                 }
+                System.out.println("File_detail :"+File);
                 mail.sendMailWIthFile(emp_model.getEmail(), ConfigConstants.SUBJECT_DOCUMENT_REQUEST_MAIL,
                         mailmap, ConfigConstants.MAIL_TEMPLATE_DOCUMENT_REQUEST,List_File);
             }

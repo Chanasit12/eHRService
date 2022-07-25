@@ -33,7 +33,7 @@ public class Profile extends HttpServlet {
 		ApidataUtil apiUtil = new ApidataUtil();
 		apiUtil.setAccessControlHeaders(resp);
 		resp.setStatus(HttpServletResponse.SC_OK);
-		System.out.println("resp " + resp);
+//		System.out.println("resp " + resp);
 	}
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)

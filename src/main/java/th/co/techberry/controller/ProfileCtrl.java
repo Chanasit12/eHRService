@@ -140,7 +140,7 @@ public class ProfileCtrl {
 				employee_model.setBirth((String) data.get("BirthDate"));
 			}
 			if(!data.get("Img").equals("")) {
-				System.out.println("Img "+data.get("Img"));
+//				System.out.println("Img "+data.get("Img"));
 				employee_model.setStrImg((String) data.get("Img"));
 			}
 			dbutil.UpdateProfile(connection,employee_model);

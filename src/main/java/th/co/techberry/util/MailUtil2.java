@@ -124,6 +124,9 @@ public class MailUtil2 {
 		} catch (MessagingException mex) {
 			mex.printStackTrace();
 		}
+		catch (Exception mex) {
+			mex.printStackTrace();
+		}
 	}
 
 	private MimeBodyPart createMimeBody(Map<String, Object> dataMap, String template_name) throws Exception {

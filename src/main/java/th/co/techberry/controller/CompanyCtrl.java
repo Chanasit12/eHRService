@@ -44,6 +44,7 @@ public class CompanyCtrl {
 			e.printStackTrace();
 			responseBodyStr.put(ConfigConstants.RESPONSE_KEY_MESSAGE,"Add fail");
 		}
+		responseBodyStr.put("status",200);
 		return responseBodyStr;
 	}
 	
@@ -62,9 +63,7 @@ public class CompanyCtrl {
 		}
 		else {
 			String Name = (String) data.get("Company_Name");
-			if(!data.get("description").equals("")){
-				model.setDescription((String)data.get("description"));
-			}
+			model.setCompanyName((String) data.get("Company_Name"));
 			try {
 				dbutil.AddCompany(connection,model);
 				Company = dbutil.select(connection,"company", "Company_Name",Name);
@@ -75,12 +74,13 @@ public class CompanyCtrl {
 				dbutil.Addlog(connection,"company_log","Comp_ID",
 						Integer.toString(model.getCompId()),Time,Integer.toString(id),"1","Add",(Integer)Log_detail.get("Log_id"));
 				result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.RESPONSE_KEY_SUCCESS);
+				result.put("status",200);
 			}catch (SQLException e) {
 				e.printStackTrace();
 				result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.RESPONSE_KEY_ERROR_MESSAGE);
+				result.put("status",400);
 			}
 		}
-		result.put("status",200);
 		return result;
 	}
 	
@@ -97,16 +97,13 @@ public class CompanyCtrl {
 			try {
 				Company = dbutil.select(connection,"company","Comp_ID",(String) data.get("Comp_ID"));
 				model.setModel(Company);
-				if(!data.get("Company_name").equals("")){
+				if(!data.get("Company_Name").equals("")){
 					model.setCompanyName((String)data.get("Company_Name"));
 				}
-				if(!data.get("description").equals("")){
-					model.setDescription((String)data.get("description"));
-				}
-				dbutil.UpdateCompany(connection,(String) data.get("Comp_ID"),(String) data.get("Company_Name"));
-				Company = dbutil.select(connection,"company","Comp_ID",(String) data.get("Comp_ID"));
+				dbutil.UpdateCompany(connection,model);
+				Company = dbutil.select(connection,"company","Comp_ID",Integer.toString(model.getCompId()));
 				model.setModel(Company);
-				dbutil.Update_Log_Status(connection,"company_log","Comp_ID",(String) data.get("Comp_ID"));
+				dbutil.Update_Log_Status(connection,"company_log","Comp_ID",Integer.toString(model.getCompId()));
 				dbutil.Company_Detail_log(connection,model,Time);
 				Log_detail = dbutil.select2con(connection,"company_detail_log",
 						"Comp_ID","Time",Integer.toString(model.getCompId()),Time);
@@ -143,6 +140,7 @@ public class CompanyCtrl {
 					}
 					else {
 						result.put(ConfigConstants.RESPONSE_KEY_MESSAGE,ConfigConstants.DELETE_COMPANY_ERROR);
+						result.put("status",400);
 						return result;
 					}
 				}

@@ -48,9 +48,7 @@ public class News extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		ApidataUtil apiUtil = new ApidataUtil();
-		Gson gson = new Gson();
 		request.setCharacterEncoding("UTF-8");
 		apiUtil.setAccessControlHeaders(response);
 		Map<String, Object> responseBodyStr = new HashMap<>();
@@ -75,10 +73,8 @@ public class News extends HttpServlet {
 				result.putAll(news.Delete_News(responseBodyStr,id_in_token));
 			}
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		response.setStatus(HttpServletResponse.SC_OK);
@@ -88,4 +84,3 @@ public class News extends HttpServlet {
 		response.getOutputStream().write(utf8JsonString);
 	}
 }
-

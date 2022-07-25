@@ -54,6 +54,7 @@ public class DocumentRequest extends HttpServlet {
 		responseBodyStr.putAll(apiUtil.getRequestBodyToMap(request));
 		int id_in_token = apiUtil.getIdInToken(request);
 		DocumentReqCtrl ctrl = new DocumentReqCtrl();
+//		System.out.println("Request :"+responseBodyStr);
 		try{
 			if(responseBodyStr.get("Option").equals("Respond_request")) {
 				result.putAll(ctrl.Response_Request(responseBodyStr,id_in_token));
